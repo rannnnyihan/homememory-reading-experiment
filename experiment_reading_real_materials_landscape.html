@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <script>
+    if (window.location.protocol !== 'file:' && window.location.pathname.endsWith('/experiment_reading_real_materials_landscape.html')) {
+      const basePath = window.location.pathname.slice(0, -'/experiment_reading_real_materials_landscape.html'.length) || '/';
+      window.history.replaceState({}, document.title, `${basePath}${window.location.search}${window.location.hash}`);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>阅读理解实验材料｜真实试卷原文入口</title>
+  <style>
+    :root {
+      --ink: #32363a;
+      --muted: #6a6d70;
+      --line: #d9d9d9;
+      --paper: #f5f6f7;
+      --panel: #fff;
+      --accent: #0a6ed1;
+      --accent-soft: #eaf3fb;
+      --accent-dark: #0854a0;
+      --warm: #c35500;
+      --shadow: none;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    button, a { font: inherit; }
+    .app { min-height: 100vh; padding: 0; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; height: 56px; padding: 0 20px; margin: 0;
+      background: #fff; border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+    .brand-separator { color: #b7b9bb; }
+    .brand-label { color: var(--muted); font-size: 13px; }
+    .eyebrow, .subtitle { display: none; }
+    .progress {
+      min-width: auto; padding: 0; background: transparent; border: 0;
+      border-radius: 0; box-shadow: none; text-align: right;
+    }
+    .progress strong { display: block; color: var(--accent-dark); font-size: 15px; font-weight: 600; }
+    .progress span { display: none; }
+    .tabs {
+      display: flex; gap: 0; max-width: none; height: 48px; margin: 0;
+      overflow-x: auto; padding: 0 20px; background: #fff; border-bottom: 1px solid var(--line);
+    }
+    .tab {
+      border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); border-radius: 0;
+      padding: 0 16px; cursor: pointer; white-space: nowrap; transition: .18s ease;
+    }
+    .tab:hover { color: var(--accent); background: #f5f7f9; }
+    .tab.active { background: transparent; color: var(--accent); border-color: var(--accent); box-shadow: none; font-weight: 600; }
+    .tab:disabled { cursor: default; opacity: .62; }
+    .layout {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0; max-width: none; margin: 0;
+      height: calc(100vh - 104px); min-height: 0; background: #fff;
+    }
+    .panel { min-height: 0; background: var(--panel); border: 0; border-right: 1px solid var(--line); border-radius: 0; box-shadow: none; overflow: hidden; }
+    .panel:last-child { border-right: 0; }
+    .panel-head { padding: 14px 20px 11px; border-bottom: 1px solid var(--line); }
+    .panel-head h2 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0; }
+    .panel-head p { display: none; }
+    .source-body, .questions-body { overflow: auto; height: calc(100% - 86px); }
+    .source-body { padding: 28px 42px 42px; background: #fff; }
+    .source-card { border: 1px solid #c9dbe0; border-radius: 16px; background: linear-gradient(135deg, #eef7f8, #fff); padding: 20px; }
+    .source-kicker { display: inline-flex; gap: 7px; align-items: center; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
+    .source-card h3 { margin: 18px 0 5px; font-size: 27px; letter-spacing: -.04em; }
+    .source-meta { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .source-link {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 19px;
+      color: #fff; background: var(--accent-dark); text-decoration: none; border-radius: 12px; padding: 13px 15px; font-weight: 700;
+    }
+    .source-link:hover { background: #245467; }
+    .source-frame-wrap { margin-top: 18px; border: 1px solid #c9dbe0; border-radius: 13px; overflow: hidden; background: #fff; }
+    .source-frame-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #f3f8f9; color: var(--accent-dark); font-size: 12px; font-weight: 700; }
+    .source-frame { display: block; width: 100%; height: 540px; border: 0; background: #fff; }
+    .article-reading { margin: 0; padding: 0 0 25px; border: 0; border-radius: 0; background: transparent; color: #273943; }
+    .article-reading h4 { margin: 0 0 25px; text-align: center; font-size: 24px; letter-spacing: .04em; color: #1f323b; }
+    .article-reading p { margin: 0 0 17px; font-size: 16px; line-height: 2.05; text-align: left; }
+    .article-reading p:last-child { margin-bottom: 0; }
+    .article-reading .article-source { margin-top: 22px; color: #89979d; text-align: right; font-size: 12px; line-height: 1.6; }
+    .notice { display: grid; grid-template-columns: auto 1fr; gap: 11px; margin-top: 17px; padding: 14px; background: #fff8f2; border: 1px solid #f0d7c4; border-radius: 12px; color: #75513c; font-size: 13px; line-height: 1.65; }
+    .notice b { color: var(--warm); }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+    .info-item { border: 1px solid var(--line); border-radius: 12px; padding: 13px; background: #fff; }
+    .info-item small { display: block; color: var(--muted); margin-bottom: 5px; }
+    .info-item strong { font-size: 14px; }
+    .source-note { margin: 20px 0 0; padding: 15px 16px; border-left: 3px solid var(--accent); background: #f6fafb; color: #526771; font-size: 13px; line-height: 1.75; }
+    .questions-body { padding: 16px 20px 22px; background: var(--paper); }
+    .question { border: 1px solid var(--line); border-radius: 2px; margin-bottom: 12px; background: #fff; overflow: hidden; }
+    .question-title { padding: 14px 16px 11px; font-weight: 600; font-size: 14px; line-height: 1.55; }
+    .options { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 0 12px 14px; }
+    .option { position: relative; display: flex; align-items: flex-start; gap: 8px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; color: #4a4f52; font-size: 13px; line-height: 1.5; transition: .16s ease; }
+    .option:hover { border-color: #8fbbe4; background: #f5f9fd; }
+    .option:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: #0854a0; box-shadow: inset 0 0 0 1px var(--accent); }
+    .option input { margin: 3px 0 0; accent-color: var(--accent); }
+    .choice-status { padding: 9px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; background: #fafafa; }
+    .choice-status.done { color: var(--accent-dark); font-weight: 600; }
+    .actions { position: static; display: block; padding: 13px 0 0; background: transparent; }
+    .action-row { display: flex; justify-content: flex-end; gap: 9px; }
+    .action { border: 1px solid var(--line); border-radius: 2px; padding: 9px 13px; background: #fff; color: #4a4f52; cursor: pointer; }
+    .action:hover { border-color: var(--accent); color: var(--accent-dark); }
+    .action.primary { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
+    .action.submit { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .action:disabled { cursor: not-allowed; opacity: .48; }
+    .top-actions { display: flex; align-items: center; gap: 16px; }
+    .admin-button { border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 5px 0; }
+    .admin-button:hover { color: var(--accent); }
+    .submit-area { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; padding: 12px 0 0; }
+    .submit-hint { color: var(--muted); font-size: 12px; }
+    .submitted-mark { color: #107e3e; font-weight: 600; }
+    .record-overlay { position: fixed; inset: 0; z-index: 20; display: flex; justify-content: flex-end; background: rgba(0,0,0,.28); }
+    .record-overlay.hidden { display: none; }
+    .record-drawer { width: min(680px, 92vw); height: 100%; padding: 22px; overflow: auto; background: #fff; box-shadow: -8px 0 24px rgba(0,0,0,.12); }
+    .record-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 15px; border-bottom: 1px solid var(--line); }
+    .record-head h2 { margin: 0; font-size: 18px; font-weight: 600; }
+    .record-close { border: 0; background: transparent; color: var(--muted); font-size: 22px; cursor: pointer; }
+    .record-table { width: 100%; margin-top: 18px; border-collapse: collapse; font-size: 12px; }
+    .record-table th, .record-table td { padding: 11px 8px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    .record-table th { color: var(--muted); font-weight: 600; background: #f5f6f7; }
+    .record-empty { margin: 26px 0; color: var(--muted); font-size: 13px; text-align: center; }
+    .record-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .record-note { margin-top: 16px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); opacity: 0; pointer-events: none; background: #22313b; color: #fff; padding: 11px 16px; border-radius: 10px; font-size: 13px; transition: .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .hidden { display: none !important; }
+    .setup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--paper); }
+    .setup-card { width: min(470px, 100%); padding: 34px; background: #fff; border: 1px solid var(--line); }
+    .setup-kicker { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+    .setup-card h2 { margin: 10px 0 8px; font-size: 26px; font-weight: 600; }
+    .setup-card p { margin: 0 0 22px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .setup-card label { display: block; margin-bottom: 7px; color: #4a4f52; font-size: 13px; font-weight: 600; }
+    .setup-card input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; font-size: 16px; }
+    .setup-card input:focus { outline: 2px solid #8fbbe4; border-color: var(--accent); }
+    .setup-button { width: 100%; height: 42px; margin-top: 18px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; }
+    .setup-button:hover { background: var(--accent-dark); }
+    .task-condition { display: inline-block; margin-bottom: 10px; color: var(--accent); font-size: 13px; font-weight: 600; }
+    .task-copy { padding: 14px 15px; margin: 18px 0 0 !important; background: #f5f6f7; border-left: 3px solid var(--accent); color: #4a4f52 !important; }
+    .completion-card { text-align: center; }
+    .consent-card { width: min(760px, 100%); max-height: calc(100vh - 48px); overflow: auto; }
+    .consent-card h2 { margin-bottom: 18px; }
+    .consent-copy { color: #4a4f52; font-size: 13px; line-height: 1.75; }
+    .consent-copy h3 { margin: 19px 0 6px; color: var(--ink); font-size: 14px; }
+    .consent-copy p { margin: 0 0 8px; }
+    .consent-copy ul { margin: 6px 0 8px; padding-left: 20px; }
+    .consent-check { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; padding: 13px 14px; background: var(--accent-soft); border: 1px solid #c8dff3; color: #344c60; font-size: 13px; line-height: 1.6; }
+    .consent-check input { margin-top: 3px; accent-color: var(--accent); }
+    .consent-source { margin: 15px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .consent-source a { color: var(--accent-dark); }
+    .questionnaire-card { width: min(860px, 100%); max-height: calc(100vh - 48px); overflow: auto; }
+    /* 问卷采用普通页面流，题目不会在内部滚动容器或视口中吸顶。 */
+    #questionnaireScreen { display: block; min-height: 100vh; padding: 32px 24px 48px; }
+    #questionnaireScreen .questionnaire-card { margin: 0 auto; max-height: none; overflow: visible; }
+    #questionnaireScreen .questionnaire-actions { position: static; }
+    .questionnaire-card h2 { margin-bottom: 5px; }
+    .questionnaire-intro { margin-bottom: 18px !important; }
+    .questionnaire-section { margin-top: 16px; border: 1px solid var(--line); background: #fff; }
+    .questionnaire-section h3 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 600; }
+    .questionnaire-section p { margin: 0; padding: 10px 14px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .questionnaire-group { padding: 12px 14px 7px; border-top: 1px solid #eef0f1; color: var(--accent-dark); font-size: 12px; font-weight: 700; }
+    .questionnaire-item { display: block; padding: 14px; border-top: 1px solid #eef0f1; font-size: 13px; line-height: 1.55; }
+    .questionnaire-item > span { display: block; margin-bottom: 11px; }
+    .questionnaire-item:first-of-type { margin-top: 10px; }
+    .questionnaire-item select { width: 100%; min-width: 0; }
+    .likert-scale { display: grid; grid-template-columns: repeat(7, minmax(28px, 1fr)); gap: 8px; width: min(440px, 100%); align-items: center; }
+    .likert-point { display: grid; justify-items: center; gap: 4px; color: var(--muted); font-size: 11px; cursor: pointer; }
+    .likert-point input { position: absolute; opacity: 0; pointer-events: none; }
+    .likert-point span { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #aeb4b8; border-radius: 50%; background: #fff; color: #62686c; transition: .16s ease; }
+    .likert-point:hover span { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-soft); }
+    .likert-point input:checked + span { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .likert-point input:focus-visible + span { outline: 2px solid #8fbbe4; outline-offset: 2px; }
+    .questionnaire-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+    .questionnaire-actions .setup-button { width: auto; min-width: 150px; margin-top: 0; padding: 0 20px; }
+    .questionnaire-hint { color: var(--muted); font-size: 12px; }
+    @media (max-width: 660px) { .questionnaire-item { grid-template-columns: 1fr; gap: 6px; } .questionnaire-actions { align-items: flex-start; flex-direction: column; } }
+    @media (max-width: 1180px) {
+      body { min-width: 0; }
+      .app { padding: 16px; }
+      .layout { grid-template-columns: 1fr; height: auto; }
+      .panel { min-height: 520px; }
+      .source-body, .questions-body { height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <section class="setup-screen" id="setupScreen">
+    <div class="setup-card">
+      <div class="setup-kicker">READING COMPREHENSION EXPERIMENT</div>
+      <h2>阅读理解实验</h2>
+      <p>请输入管理员分配的被试编号。系统会按照后台设置的拉丁方顺序安排四个实验阶段。</p>
+      <label for="participantInput">被试编号（1—24）</label>
+      <input id="participantInput" type="number" min="1" max="24" step="1" placeholder="例如：01" />
+      <button class="setup-button" id="startExperimentButton">开始实验</button>
+    </div>
+  </section>
+  <section class="setup-screen hidden" id="consentScreen">
+    <div class="setup-card consent-card">
+      <div class="setup-kicker">INFORMED CONSENT</div>
+      <h2>知情同意书</h2>
+      <div class="consent-copy">
+        <p>感谢你参加本次阅读与智能家居交互实验。请在决定是否参加前，仔细阅读以下说明；如有疑问，可以向研究人员询问。</p>
+        <h3>一、研究目的</h3>
+        <p>本研究比较 App-GUI、抽纸盒 TUI、水杯 TUI 以及抽纸盒与水杯协同 TUI 四种家居设备控制方式，在阅读任务中的使用体验和任务表现差异。</p>
+        <h3>二、你需要做什么</h3>
+        <p>你将完成 4 个阅读理解任务。每个任务包含一篇文章、8 道选择题以及一组关于任务体验的问卷；全部任务结束后还需完成一份整体体验问卷。预计总时长约 45—60 分钟，可根据实际情况适当休息。系统会记录答题用时、正确率和问卷选项。</p>
+        <h3>三、可能的不适与预期收益</h3>
+        <p>任务可能带来轻微的视觉疲劳、注意力疲劳或设备操作负担。你可以在感到不适时暂停或退出。本研究不保证给你带来直接收益，但结果可能帮助研究者改进日常物体交互设计。</p>
+        <h3>四、数据与隐私</h3>
+        <p>系统使用被试编号记录数据，不要求填写姓名。数据仅用于本研究的分析和展示，研究结果将尽量以汇总形式呈现。本原型会先将数据保存在当前设备浏览器中，由研究人员导出和管理。</p>
+        <h3>五、自愿参加与退出</h3>
+        <p>参加完全自愿。你可以拒绝参加，也可以在任何阶段停止，不会因此受到惩罚或损失应有的权益。</p>
+        <h3>六、联系方式</h3>
+        <p>研究负责人及联系方式：由研究人员现场填写。</p>
+      </div>
+      <label class="consent-check"><input id="consentAgree" type="checkbox" /><span>我已阅读并理解以上说明，自愿参加本次实验，并同意研究人员记录和使用本次实验数据。</span></label>
+      <p class="consent-source">本页面按研究知情同意的通用要素整理，正式实验前请结合学校伦理审批意见和实际联系方式进一步确认。参考：<a href="https://www.hhs.gov/ohrp/regulations-and-policy/guidance/faq/informed-consent/index.html" target="_blank" rel="noreferrer">HHS/OHRP Informed Consent FAQ</a></p>
+      <button class="setup-button" id="consentConfirmButton" disabled>确认并进入实验</button>
+    </div>
+  </section>
+  <section class="setup-screen hidden" id="taskIntroScreen">
+    <div class="setup-card">
+      <span class="task-condition" id="introCondition">实验阶段</span>
+      <h2 id="introTitle">阅读任务</h2>
+      <p id="introArticle"></p>
+      <p class="task-copy" id="introCopy">这里是实验任务描述占位区，后续再共同优化具体操作说明。</p>
+      <button class="setup-button" id="beginTaskButton">开始本篇任务</button>
+    </div>
+  </section>
+  <section class="setup-screen hidden" id="completionScreen">
+    <div class="setup-card completion-card">
+      <div class="setup-kicker">TASK COMPLETE</div>
+      <h2>实验已完成</h2>
+      <p>四篇文章和四个实验阶段均已提交。感谢参与。</p>
+    </div>
+  </section>
+  <section class="setup-screen hidden" id="questionnaireScreen">
+    <div class="setup-card questionnaire-card">
+      <span class="task-condition" id="questionnaireMeta">任务后问卷</span>
+      <h2 id="questionnaireTitle">请填写任务体验问卷</h2>
+      <p class="questionnaire-intro" id="questionnaireIntro">请根据刚才的任务体验作答。没有正确或错误答案，请选择最符合你感受的选项。</p>
+      <div id="questionnaireBody"></div>
+      <div class="questionnaire-actions"><span class="questionnaire-hint" id="questionnaireHint">请完成全部题目后提交。</span><button class="setup-button" id="questionnaireSubmitButton" disabled>提交问卷</button></div>
+    </div>
+  </section>
+  <main class="app" id="experimentApp" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <h1>阅读理解材料</h1>
+        <span class="brand-separator">/</span>
+        <span class="brand-label">实验任务</span>
+      </div>
+      <div class="top-actions"><div class="progress" aria-live="polite"><strong id="progressText">0 / 8</strong></div></div>
+    </header>
+    <nav class="tabs" id="tabs" aria-label="阅读材料切换"></nav>
+    <section class="layout">
+      <article class="panel">
+        <div class="panel-head"><h2 id="sourceHeading">文章阅读</h2><p>请阅读左侧文章，并在右侧完成对应题目。</p></div>
+        <div class="source-body" id="sourceBody"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><h2 id="questionHeading">阅读理解题目</h2><p>请完成当前材料的 8 道单项选择题。</p></div>
+        <div class="questions-body" id="questionsBody"></div>
+      </article>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="./experiment-deployment-config.js"></script>
+  <script src="./experiment-api.js"></script>
+  <script>
+    const STORAGE_KEY = 'homememory-reading-experiment-v1';
+    const CONFIG_KEY = 'homememory-reading-experiment-config-v1';
+    const conditionLabels = {
+      app: 'App-GUI 控制',
+      tissue: '抽纸盒 TUI 控制',
+      cup: '水杯 TUI 控制',
+      both: '抽纸盒 + 水杯 TUI 控制'
+    };
+    const conditionDescriptions = {
+      app: '请使用 App-GUI 完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。',
+      tissue: '请使用抽纸盒作为交互物完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。',
+      cup: '请使用水杯作为交互物完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。',
+      both: '请使用抽纸盒和水杯共同完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。'
+    };
+    const stageQuestionnaireTypes = ['FSS', 'NASA', 'TENS'];
+    const questionnaireDefinitions = {
+      FSS: {
+        title: 'FSS｜任务流畅感与沉浸体验',
+        description: '请根据刚才这一篇阅读任务的整体体验评分。1 = 非常不同意，7 = 非常同意。',
+        scale: 'likert7',
+        items: [
+          '我能够全神贯注于当前阅读任务。', '我感觉自己完全沉浸在当前任务中。', '我对当前任务的目标非常清楚。',
+          '我清楚自己做得是否正确。', '我的注意力没有被其他事情打断。', '我感觉自己能够掌控当前的任务过程。',
+          '我没有明显意识到时间的流逝。', '当前任务本身让我感到投入。', '我的行动与思考衔接得很自然。',
+          '完成当前任务的过程是流畅的。'
+        ]
+      },
+      NASA: {
+        title: 'NASA-TLX｜任务负荷',
+        description: '请评价刚才这一篇任务的负荷。1 = 非常低（表现题为非常好），7 = 非常高（表现题为非常差）。',
+        scale: 'likert7',
+        items: ['心理需求：思考、记忆、判断和理解的负荷有多高？', '身体需求：身体活动和操作的负荷有多高？', '时间需求：任务节奏和时间压力有多大？', '表现：你对自己完成任务效果的满意程度如何？', '努力程度：为了完成任务，你需要付出多大努力？', '挫败感：完成任务时，你感到多烦躁、不安或受挫？']
+      },
+      TENS: {
+        title: 'TENS-Interface｜交互体验与心理需要',
+        description: '请评价刚才使用的交互方式。1 = 非常不同意，7 = 非常同意。',
+        scale: 'likert7',
+        groups: [
+          { name: '自主性', items: ['我可以按自己的意愿选择如何完成任务。', '这种交互方式让我感到有选择权。', '我能自主决定设备的调节方式。', '整个操作过程不会让我感到被迫。'] },
+          { name: '胜任感', items: ['我能够理解这种交互方式如何操作。', '我能够成功完成需要的设备控制。', '我能感受到自己掌握了这种交互方式。', '交互反馈让我知道自己是否操作正确。'] },
+          { name: '关联感', items: ['这种交互方式与我的日常生活场景有联系。', '我能理解物体、场景和设备之间的关系。', '这种交互方式让我感觉自己与当前环境建立了联系。', '我愿意在类似生活场景中继续使用这种交互方式。'] }
+        ]
+      },
+      ETAM: {
+        title: 'ETAM｜整体技术接受度',
+        description: '请综合考虑四种实验方式的整体体验。1 = 非常不同意，7 = 非常同意。',
+        scale: 'likert7',
+        groups: [
+          { name: '感知有用性', items: ['这些交互方式有助于我完成居家办公任务。', '这些交互方式能提高我控制家居设备的效率。', '这些交互方式对日常生活是有价值的。'] },
+          { name: '感知易用性', items: ['我能够较容易地学会这些交互方式。', '使用这些交互方式不需要太多额外努力。', '这些交互方式的操作逻辑是清晰的。'] },
+          { name: '信任', items: ['我相信这些交互方式会按照我的意图工作。', '我相信这些交互方式能够稳定地控制设备。', '我愿意信任这些交互方式处理类似任务。'] },
+          { name: '使用意愿', items: ['如果条件允许，我愿意继续使用这些交互方式。', '我愿意向他人推荐类似的交互方式。', '未来有机会时，我会优先考虑使用这些交互方式。'] }
+        ]
+      }
+    };
+    const answerLayouts = [
+      ['B', 'C', 'A', 'D', 'B', 'D', 'A', 'C'],
+      ['C', 'A', 'D', 'B', 'C', 'D', 'B', 'A'],
+      ['A', 'D', 'B', 'C', 'A', 'D', 'C', 'B'],
+      ['D', 'C', 'A', 'B', 'D', 'C', 'A', 'B']
+    ];
+    const materials = [
+      {
+        title: '母亲的园子', exam: '2024 年江苏省常州市中考语文试题', type: '文学类文本｜散文', theme: '亲情、生命活力与日常生活之美',
+        source: 'https://zy.21cnjy.com/20938787',
+        article: `<h4>母亲的园子</h4>
+          <p>①在我的家乡，每户人家的房前都有个园子。母亲把园子的一角开成花园，种了许多花，因此，我家的园子是菜园，也是花园。</p>
+          <p>②自春天起，父亲就调侃母亲说，浇浇你的花园吧。母亲笑了，我也笑了。父亲话中的意思是，母亲只是一个乡村老太，本该在园子里种满蔬菜，可是老太太居然浪漫起来，种了许多花。左邻右舍看见母亲在种花，也都觉得那么一大块地种豆角更实惠，种花怪可惜的。</p>
+          <p>③我和母亲打电话聊天时，母亲说的多是园子里的花，它们像是母亲养育的婴孩。在栽种、浇水、锄草的繁杂劳动中，它们发生着令人惊喜的变化。母亲学会了使用智能手机，经常给那些花儿拍照，然后通过微信传给我。有时，她还会用视频对我作现场直播解说，令我心头发痒，想回家一睹究竟。</p>
+          <p>④在清澈的天空下，园子中的大丽花、百日菊、紫茉莉、凤仙花……正在盛开。它们尽情地绽放，色彩令人陶醉，给人一种蓬勃向上的力量。不知为何，我想到了美妙的音乐、光滑的丝绸，身心无比舒畅和慰帖。其实，母亲所种的花，在城市的公园、小区或是街道随处可见，那些寻常的花在母亲的花园里，却给了我不同寻常的美感。</p>
+          <p>⑤母亲创造了生活的艺术。她熟知每种花的色彩、轮廓、表情以及习性，她使出艺术家的手法，安排好每种花的位置。她想让藤蔓植物沿着墙壁和屋檐攀爬，就设计出几条繁复的路线供其游走，取得她想要的效果。果然，牵牛花找到攀缘物后四处伸展，形成了一面锦绣墙垣。有趣的是，一些牵牛花穿过旁边的玉米地向远处走去，有多远就走多远，一边伸茎吐叶，一边自在开花。</p>
+          <p>⑥在母亲的房间里，透过窗子随意向外一瞥，便是一幅画。大丽花正对着窗子绽放，从盛夏到晚秋时刻展现着炫目的姿态，这是母亲最喜爱的花。从我的房间望出去，风景更加别致，窗外是一片藤蔓植物。早晨睁开眼睛，在晨曦柔和的光线中，许许多多的牵牛花和小葫芦在微风中晃动，向我躬身致意，多么令人满足——母亲在某一个清晨看到一朵突然盛开的花朵，立刻拍照分享给我，想必就是这种心情。</p>
+          <p>⑦我和母亲坐在牵牛花架下一边扒豆一边唠家常。母亲说园子里的蔬菜品种多，自己吃不过来，就送给亲戚朋友吃，他们高兴，她心里也乐呵。我想起《闲情偶寄》中的话来：“殊不知草木欣欣向荣，非止耳目堪娱，亦可为艺草植木之家，助祥光而生瑞气。”这就是灌园之乐和居家之道：草木能颐养性情，使人感受到生活的美好。不以灌园为苦，反以为乐，日子自然过得朴素而丰裕。</p>
+          <p>⑧母亲扒开干枯的豆荚，拣选出颗粒饱满的豆子在阳光下晾晒。豆子是芸豆，母亲每年都会为我种一些，她说芸豆的营养价值胜过鸡肉，焖饭最好吃。母亲说起从前的事，叙事的节奏随着她干活的方式时断时续，叙事的内容像意识流小说变幻不定，把我带回到一段段旧时光里。我凝视着母亲感叹道：“妈，一晃你都七十多了！”母亲看了看我，笑道：“想想你都多大啦？”</p>
+          <p>⑨秋天一过，母亲的园子就衰歇了。冬天，白雪覆盖着大地，雪被下休眠的园子应该会做着春天的梦吧。我期待着母亲的园子再度鲜花盛开——那时，我和母亲还会坐在牵牛花架下扒豆，唠家常……</p>
+          <p class="article-source">（《光明日报》，2024年1月12日，有改动）</p>`,
+        questions: [
+          ['下列对文章内容的概括，最恰当的一项是', ['母亲只在园子里种植蔬菜，以满足一家人的生活需要。', '母亲把菜园与花园结合起来，在日常劳作中创造美，也传递了亲情。', '父亲反对母亲种花，最终把园子改造成了专门的花园。', '“我”因为不喜欢花草，很少关注母亲的园子。'], 'B'],
+          ['父亲等人起初不理解母亲种花，主要原因是', ['他们认为花朵颜色不够鲜艳。', '他们更看重土地的实用价值，觉得种菜更有用。', '他们担心母亲没有时间照料花朵。', '他们认为园子离家太远，不方便观赏。'], 'B'],
+          ['文中写母亲通过手机、微信或视频分享花草，主要表现了', ['母亲对网络技术的熟练掌握。', '母亲希望把园子卖给更多人的愿望。', '母亲对花草的热爱以及与家人分享生活的情感。', '母亲不愿意亲自照料园子的态度。'], 'C'],
+          ['文章描写园中花草蓬勃生长的作用，最恰当的一项是', ['交代园子的面积很大，便于种植各种植物。', '说明母亲完全不需要劳动，花草也能自行生长。', '表现自然与生活的活力，为表达对美好生活的热爱作铺垫。', '突出邻居们对母亲种花行为的不满。'], 'C'],
+          ['引用《闲情偶寄》中关于种花养性的内容，主要是为了', ['证明这本书比其他书更适合阅读。', '解释园艺对人的精神生活的滋养作用，深化文章主题。', '说明母亲熟读古代文学作品。', '补充园艺的具体技术知识。'], 'B'],
+          ['从全文看，母亲的园子与“我”之间的关系是', ['园子只是“我”童年生活中的一个普通地点。', '园子承载着“我”对母亲的理解、亲近和生活记忆。', '园子是“我”和母亲产生矛盾的主要原因。', '园子让“我”远离了家庭生活。'], 'B'],
+          ['题目“母亲的园子”既指具体的园子，也暗含了', ['母亲不愿与人交往的封闭空间。', '母亲展示园艺技巧的工作场所。', '母亲经营日常生活、寄托情感并创造美好的精神空间。', '村民共同劳动的公共场地。'], 'C'],
+          ['下列对文章主旨的理解，最恰当的一项是', ['只有规模很大的园子才能给人带来幸福。', '普通生活中的劳动、分享与亲情，也能形成丰盈而美好的生活。', '城市生活比乡村生活更值得向往。', '人们应当放弃种菜，全部改种观赏花卉。'], 'B']
+        ]
+      },
+      {
+        title: '暖心粥', exam: '2024 年黑龙江省中考语文试题', type: '文学类文本｜记叙文', theme: '人与人之间的温暖、感恩与责任',
+        source: 'https://zy.21cnjy.com/20725902',
+        article: `<h4>暖心粥</h4>
+          <p>①来到爱心粥铺时，天刚亮，太阳还没露头。一下车，一股寒风袭来，脸上刀割似的。我不由得打了个寒战。</p>
+          <p>②掀起棉门帘，走进屋，热气扑面。只见右边是餐厅，五张长条桌，能坐下一二十人的样子。左边摆放着两个粥桶。我掀开桶盖，粥香扑鼻。一桶是小米粥，金黄金黄的；另一桶是大米粥，雪白雪白的。桶边有两盆拌好的咸菜，一盆芹菜，一盆芥菜疙瘩。</p>
+          <p>③矮墙里面是厨房，两个大蒸锅冒着蒸蒸热气。两个穿着白大褂的中年人，一个低头蒸馒头，一个低头切菜，看样子两人都很忙。</p>
+          <p>④“环卫清洁工、孤寡老人、留守儿童、贫困残疾人、农村进城务工人员……我不在免费喝粥范围呢。”我看着墙上红纸上写的免费就餐范围，嘴里念叨着。切菜的女人转身打量我说：“第一次来吧？自己拿碗盛粥，随便喝，不在范围内也不向你要钱。”</p>
+          <p>⑤正说着，进来三个戴棉帽、穿棉袄的女人，帽子前檐上挂着白霜，棉衣外面套着橘黄色马甲。打头的女人摘下帽子，搓着手说：“这天，真冷啊！”看这身打扮，我猜她们是环卫工人。</p>
+          <p>⑥一问，果然是。我洗过手，盛了三碗粥，端到她们面前：“喝碗粥暖暖身子。”高个子说声谢谢，接着问我：“以前没见过你，是新来的义工吧？”我笑了笑，说：“算是吧，临时帮忙。”她笑着应道：“热乎乎的粥，喝一口热在身上、暖在心里，我们姐妹把这粥叫暖心粥！”</p>
+          <p>⑦矮个子接过话茬：“我们每天凌晨四点多出来干活，扛着大扫帚，干活时没感觉到冷，扫完停下来就冷了，特别是后背冰凉冰凉的，又冷，又累，又饿。”停一会儿，她指着碗里的粥说：“你看，这时热乎乎的粥恰好，还是免费的，喝上一碗，是不是特别暖心？”</p>
+          <p>⑧此时，陆续有人进来喝粥吃饭，人多了起来。顾客自己盛，吃多少盛多少。忙完手中活，两个中年女人从厨房出来，坐在木凳上歇息。趁着空闲，我与她俩聊了起来。</p>
+          <p>⑨原来这个粥铺是一个叫老李的人在2012年开办的，她们是这里的义工，其间来来走走的有三十多人。她们说起了老李办爱心粥铺的初衷：有一次，老李早外出谈业务，三九天特别冷，车出了点故障停在路边，见一名女环卫工在干活，眉毛上都是白霜。聊几句，她说干完活，大冷天就想喝碗热乎乎的粥。还有，老李居住的小区，有些七八十岁的老人，独自生活，手脚不大便利，做饭困难。小时候老李家困难，读书时没少得到好心人的帮助，就想做点力所能及的事。于是老李就开了这个免费粥铺。</p>
+          <p>⑩粥铺开办初期，只限环卫工人和孤寡老人用餐，后来扩大到现在的用餐人员范围。每天来喝粥的有五六十人，主要还是环卫工人和附近的老人。</p>
+          <p>⑪以环卫工人为主的就餐高峰过了。其中一个女人说：“咱们把米粥和馒头热热，再拌个豆腐咸菜，老人们该来了。”说完，俩人又忙了起来……</p>
+          <p>⑫阳光透过窗户，洒在餐桌上。窗外凛冽寒风，屋内融融暖意……</p>
+          <p class="article-source">（作者：车承金，选自《人民日报》，有删改）</p>`,
+        questions: [
+          ['“我”刚到粥铺时，觉得自己不在免费用餐范围内，是因为', ['“我”不喜欢喝粥。', '粥铺规定只接待外地人。', '“我”看到免费供餐对象主要是特定困难群体。', '“我”没有带够钱。'], 'C'],
+          ['文中戴着橙色马甲、帽子上带着霜花的三位女性是', ['清晨来买菜的邻居。', '负责城市清洁工作的环卫工人。', '粥铺的经营者。', '前来采访的记者。'], 'B'],
+          ['她们把粥称为“暖心粥”，其中“暖心”主要指', ['粥的温度很高，能够驱寒。', '粥的味道甜，适合所有人的口味。', '热粥温暖身体，陌生人的善意也温暖人的内心。', '喝粥后可以马上投入工作。'], 'C'],
+          ['文章开头写屋外寒冷、屋内温暖的环境对比，主要作用是', ['说明粥铺的门窗保温效果很好。', '交代故事发生的季节，并衬托人与人之间的温情。', '表现“我”不喜欢寒冷天气。', '为后文介绍粥的制作过程作铺垫。'], 'B'],
+          ['“我”在粥铺中的身份和作用，最恰当的一项是', ['旁观者，始终没有参与粥铺的事情。', '临时的帮助者，通过观察和行动感受并传递善意。', '粥铺的创办者，负责解释所有规定。', '受助者，只接受帮助而不愿意回报。'], 'B'],
+          ['第九段插叙粥铺创办人的经历，主要作用是', ['介绍创办人的家庭成员，增加人物数量。', '说明创办人为什么关注普通劳动者，补充“暖心粥”背后的情感动机。', '改变叙事时间，使故事变得更加曲折。', '说明创办人曾经从事过餐饮行业。'], 'B'],
+          ['题目“暖心粥”的含义，理解最准确的一项是', ['只指粥铺每天熬制的白粥。', '既指帮助人们驱寒的食物，也指陌生人之间彼此照顾的善意。', '指创办人最喜欢的一种食物。', '指环卫工人完成工作后获得的奖励。'], 'B'],
+          ['下列对文章主旨的概括，最恰当的一项是', ['城市生活节奏很快，人们需要多喝热粥。', '普通人之间的互助、感恩和回馈，可以让冷漠的生活重新有温度。', '只有开设免费粥铺才能帮助困难群体。', '劳动者应当依靠自己解决所有困难。'], 'B']
+        ]
+      },
+      {
+        title: '澄河边上', exam: '2024 年河南省中考语文试题', type: '文学类文本｜红色题材小说', theme: '军民鱼水情与为人民服务的信念',
+        source: 'https://zy.21cnjy.com/20680589',
+        article: `<h4>澄河边上</h4>
+          <p>①这是1947年的夏天。解放军以少数部队插入敌后，粉碎了敌人的重点进攻计划，现在进行战略性军事转移。敌人趁机前进后追，十分疯狂。</p>
+          <p>②周玉兆带着20多名掉在后面的伤、病、体弱的同志，临近黄昏时，艰难地到达了澄河边。雨没有停，风也没有息，澄河波浪滚滚，河水猛涨。没有桥，也没有渡船。</p>
+          <p>③“会水的同志站出来，一人带一个，过河。”周玉兆大声地说着。“我！”“我！”“我！”战士们对着大河，向着暴风雨宣战了。战士小余挎着一个不会水的同志率先下河，没游多远，就被水直冲下去。小余一边挣扎，一边对岸上喊：“过不去啦，水还在涨！”直到天擦黑，小余和那个同志才水淋淋地回来。其他渡河的同志也陆续回来了，一个人也没渡过去。</p>
+          <p>④雨终于停了，风也小了些。周玉兆让其他同志留在河边休息，自己带着小余去附近村子打听哪里有浅滩。</p>
+          <p>⑤远处炮声隆隆，田野里显得格外安静，月亮从云里探出头来，地面上的一切都变得格外柔和。他们在不远的一片瓜地前遇到一位老人。老人打量了他们一下，说：“同志，你们要过河是不是？”周玉兆点点头，把大致情况说了一遍。老人听后，想了一会儿，说：“乡亲们都往山里撤了，我也正要走呢。不过，不怕，河水再大，也一定叫你们今晚过河。”说着，带他们进了看瓜的草屋，点起火，让他们烤衣服、煮地瓜吃，又急忙去把留在河边的同志们叫来。安排完，老人便不见了。</p>
+          <p>⑥月亮已悬在当空，屋外场地上，一片银白的月色，一切是那么宁静、美好。远处的枪声像炒豆似的，在这静夜里格外清楚，好像又近了许多。周玉兆靠着门框坐着，转头对身边的小余说：“明天，敌人会站在这里。”停了一下，又说：“要是留在这里打游击，你怕不怕？”“不怕，和你一起，我什么也不怕。”小余坚定地回答。周玉兆拍了拍小余，说：“应该说，和老百姓在一起，我们什么也不怕。”</p>
+          <p>⑦河堤那边传来了一种古怪的声音，周玉兆凝神听了一会儿，便和小余起身向河边走去。到了河边，他们看见老人正在河堤上掘土，一条刚掘出来的小沟正通向河边。周玉兆愣了一愣，猛然明白过来，大爷这是要放水帮他们过河。他一步抢过去夺下锄头，说：“大爷，我们就是死，也不能祸害老百姓！”老人缓和地解释道：“澄河不太深，主要是下暴雨，水来得太急，开一点儿口子，水有了出处，人在河里蹚水走也能过去了。”“不行！”周玉兆坚定地说：“我们是人民的部队，活着是为了让老百姓过上好日子，死了也是为了老百姓！”老人叹了口气，皱起眉看着黑沉沉的河水。过了一会儿，说：“你们在这里等着，我再去想想办法。”</p>
+          <p>⑧月亮偏西了，一度沉寂的枪声，又响了起来，而且很近、很激烈。老人气喘吁吁地跑来了，后面还跟了两个中年老乡，每人肩上都扛了五六根扁担。草屋里的同志们也来了。</p>
+          <p>⑨“好了，好了，我捉了两条‘水鳗’来了。”老人忽然变得又风趣又活泼，长眉毛一弯一弯的，“他们正往山里跑，恰巧就跑进了我张的网里了。”那两位被叫作“水鳗”的老乡笑呵呵地跟大家打了招呼，立即和老人一起动手绑扎扁担。老人一边扎扁担，一边向周玉兆挤了挤眼睛，说：“同志，你看，澄河是咱们老百姓的，不怕它再蛮，到底还得听咱的指挥。”一会儿又说：“同志，过了河，你们尽管大摇大摆地走好了。敌人来了，就让他来试试，看看澄河对他们客气不客气！”</p>
+          <p>⑩天快亮了，两只棋盘式的空心筏子扎好了。老人送到水边，刚才那副高兴样子，忽然又不见了，神情变得很严峻，说：“同志们一路平安，我老了，不能送同志们过河去。他俩水性极好，保证没问题。记住我们澄河，明年我老头子还是种瓜，等同志们来吃。”</p>
+          <p>⑪第一只筏子在会水的同志和一个老乡的共同努力下，已经越过了河心，向着岸靠近。第二只筏子也下水了。周玉兆望着河堤上的老人，暗暗地发誓：只要有一口气在，就要向前，就要和部队一起打回来。</p>
+          <p>⑫____________________________</p>
+          <p class="article-source">（选自茹志鹃《茹志鹃小说选》，有删改）</p>`,
+        questions: [
+          ['队伍来到澄河边时面临的主要困难是', ['河水干涸，无法找到饮水处。', '河水暴涨，附近没有桥和船，队伍又急于转移。', '敌人封锁道路，所有人都无法前进。', '队伍缺少粮食，无法继续行军。'], 'B'],
+          ['周玉照最初尝试帮助不会游泳的同志过河，采用的方法是', ['让所有人等待河水退去。', '让会游泳的人背着或带着不会游泳的人渡河。', '请村民立刻架设一座木桥。', '把队伍分成几组绕道而行。'], 'B'],
+          ['周玉照阻止老人挖沟放水，主要因为他认为', ['挖沟会使河水变得更加湍急。', '这样做可能损害乡亲们的土地和生活，军队不能只顾自己。', '老人年纪太大，不能参加劳动。', '队伍已经找到其他渡河办法。'], 'B'],
+          ['小说写月光下的澄河与不远处的枪声，主要形成了怎样的表达效果', ['以热闹场面衬托人物的轻松心情。', '以宁静景象与紧张声响形成对比，营造紧迫氛围。', '说明河边没有任何危险。', '突出月光比枪声更加响亮。'], 'B'],
+          ['文中“水鳗”指的是', ['河里的一种鱼。', '善于在水中行动、帮助队伍渡河的两位村民。', '周玉照带领的两名伤员。', '负责侦察敌情的两名战士。'], 'B'],
+          ['从老人及两位村民帮助队伍渡河的行动中，可以看出他们', ['只关心自己的利益，不愿与外人交往。', '善良热情、机智勇敢，并对人民军队有深厚感情。', '缺少判断力，容易听从他人命令。', '只是在完成上级布置的任务。'], 'B'],
+          ['周玉照坚持不能损害乡亲土地的细节，突出表现了他', ['胆小谨慎、害怕承担责任。', '只重视行军速度，不顾队伍安全。', '把人民利益放在重要位置的立场。', '不相信群众能够提供帮助。'], 'C'],
+          ['下列选项中，最适合补在第⑫段横线上作为小说结尾的是', ['青青的天，蓝蓝的水，澄河在奔腾，它带着人民的希望、战士的誓言，流到远远的地方，然后深深地渗透在土地里……', '战士们渐走渐远了，他们带着一个不可摧毁的信念走远了。河边仍然站着那个身影，佝偻着身子，一动不动……', '天一亮，老人收起扁担，带着两位老乡回到山里，从此再没有人提起这次渡河。', '渡河成功后，周玉兆命令战士们马上离开，大家没有来得及向老人道别，故事也在一片欢呼声中结束。'], 'B']
+        ]
+      },
+      {
+        title: '山里的春天', exam: '2024 年四川省眉山市中考语文试题', type: '文学类文本｜孙犁散文', theme: '乡村互助、军民关系与生活希望',
+        source: 'https://zy.21cnjy.com/20692909',
+        article: `<h4>山里的春天</h4>
+          <p>这天，从家乡来了一个人，谈了半天家里的事情，我很惦记家里的生活问题，他说一切很好。我高兴地要请他吃饭，跑着各家去买鸡蛋，走到一人家，一个年轻的女人正坐在炕沿上，哭丧着脸，在她怀里靠着一个五六岁的女孩子。我说：</p>
+          <p>“老婆，有鸡蛋啊，卖给咱几个？”</p>
+          <p>她立时很生气地喊叫起来：“没了，还有什么鸡蛋？”</p>
+          <p>我说：“我是问一问你，没有就算了么！”</p>
+          <p>她还是哭丧着脸不搭理我。</p>
+          <p>我走了出来。吃过午饭，送走客人，村长来找我，说是叫我去给一家抗属翻沙。我两个走到村东，过了河滩，到了一方堆着石沙的地里，村长说：“就是这块地，男人到咱们队伍上去了，这块地去年叫水冲了，你给她把这沙子挑到四边去，好种玉茭子。辛苦你了，回头我叫她给你送水来。”说完，村长笑一笑走了。我把军装上衣脱下，同皮带带手枪挂在地边的一棵小枣树上。这时已是暮春三月，枣树快要长叶儿，河滩上的一排大杨树，叶子已经有铜钱大了，绿油油的。</p>
+          <p>我开始把沙子翻起来，然后铲到筐里，挑到地边，堆成土堆，叫夏天的水冲不到地里来。</p>
+          <p>今天工作很高兴，一大担沙土挑起来，也觉得轻松。我想山里的土质坏，还费这么大劲；我家里那三亩菜园，出产多么大啊，够他娘儿两个吃的了。</p>
+          <p>起晌的时候，我看见远远走来一个妇女，左手拉着一个小孩，右手提着一把水壶，我想是主人家给我送水来了，走近一看，原来就是上午为买鸡蛋和我吵嘴的那个女人。她一见是我，脸上有点下不来，后来才说：</p>
+          <p>“原来求的是你啊！”</p>
+          <p>我说：“原来是你的地啊！”</p>
+          <p>她把水壶放下，对我说：“上午，你赶得不巧，我正生气。你看人家有人的，有的种地了。咱这地还没起沙子。前半天，我拎着孩子来看这个地这样费劲，一个女人和一个孩子怎么会种上，就生起气来，正在心里骂我们当家的，撇下大人孩子不管，你就来了。我那时一看见你们这些当兵的就火了。”</p>
+          <p>我说：“我们当兵的可没得罪你呀。”</p>
+          <p>她说：“你没得罪我，我是恨我们那个当兵的。”</p>
+          <p>我问：“他走的时候没告诉你？”</p>
+          <p>她狠狠地说：“告诉了！他说他去打日本鬼，家里的事不要他管，他说叫我有什么困难找村长或武委会。”</p>
+          <p>我说：“那你为什么不来找呢？”</p>
+          <p>她说：“我好意思找吗？一个女人，拖孩子带棉袄的……”</p>
+          <p>我说：“抗属，就是要找的嘛！”</p>
+          <p>她低头笑了一下，又说：“我还以为你是个新同志，不大理会这些事哩！”</p>
+          <p>我说：“我在这里，你家有什么困难，尽管来找我，我一定帮忙。”</p>
+          <p>她抬起头，眼里闪着光，说：“你真是个好人！”</p>
+          <p>我说：“我们八路军，就是给老百姓做事的嘛。”</p>
+          <p>她坐在地边的石头上，看我干活，孩子在一边玩耍。她又说：“你家里也种地？”</p>
+          <p>我说：“我有三亩菜园子。”</p>
+          <p>她说：“那你家里人也够忙的。”</p>
+          <p>我说：“家里有我娘和我媳妇，她们能种。”</p>
+          <p>她说：“你媳妇也种地？”</p>
+          <p>我说：“她在家里也种地，还纺线。”</p>
+          <p>她脸红了一下，说：“你媳妇真好，能吃苦。”</p>
+          <p>我说：“我们八路军的家属，都是这样的。”</p>
+          <p>太阳快落山的时候，我把地翻完了。她把水壶递过来，说：“喝口水吧，累坏了。”</p>
+          <p>我喝了水，她又说：“你真是个好同志，我真不知道怎么谢谢你。”</p>
+          <p>我说：“不用谢，这是我应该做的。”</p>
+          <p>她又说：“你以后常来啊，我给你做好吃的。”</p>
+          <p>我说：“好，我一定来。”</p>
+          <p>我穿上军装，准备走。她的孩子跑过来，拉着我的衣角，说：“叔叔，你别走。”</p>
+          <p>我蹲下来，摸了摸孩子的头，说：“叔叔要去工作了，以后再来看你。”</p>
+          <p>孩子仰起小脸，说：“叔叔，你穿军装真好看。”</p>
+          <p>我笑了笑，把孩子抱起来。她在一边看着，也笑了，这时候，这女人才真正眉开眼笑了。</p>
+          <p>我走的时候，她和孩子一直送我到村口。我回头看，她们还站在那里，向我招手。暮春的太阳，照在她们身上，暖洋洋的。</p>`,
+        questions: [
+          ['文章开头写“我”向年轻妇女求鸡蛋，却遇到她不高兴的反应，主要作用是', ['表现山里人都不愿意与外人交往。', '设置生活化的矛盾和悬念，引出后文对人物关系的展开。', '说明鸡蛋在当地十分昂贵。', '交代“我”不喜欢吃其他食物。'], 'B'],
+          ['村干部让“我”去铲沙，和哪一类事情有关', ['修建私人住宅。', '帮助抗属、参与村里的公共事务。', '寻找丢失的牲畜。', '准备一场节日庆典。'], 'B'],
+          ['结合题目看，“山里的春天”中的“春天”更可能不只指', ['山里的气温变化。', '一种由互助、劳动和新的生活希望共同形成的精神状态。', '花草开放的具体日期。', '村民出行的季节安排。'], 'B'],
+          ['“我”参与铲沙等事情，体现了叙述者怎样的态度', ['把自己置身于乡村生活之外。', '愿意进入群众生活，在具体劳动中理解和帮助他人。', '只关心个人的物质收获。', '对村干部的安排始终不满。'], 'B'],
+          ['年轻妇女开头的情绪与后文形成变化，这种变化主要有助于', ['表现人物性格的单一和固执。', '展示人物由隔阂到理解的过程，增强故事的生活真实感。', '说明人物一直在故意欺骗“我”。', '突出山村环境比城市更加闭塞。'], 'B'],
+          ['文中“抗属”一词，结合时代背景，指的是', ['在外地经商的家庭成员。', '参加革命队伍人员的家属。', '负责村里治安的工作人员。', '从事农业生产的普通村民。'], 'B'],
+          ['下列对孙犁作品语言风格的概括，较符合本文特点的一项是', ['语言华丽繁复，重在铺陈奇异景象。', '叙述朴素自然，在平常生活细节中蕴含深厚感情。', '语言冷峻抽象，几乎没有人物活动。', '大量使用科幻想象，情节节奏紧张。'], 'B'],
+          ['下列对文章主旨的理解，最恰当的一项是', ['山村生活虽然艰苦，但人与人之间的互助和共同劳动使生活充满希望。', '山里春天的景色比城市春天更加美丽。', '村干部的工作只是安排村民完成体力劳动。', '外来者无法真正理解乡村生活。'], 'A']
+        ]
+      }
+    ];
+
+    function buildDefaultConfig() {
+      const latinOrders = [
+        ['app', 'tissue', 'cup', 'both'],
+        ['tissue', 'cup', 'both', 'app'],
+        ['cup', 'both', 'app', 'tissue'],
+        ['both', 'app', 'tissue', 'cup']
+      ];
+      const assignments = {};
+      for (let participant = 1; participant <= 24; participant++) assignments[participant] = latinOrders[(participant - 1) % latinOrders.length];
+      return { materialOrder: [0, 1, 2, 3], conditionBindings: { app: 0, tissue: 1, cup: 2, both: 3 }, latinOrders, assignments };
+    }
+    function readConfig() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || 'null');
+        if (!saved || !saved.assignments || !saved.latinOrders) return buildDefaultConfig();
+        return { ...buildDefaultConfig(), ...saved, materialOrder: Array.isArray(saved.materialOrder) ? saved.materialOrder : [0, 1, 2, 3] };
+      } catch (_) { return buildDefaultConfig(); }
+    }
+    let config = readConfig();
+    const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    let participantId = Number.isInteger(state.participantId) ? state.participantId : null;
+    let current = Number.isInteger(state.currentStage) ? state.currentStage : 0;
+    let questionnaireMode = state.questionnaireMode || 'stage';
+    let activeQuestionnaireType = state.activeQuestionnaireType || 'FSS';
+    const answers = state.answers || {};
+    const records = state.records || {};
+    const starts = state.starts || {};
+    const questionnaires = state.questionnaires || {};
+    const questionnaireDrafts = state.questionnaireDrafts || {};
+    const consents = state.consents || {};
+    const $ = (selector) => document.querySelector(selector);
+
+    function replaceObject(target, source) {
+      Object.keys(target).forEach(key => delete target[key]);
+      Object.assign(target, source || {});
+    }
+    function applyRemoteState(remoteState) {
+      const remote = remoteState || {};
+      current = Number.isInteger(remote.currentStage) ? remote.currentStage : 0;
+      questionnaireMode = remote.questionnaireMode || 'stage';
+      activeQuestionnaireType = remote.activeQuestionnaireType || 'FSS';
+      replaceObject(answers, remote.answers);
+      replaceObject(records, remote.records);
+      replaceObject(starts, remote.starts);
+      replaceObject(questionnaires, remote.questionnaires);
+      replaceObject(questionnaireDrafts, remote.questionnaireDrafts);
+      replaceObject(consents, remote.consents);
+    }
+    function getStatePayload() {
+      return { participantId, currentStage: current, questionnaireMode, activeQuestionnaireType, answers, records, starts, questionnaires, questionnaireDrafts, consents };
+    }
+    function save() {
+      const payload = getStatePayload();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
+        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
+      }
+    }
+    async function hydrateRemoteParticipant() {
+      if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return;
+      try {
+        const remote = await window.ExperimentAPI.getParticipant(participantId);
+        if (remote?.config) config = remote.config;
+        if (remote?.state) applyRemoteState(remote.state);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
+        if (!$('#experimentApp').hidden) render();
+      } catch (_) {
+        // EdgeOne API 尚未配置时继续使用本地预览数据。
+      }
+    }
+    function getAssignment() {
+      return (config.assignments && config.assignments[participantId]) || config.latinOrders[(participantId - 1) % config.latinOrders.length];
+    }
+    function getCurrentCondition() {
+      return getAssignment()[current];
+    }
+    function getCurrentMaterialIndex() {
+      return Number(config.materialOrder[current] ?? current);
+    }
+    function getRecordKey() {
+      return `p${participantId}-s${current}`;
+    }
+    function getAnswerPrefix() {
+      return `${getRecordKey()}-q`;
+    }
+    function getQuestionnaireKey(type, stage = current) {
+      return type === 'ETAM' ? `p${participantId}-etam` : `p${participantId}-s${stage}-${type}`;
+    }
+    function getQuestionnaireTypes() {
+      return questionnaireMode === 'etam' ? ['ETAM'] : [activeQuestionnaireType];
+    }
+    function getStageSequenceInfo() {
+      const assignment = getAssignment();
+      const latinIndex = config.latinOrders.findIndex(order => order.join('|') === assignment.join('|'));
+      return { index: latinIndex >= 0 ? latinIndex + 1 : '自定义', labels: assignment.map(condition => conditionLabels[condition]).join(' → ') };
+    }
+    function isStageComplete(stage) {
+      return Boolean(records[`p${participantId}-s${stage}`]) && stageQuestionnaireTypes.every(type => questionnaires[getQuestionnaireKey(type, stage)]);
+    }
+    function getFirstIncompleteStage() {
+      return [0, 1, 2, 3].find(stage => !isStageComplete(stage));
+    }
+    function getFirstIncompleteQuestionnaire(stage = current) {
+      return stageQuestionnaireTypes.find(type => !questionnaires[getQuestionnaireKey(type, stage)]) || 'FSS';
+    }
+    function ensureStartTime() {
+      if (participantId && !records[getRecordKey()] && !starts[getRecordKey()]) {
+        starts[getRecordKey()] = Date.now();
+        save();
+      }
+    }
+    function formatDuration(milliseconds) {
+      const seconds = Math.max(0, Math.round(milliseconds / 1000));
+      const minutes = Math.floor(seconds / 60);
+      return `${minutes}分${String(seconds % 60).padStart(2, '0')}秒`;
+    }
+    function formatTime(timestamp) {
+      return timestamp ? new Date(timestamp).toLocaleString('zh-CN', { hour12: false }) : '—';
+    }
+    function getOptionOrder(materialIndex, questionIndex, question) {
+      const targetLetter = answerLayouts[materialIndex][questionIndex];
+      const targetPosition = targetLetter.charCodeAt(0) - 65;
+      const originalCorrect = question[2].charCodeAt(0) - 65;
+      const order = [null, null, null, null];
+      order[targetPosition] = originalCorrect;
+      const remaining = [0, 1, 2, 3].filter(index => index !== originalCorrect);
+      let cursor = 0;
+      for (let i = 0; i < order.length; i++) {
+        if (order[i] === null) order[i] = remaining[cursor++];
+      }
+      return order;
+    }
+    function renderTabs() {
+      const assignment = getAssignment();
+      $('#tabs').innerHTML = assignment.map((condition, i) => {
+        const complete = isStageComplete(i);
+        return `<button class="tab ${i === current ? 'active' : ''}" data-index="${i}" ${i !== current ? 'disabled' : ''}>第${i + 1}阶段｜${conditionLabels[condition]}${complete ? ' ✓' : ''}</button>`;
+      }).join('');
+      document.querySelectorAll('.tab').forEach(button => button.addEventListener('click', () => {
+        current = Number(button.dataset.index); ensureStartTime(); save(); render();
+      }));
+    }
+    function renderSource() {
+      const m = materials[getCurrentMaterialIndex()];
+      $('#sourceHeading').textContent = m.title;
+      $('#sourceBody').innerHTML = `<div class="article-reading">${m.article}</div>`;
+    }
+    function renderQuestions() {
+      const materialIndex = getCurrentMaterialIndex();
+      const m = materials[materialIndex];
+      const condition = getCurrentCondition();
+      $('#questionHeading').textContent = `${conditionLabels[condition]}｜8 道题`;
+      const prefix = getAnswerPrefix();
+      const record = records[getRecordKey()];
+      const answeredCount = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
+      const submitLabel = record ? '本篇已提交' : '提交本篇';
+      const submitHint = record ? `<span class="submitted-mark">✓ 已提交，不可修改</span>` : `已完成 ${answeredCount} / ${m.questions.length} 题`;
+      $('#questionsBody').innerHTML = `<div>${m.questions.map((q, qi) => {
+        const selected = answers[prefix + qi];
+        const orderedOptions = getOptionOrder(materialIndex, qi, q).map(index => q[1][index]);
+        return `<section class="question"><div class="question-title">${qi + 1}. ${q[0]}：</div><div class="options">${orderedOptions.map((text, oi) => { const letter = String.fromCharCode(65 + oi); return `<label class="option"><input type="radio" name="q${current}-${qi}" value="${letter}" ${selected === letter ? 'checked' : ''} ${record ? 'disabled' : ''}><span><b>${letter}.</b> ${text}</span></label>`; }).join('')}</div><div class="choice-status ${selected ? 'done' : ''}">${selected ? `已选择：${selected}` : '尚未选择'}</div></section>`;
+      }).join('')}</div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
+      document.querySelectorAll('input[type="radio"]').forEach(input => input.addEventListener('change', event => {
+        const questionIndex = Number(event.target.name.split('-')[1]);
+        answers[prefix + questionIndex] = event.target.value;
+        save(); renderQuestions(); updateProgress();
+      }));
+      $('#clearButton').addEventListener('click', () => {
+        for (let i = 0; i < m.questions.length; i++) delete answers[prefix + i];
+        save(); renderQuestions(); updateProgress(); showToast('当前材料的作答已清空');
+      });
+      $('#submitButton').addEventListener('click', submitCurrent);
+    }
+    function updateProgress() {
+      const m = materials[getCurrentMaterialIndex()];
+      const prefix = getAnswerPrefix();
+      const count = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
+      $('#progressText').textContent = `${count} / 8`;
+    }
+    function flattenQuestionnaireItems(type) {
+      const definition = questionnaireDefinitions[type];
+      if (definition.groups) return definition.groups.flatMap(group => group.items.map(item => ({ group: group.name, text: item })));
+      return definition.items.map(text => ({ text }));
+    }
+    function questionnaireOptions(definition, selected, type, index) {
+      if (definition.scale === 'likert7') return `<div class="likert-scale" role="radiogroup" aria-label="第 ${index + 1} 题 1 到 7 分">${Array.from({ length: 7 }, (_, itemIndex) => { const value = itemIndex + 1; return `<label class="likert-point"><input type="radio" name="${type}-${index}" data-questionnaire="${type}" data-index="${index}" value="${value}" ${String(selected) === String(value) ? 'checked' : ''}><span>${value}</span></label>`; }).join('')}</div>`;
+      return `<select data-questionnaire="${type}" data-index="${index}"><option value="" ${selected === undefined ? 'selected' : ''}>请选择 0—20</option>${Array.from({ length: 21 }, (_, value) => `<option value="${value}" ${String(selected) === String(value) ? 'selected' : ''}>${value}</option>`).join('')}</select>`;
+    }
+    function isQuestionnaireComplete(type) {
+      const definition = questionnaireDefinitions[type];
+      const items = flattenQuestionnaireItems(type);
+      const key = getQuestionnaireKey(type);
+      const savedResponses = questionnaires[key]?.responses || {};
+      const draft = questionnaireDrafts[key] || {};
+      return items.every((_, index) => savedResponses[`q${index + 1}`] !== undefined || (draft[index] !== undefined && draft[index] !== ''));
+    }
+    function updateQuestionnaireState() {
+      const types = getQuestionnaireTypes();
+      const total = types.reduce((sum, type) => sum + flattenQuestionnaireItems(type).length, 0);
+      const answered = types.reduce((sum, type) => sum + flattenQuestionnaireItems(type).filter((_, index) => {
+        const key = getQuestionnaireKey(type);
+        const saved = questionnaires[key]?.responses || {};
+        const draft = questionnaireDrafts[key] || {};
+        return saved[`q${index + 1}`] !== undefined || (draft[index] !== undefined && draft[index] !== '');
+      }).length, 0);
+      $('#questionnaireHint').textContent = answered === total ? '已完成全部题目，可以提交。' : `已完成 ${answered} / ${total} 题`;
+      $('#questionnaireSubmitButton').disabled = answered !== total;
+    }
+    function renderQuestionnaire() {
+      const types = getQuestionnaireTypes();
+      $('#questionnaireBody').innerHTML = types.map(type => {
+        const definition = questionnaireDefinitions[type];
+        const key = getQuestionnaireKey(type);
+        const saved = questionnaires[key]?.responses || {};
+        const draft = questionnaireDrafts[key] || {};
+        const items = flattenQuestionnaireItems(type);
+        let previousGroup = null;
+        const rows = items.map((item, index) => {
+          const groupLabel = item.group && item.group !== previousGroup ? `<div class="questionnaire-group">${item.group}</div>` : '';
+          previousGroup = item.group || previousGroup;
+          const selected = saved[`q${index + 1}`] ?? draft[index];
+          return `${groupLabel}<div class="questionnaire-item"><span>${index + 1}. ${item.text}</span>${questionnaireOptions(definition, selected, type, index)}</div>`;
+        }).join('');
+        return `<section class="questionnaire-section"><h3>${definition.title}</h3><p>${definition.description}</p>${rows}</section>`;
+      }).join('');
+      document.querySelectorAll('[data-questionnaire]').forEach(select => select.addEventListener('change', event => {
+        const type = event.target.dataset.questionnaire;
+        const key = getQuestionnaireKey(type);
+        questionnaireDrafts[key] = questionnaireDrafts[key] || {};
+        questionnaireDrafts[key][Number(event.target.dataset.index)] = event.target.value;
+        save();
+        updateQuestionnaireState();
+      }));
+      $('#questionnaireSubmitButton').onclick = submitQuestionnaire;
+      updateQuestionnaireState();
+    }
+    function showQuestionnaire(mode = 'stage', type = 'FSS') {
+      questionnaireMode = mode;
+      if (mode === 'stage') activeQuestionnaireType = type;
+      $('#setupScreen').classList.add('hidden');
+      $('#consentScreen').classList.add('hidden');
+      $('#taskIntroScreen').classList.add('hidden');
+      $('#completionScreen').classList.add('hidden');
+      $('#experimentApp').hidden = true;
+      $('#questionnaireScreen').classList.remove('hidden');
+      if (mode === 'etam') {
+        $('#questionnaireMeta').textContent = '四阶段完成后问卷';
+        $('#questionnaireTitle').textContent = '请填写整体体验问卷';
+        $('#questionnaireIntro').textContent = '请综合考虑刚才完成的四种实验方式，填写最后的整体技术接受度问卷。';
+      } else {
+        const condition = getCurrentCondition();
+        $('#questionnaireMeta').textContent = `第 ${current + 1} 阶段 · ${conditionLabels[condition]}`;
+        $('#questionnaireTitle').textContent = `请填写 ${questionnaireDefinitions[activeQuestionnaireType].title}`;
+        $('#questionnaireIntro').textContent = `请根据刚才完成《${materials[getCurrentMaterialIndex()].title}》时的实际体验作答。提交后进入下一份问卷。`;
+      }
+      save();
+      renderQuestionnaire();
+    }
+    function submitQuestionnaire() {
+      const types = getQuestionnaireTypes();
+      if (!types.every(isQuestionnaireComplete)) return;
+      const submittedAt = Date.now();
+      const sequence = getStageSequenceInfo();
+      types.forEach(type => {
+        const key = getQuestionnaireKey(type);
+        const items = flattenQuestionnaireItems(type);
+        const saved = questionnaires[key]?.responses || {};
+        const draft = questionnaireDrafts[key] || {};
+        const responses = {};
+        items.forEach((_, index) => { responses[`q${index + 1}`] = Number(saved[`q${index + 1}`] ?? draft[index]); });
+        questionnaires[key] = {
+          participantId,
+          stage: questionnaireMode === 'stage' ? current + 1 : null,
+          condition: questionnaireMode === 'stage' ? getCurrentCondition() : null,
+          materialIndex: questionnaireMode === 'stage' ? getCurrentMaterialIndex() : null,
+          sequenceIndex: sequence.index,
+          sequence: sequence.labels,
+          questionnaire: type,
+          responses,
+          submittedAt
+        };
+        delete questionnaireDrafts[key];
+      });
+      save();
+      if (questionnaireMode === 'etam') {
+        $('#questionnaireScreen').classList.add('hidden');
+        $('#completionScreen').classList.remove('hidden');
+        showToast('整体问卷已提交，实验完成');
+        return;
+      }
+      if (questionnaireMode === 'stage' && activeQuestionnaireType !== stageQuestionnaireTypes[stageQuestionnaireTypes.length - 1]) {
+        const nextType = stageQuestionnaireTypes[stageQuestionnaireTypes.indexOf(activeQuestionnaireType) + 1];
+        showQuestionnaire('stage', nextType);
+      } else if (current < 3) {
+        current += 1;
+        questionnaireMode = 'stage';
+        activeQuestionnaireType = 'FSS';
+        save();
+        showTaskIntro();
+      } else {
+        current = 4;
+        showQuestionnaire('etam');
+      }
+    }
+    function render() {
+      renderTabs();
+      renderSource();
+      renderQuestions();
+      updateProgress();
+    }
+    function submitCurrent() {
+      const materialIndex = getCurrentMaterialIndex();
+      const m = materials[materialIndex];
+      const prefix = getAnswerPrefix();
+      const answeredCount = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
+      if (answeredCount !== m.questions.length || records[getRecordKey()]) return;
+      const correctCount = m.questions.reduce((total, q, i) => total + (answers[`${prefix}${i}`] === answerLayouts[materialIndex][i] ? 1 : 0), 0);
+      const submittedAt = Date.now();
+      const startedAt = starts[getRecordKey()] || submittedAt;
+      records[getRecordKey()] = {
+        title: m.title,
+        condition: getCurrentCondition(),
+        materialIndex,
+        participantId,
+        stage: current + 1,
+        sequenceIndex: getStageSequenceInfo().index,
+        sequence: getStageSequenceInfo().labels,
+        startedAt,
+        submittedAt,
+        durationMs: Math.max(0, submittedAt - startedAt),
+        correctCount,
+        total: m.questions.length,
+        accuracy: Math.round(correctCount / m.questions.length * 1000) / 10
+      };
+      save();
+      renderTabs();
+      showQuestionnaire('stage');
+      showToast('本篇已提交，记录已保存');
+    }
+    function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
+    function showTaskIntro() {
+      config = readConfig();
+      if (current >= 4) {
+        $('#setupScreen').classList.add('hidden');
+        $('#consentScreen').classList.add('hidden');
+        $('#taskIntroScreen').classList.add('hidden');
+        $('#experimentApp').hidden = true;
+        if (questionnaires[getQuestionnaireKey('ETAM')]) {
+          $('#questionnaireScreen').classList.add('hidden');
+          $('#completionScreen').classList.remove('hidden');
+        } else {
+          showQuestionnaire('etam');
+        }
+        return;
+      }
+      const condition = getCurrentCondition();
+      const materialIndex = getCurrentMaterialIndex();
+      ensureStartTime();
+      $('#introCondition').textContent = `第 ${current + 1} 阶段 · ${conditionLabels[condition]}`;
+      $('#introTitle').textContent = '阅读任务准备';
+      $('#introArticle').textContent = `本阶段文章：《${materials[materialIndex].title}》`;
+      $('#introCopy').textContent = conditionDescriptions[condition] || '请按照实验提示完成本阶段任务，随后继续阅读并回答问题。';
+      $('#setupScreen').classList.add('hidden');
+      $('#consentScreen').classList.add('hidden');
+      $('#questionnaireScreen').classList.add('hidden');
+      $('#completionScreen').classList.add('hidden');
+      $('#experimentApp').hidden = true;
+      $('#taskIntroScreen').classList.remove('hidden');
+    }
+    function beginTask() {
+      $('#taskIntroScreen').classList.add('hidden');
+      $('#experimentApp').hidden = false;
+      render();
+    }
+    function showConsent() {
+      $('#setupScreen').classList.add('hidden');
+      $('#taskIntroScreen').classList.add('hidden');
+      $('#questionnaireScreen').classList.add('hidden');
+      $('#completionScreen').classList.add('hidden');
+      $('#experimentApp').hidden = true;
+      $('#consentAgree').checked = false;
+      $('#consentConfirmButton').disabled = true;
+      $('#consentScreen').classList.remove('hidden');
+    }
+    function continueAfterParticipantEntry() {
+      const firstIncomplete = getFirstIncompleteStage();
+      if (firstIncomplete === undefined) {
+        current = 4;
+        if (questionnaires[getQuestionnaireKey('ETAM')]) {
+          $('#setupScreen').classList.add('hidden');
+          $('#completionScreen').classList.remove('hidden');
+        } else {
+          showQuestionnaire('etam');
+        }
+        return;
+      }
+      current = firstIncomplete;
+      questionnaireMode = 'stage';
+      save();
+      if (records[`p${participantId}-s${current}`]) showQuestionnaire('stage', getFirstIncompleteQuestionnaire(current));
+      else showTaskIntro();
+    }
+    async function startExperiment() {
+      const value = Number($('#participantInput').value);
+      if (!Number.isInteger(value) || value < 1 || value > 24) {
+        showToast('请输入 1—24 之间的被试编号');
+        return;
+      }
+      participantId = value;
+      let remoteLoaded = false;
+      if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
+        try {
+          const remote = await window.ExperimentAPI.getParticipant(participantId);
+          if (remote?.config) config = remote.config;
+          if (remote?.state) {
+            applyRemoteState(remote.state);
+            remoteLoaded = true;
+          }
+        } catch (_) {
+          // 云端暂不可用时，允许继续使用本机缓存。
+        }
+      }
+      if (!remoteLoaded) config = readConfig();
+      save();
+      if (!consents[participantId]) showConsent();
+      else continueAfterParticipantEntry();
+    }
+    $('#startExperimentButton').addEventListener('click', startExperiment);
+    $('#beginTaskButton').addEventListener('click', beginTask);
+    $('#consentAgree').addEventListener('change', event => { $('#consentConfirmButton').disabled = !event.target.checked; });
+    $('#consentConfirmButton').addEventListener('click', () => {
+      if (!$('#consentAgree').checked) return;
+      consents[participantId] = { participantId, version: 'v1', agreedAt: Date.now() };
+      save();
+      continueAfterParticipantEntry();
+    });
+    $('#participantInput').addEventListener('keydown', event => { if (event.key === 'Enter') startExperiment(); });
+    if (participantId) $('#participantInput').value = participantId;
+    hydrateRemoteParticipant();
+  </script>
+</body>
+</html>

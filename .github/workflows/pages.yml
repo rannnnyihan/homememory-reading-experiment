@@ -1,0 +1,39 @@
+name: Deploy reading experiment to GitHub Pages
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Prepare static site
+        run: |
+          mkdir -p _site/admin
+          cp index.html experiment_reading_real_materials_landscape.html experiment_reading_backend.html experiment-api.js experiment-deployment-config.js _site/
+          cp admin/index.html _site/admin/index.html
+          touch _site/.nojekyll
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
