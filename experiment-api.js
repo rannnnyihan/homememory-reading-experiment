@@ -81,21 +81,25 @@
 
   function appsScriptGet(params, requiresAdmin = false) {
     const query = { ...params };
-    if (requiresAdmin) {
-      const token = adminToken() || (typeof window.prompt === 'function' ? window.prompt('请输入实验后台访问令牌') : '');
-      if (!token) return Promise.reject(new Error('需要实验后台访问令牌'));
-      localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
+    const token = requiresAdmin ? adminToken() : '';
+    if (token) {
       query.adminToken = token.trim();
     }
-    return jsonp(query);
+    return jsonp(query).catch((error) => {
+      if (!requiresAdmin || !/令牌/.test(error.message || '') || typeof window.prompt !== 'function') {
+        throw error;
+      }
+      const nextToken = window.prompt('请输入实验后台访问令牌');
+      if (!nextToken) throw error;
+      localStorage.setItem(ADMIN_TOKEN_KEY, nextToken.trim());
+      return jsonp({ ...params, adminToken: nextToken.trim() });
+    });
   }
 
   function appsScriptPost(payload, requiresAdmin = false) {
     const body = { payload: JSON.stringify(payload) };
-    if (requiresAdmin) {
-      const token = adminToken() || (typeof window.prompt === 'function' ? window.prompt('请输入实验后台访问令牌') : '');
-      if (!token) return Promise.reject(new Error('需要实验后台访问令牌'));
-      localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
+    const token = requiresAdmin ? adminToken() : '';
+    if (token) {
       body.adminToken = token.trim();
     }
     const formBody = new URLSearchParams(body);
