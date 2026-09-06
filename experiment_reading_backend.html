@@ -130,13 +130,13 @@
       const completeParticipants = Array.from({ length: 24 }, (_, index) => index + 1).filter(participant => [0, 1, 2, 3].every(stage => isStageComplete(participant, stage, state.records || {}, state.questionnaires || {})) && state.questionnaires?.[getQuestionnaireKey(participant, null, 'ETAM')]).length;
       $('#questionnaireDoneMetric').textContent = `${completeParticipants} / 24`;
       const items = questionnaireDefinitions[activeQuestionnaireType];
-      $('#questionnaireHead').innerHTML = `<tr><th>序号</th><th>阶段</th><th>实验方式</th><th>文章</th><th>提交时间</th>${items.map((item, index) => `<th>q${index + 1}<br>${item}</th>`).join('')}</tr>`;
+      $('#questionnaireHead').innerHTML = `<tr><th>序号</th><th>被试</th><th>阶段</th><th>实验方式</th><th>文章</th><th>提交时间</th>${items.map((item, index) => `<th>q${index + 1}<br>${item}</th>`).join('')}</tr>`;
       $('#questionnaireRows').innerHTML = rows.length ? rows.map((row, rowIndex) => {
         const record = row.stage ? `第 ${row.stage} 阶段` : '实验结束';
         const condition = row.condition ? conditionCodes[row.condition] : '—';
         const article = row.materialIndex === null || row.materialIndex === undefined ? '—' : materials[row.materialIndex];
-        return `<tr><td>${rowIndex + 1}</td><td>${record}</td><td>${condition}</td><td>${article}</td><td>${formatTime(row.submittedAt)}</td>${items.map((_, index) => `<td>${row.responses?.[`q${index + 1}`] ?? ''}</td>`).join('')}</tr>`;
-      }).join('') : `<tr><td colspan="${5 + items.length}" class="empty">暂无 ${questionnaireLabels[activeQuestionnaireType]} 原始数据</td></tr>`;
+        return `<tr><td>${rowIndex + 1}</td><td>被试 ${String(row.participantId).padStart(2, '0')}</td><td>${record}</td><td>${condition}</td><td>${article}</td><td>${formatTime(row.submittedAt)}</td>${items.map((_, index) => `<td>${row.responses?.[`q${index + 1}`] ?? ''}</td>`).join('')}</tr>`;
+      }).join('') : `<tr><td colspan="${6 + items.length}" class="empty">暂无 ${questionnaireLabels[activeQuestionnaireType]} 原始数据</td></tr>`;
     }
     function render() { config = getConfig(); renderSchedule(); renderReadingRecords(); renderQuestionnaireRecords(); }
     function collectConfig() { const assignments = {}; for (let participant = 1; participant <= 24; participant++) { assignments[participant] = [0, 1, 2, 3].map(stage => document.querySelector(`[data-participant="${participant}"][data-stage="${stage}"]`).value); if (new Set(assignments[participant]).size !== 4) throw new Error(`被试 ${participant} 的四个阶段不能重复`); } return { materialOrder: config.materialOrder || [0, 1, 2, 3], conditionBindings: config.conditionBindings || { app: 0, tissue: 1, cup: 2, both: 3 }, latinOrders: config.latinOrders, assignments }; }
