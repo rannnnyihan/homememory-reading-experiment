@@ -85,7 +85,9 @@
         if (!response.ok) throw new Error(`Google Sheets 数据读取失败（${response.status}）`);
         return response.json();
       })
-      .catch(() => jsonp(query));
+      .catch((fetchError) => jsonp(query).catch((jsonpError) => {
+        throw new Error(`${fetchError.message}；备用读取也失败：${jsonpError.message}`);
+      }));
   }
 
   function appsScriptPost(payload, requiresAdmin = false) {
