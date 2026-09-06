@@ -5,7 +5,8 @@
   <script>
     if (window.location.protocol !== 'file:' && window.location.pathname.endsWith('/experiment_reading_real_materials_landscape.html')) {
       const basePath = window.location.pathname.slice(0, -'/experiment_reading_real_materials_landscape.html'.length) || '/';
-      window.history.replaceState({}, document.title, `${basePath}${window.location.search}${window.location.hash}`);
+      const normalizedBasePath = basePath.endsWith('/') ? basePath : `${basePath}/`;
+      window.history.replaceState({}, document.title, `${normalizedBasePath}${window.location.search}${window.location.hash}`);
     }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -532,8 +533,12 @@
     function save() {
       const payload = getStatePayload();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
-        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
+      if (participantId && window.location.protocol !== 'file:') {
+        if (window.ExperimentAPI) {
+          window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
+        } else {
+          showToast('警告：云端接口未加载，数据仅保存在本机');
+        }
       }
     }
     async function hydrateRemoteParticipant() {
@@ -541,11 +546,18 @@
       try {
         const remote = await window.ExperimentAPI.getParticipant(participantId);
         if (remote?.config) config = remote.config;
-        if (remote?.state) applyRemoteState(remote.state);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
-        if (!$('#experimentApp').hidden) render();
+        const remoteState = remote?.state || {};
+        const remoteHasData = Boolean(remoteState.records && Object.keys(remoteState.records).length) || Boolean(remoteState.questionnaires && Object.keys(remoteState.questionnaires).length) || Boolean(remoteState.consents && Object.keys(remoteState.consents).length);
+        if (remoteHasData) {
+          applyRemoteState(remoteState);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
+          if (!$('#experimentApp').hidden) render();
+        } else {
+          // 云端为空但本机已有数据：自动补传云端，修复历史未同步的数据。
+          save();
+        }
       } catch (_) {
-        // EdgeOne API 尚未配置时继续使用本地预览数据。
+        // 云端读取失败时保留本机数据，下次再同步。
       }
     }
     function getAssignment() {
