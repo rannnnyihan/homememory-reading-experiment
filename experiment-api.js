@@ -77,7 +77,15 @@
     if (token) {
       query.adminToken = token.trim();
     }
-    return jsonp(query);
+    const requestUrl = `${appsScriptUrl}?${new URLSearchParams(query).toString()}`;
+    // Apps Script allows cross-origin reads. Fetch is more reliable than JSONP
+    // when its response is redirected to script.googleusercontent.com.
+    return fetch(requestUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Google Sheets 数据读取失败（${response.status}）`);
+        return response.json();
+      })
+      .catch(() => jsonp(query));
   }
 
   function appsScriptPost(payload, requiresAdmin = false) {

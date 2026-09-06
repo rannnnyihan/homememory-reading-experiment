@@ -27,9 +27,11 @@ jobs:
           mkdir -p _site/admin
           cp index.html experiment_reading_real_materials_landscape.html experiment_reading_backend.html experiment-api.js experiment-deployment-config.js _site/
           cp experiment-api.js _site/experiment-api.v2.js
+          cp experiment-api.js _site/experiment-api.v3.js
           cp experiment_reading_backend.html _site/admin/index.html
           cp experiment-api.js experiment-deployment-config.js _site/admin/
           cp experiment-api.js _site/admin/experiment-api.v2.js
+          cp experiment-api.js _site/admin/experiment-api.v3.js
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
