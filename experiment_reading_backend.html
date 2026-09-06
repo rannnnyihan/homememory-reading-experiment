@@ -79,7 +79,7 @@
     let remoteConfig = null;
     let remoteExperimentState = null;
     function getConfig() { if (remoteConfig) return remoteConfig; try { const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || 'null'); if (!saved || !saved.assignments || !saved.latinOrders) return buildDefaultConfig(); return { ...buildDefaultConfig(), ...saved, materialOrder: Array.isArray(saved.materialOrder) ? saved.materialOrder : [0, 1, 2, 3] }; } catch (_) { return buildDefaultConfig(); } }
-    function readExperimentState() { if (remoteExperimentState) return remoteExperimentState; try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (_) { return {}; } }
+    function readExperimentState() { if (remoteExperimentState) return remoteExperimentState; try { return JSON.parse(localStorage.getItem(BACKEND_CACHE_KEY) || '{}'); } catch (_) { return {}; } }
     let config = getConfig();
     let activeQuestionnaireType = 'FSS';
     function formatTime(timestamp) { return timestamp ? new Date(timestamp).toLocaleString('zh-CN', { hour12: false }) : '—'; }
@@ -112,6 +112,7 @@
           if (state.consents?.[participantId]) remoteExperimentState.consents[participantId] = state.consents[participantId];
         });
         config = remoteConfig;
+        try { localStorage.setItem(BACKEND_CACHE_KEY, JSON.stringify(remoteExperimentState)); } catch (_) { /* 缓存写入失败不影响展示 */ }
         render();
       } catch (error) {
         showToast(`云端数据读取失败：${error.message || '未知原因'}。当前显示本机缓存`);
@@ -148,11 +149,12 @@
     function exportReading() { const rows = [['顺序编号', '阶段', '实验方式', '文章', '开始时间', '提交时间', '完成用时', '答对题数', '题目数', '正确率']]; getReadingRows().forEach(record => { const fallback = getSequence(record.participantId); const sequence = { index: record.sequenceIndex ?? fallback.index, labels: record.sequence ?? fallback.labels }; rows.push([sequence.index, record.stage, conditionCodes[record.condition] || record.condition, materials[record.materialIndex] || record.title, formatTime(record.startedAt), formatTime(record.submittedAt), formatDuration(record.durationMs), record.correctCount, record.total, `${record.accuracy}%`]); }); downloadCsv('阅读答题记录.csv', rows); }
     function exportQuestionnaires(type = activeQuestionnaireType) { const items = questionnaireDefinitions[type]; const rows = [['序号', '阶段', '实验方式', '文章', '提交时间', ...items.map((item, index) => `q${index + 1}｜${item}`)]]; getQuestionnaireRows(type).forEach(record => { const fallback = getSequence(record.participantId); const sequence = { index: record.sequenceIndex ?? fallback.index, labels: record.sequence ?? fallback.labels }; const values = items.map((_, index) => record.responses?.[`q${index + 1}`] ?? ''); rows.push([sequence.index, record.stage || '实验结束', record.condition ? conditionCodes[record.condition] : '', record.materialIndex === null || record.materialIndex === undefined ? '' : materials[record.materialIndex], formatTime(record.submittedAt), ...values]); }); downloadCsv(`问卷原始数据_${questionnaireLabels[type]}.csv`, rows); }
     function exportAllQuestionnaires() { stageQuestionnaireTypes.concat('ETAM').forEach(type => exportQuestionnaires(type)); }
-    async function clearReading() { if (!confirm('确定清空全部阅读答题记录吗？问卷原始数据不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('reading'); const state = readExperimentState(); delete state.records; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('阅读答题记录已清空'); }
-    async function clearQuestionnaires() { if (!confirm('确定清空全部问卷原始数据吗？阅读答题记录不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('questionnaires'); const state = readExperimentState(); delete state.questionnaires; delete state.questionnaireDrafts; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('问卷原始数据已清空'); }
+    async function clearReading() { if (!confirm('确定清空全部阅读答题记录吗？问卷原始数据不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('reading'); const state = readExperimentState(); delete state.records; localStorage.setItem(BACKEND_CACHE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('阅读答题记录已清空'); }
+    async function clearQuestionnaires() { if (!confirm('确定清空全部问卷原始数据吗？阅读答题记录不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('questionnaires'); const state = readExperimentState(); delete state.questionnaires; delete state.questionnaireDrafts; localStorage.setItem(BACKEND_CACHE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('问卷原始数据已清空'); }
     function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     $('#saveButton').addEventListener('click', saveConfig); $('#resetLatinButton').addEventListener('click', resetLatin); $('#refreshButton').addEventListener('click', refreshRemote); $('#exportReadingButton').addEventListener('click', exportReading); $('#exportQuestionnaireButton').addEventListener('click', () => exportQuestionnaires(activeQuestionnaireType)); $('#exportAllQuestionnaireButton').addEventListener('click', exportAllQuestionnaires); $('#clearReadingButton').addEventListener('click', clearReading); $('#clearQuestionnaireButton').addEventListener('click', clearQuestionnaires);
     const BACKEND_TAB_KEY = 'homememory-reading-experiment-backend-tab-v1';
+    const BACKEND_CACHE_KEY = 'homememory-reading-experiment-backend-cache-v1';
     function activateBackendTab(panelId) {
       document.querySelectorAll('.backend-tab').forEach(item => item.classList.toggle('active', item.dataset.panel === panelId));
       document.querySelectorAll('#participantPanel, #readingPanel, #questionnairePanel').forEach(panel => panel.classList.toggle('hidden', panel.id !== panelId));
@@ -161,7 +163,7 @@
     (function restoreBackendTab() { const savedTab = localStorage.getItem(BACKEND_TAB_KEY); if (savedTab && document.querySelector(`.backend-tab[data-panel="${savedTab}"]`)) activateBackendTab(savedTab); })();
     document.querySelectorAll('.questionnaire-tab').forEach(tab => tab.addEventListener('click', () => { activeQuestionnaireType = tab.dataset.questionnaireType; localStorage.setItem(BACKEND_TAB_KEY + ':q', activeQuestionnaireType); document.querySelectorAll('.questionnaire-tab').forEach(item => item.classList.toggle('active', item === tab)); renderQuestionnaireRecords(); }));
     (function restoreQuestionnaireTab() { const savedType = localStorage.getItem(BACKEND_TAB_KEY + ':q'); if (savedType && questionnaireDefinitions[savedType]) { activeQuestionnaireType = savedType; document.querySelectorAll('.questionnaire-tab').forEach(item => item.classList.toggle('active', item.dataset.questionnaireType === savedType)); } })();
-    window.addEventListener('storage', event => { if (event.key === STORAGE_KEY || event.key === CONFIG_KEY) render(); });
+    window.addEventListener('storage', event => { if (event.key === BACKEND_CACHE_KEY || event.key === CONFIG_KEY) render(); });
     render(); refreshRemote(); setInterval(refreshRemote, 5000);
   </script>
 </body>
