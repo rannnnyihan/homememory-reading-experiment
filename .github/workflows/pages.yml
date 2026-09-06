@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p _site/admin
           cp index.html experiment_reading_real_materials_landscape.html experiment_reading_backend.html experiment-api.js experiment-deployment-config.js _site/
-          cp admin/index.html _site/admin/index.html
+          cp experiment_reading_backend.html _site/admin/index.html
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
