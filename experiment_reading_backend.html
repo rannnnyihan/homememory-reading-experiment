@@ -89,11 +89,20 @@
     function getReadingRows() { const records = readExperimentState().records || {}; return Object.values(records).sort((a, b) => (a.participantId - b.participantId) || (a.stage - b.stage)); }
     function renderReadingRecords() { const rows = getReadingRows(); $('#readingCountMetric').textContent = `${rows.length} / 96`; $('#durationMetric').textContent = rows.length ? formatDuration(rows.reduce((sum, record) => sum + record.durationMs, 0) / rows.length) : '—'; $('#accuracyMetric').textContent = rows.length ? `${Math.round(rows.reduce((sum, record) => sum + record.accuracy, 0) / rows.length * 10) / 10}%` : '—'; const state = readExperimentState(); const completeParticipants = Array.from({ length: 24 }, (_, index) => index + 1).filter(participant => [0, 1, 2, 3].every(stage => state.records?.[`p${participant}-s${stage}`])).length; $('#participantDoneMetric').textContent = `${completeParticipants} / 24`; $('#readingRows').innerHTML = rows.length ? rows.map(record => { const fallback = getSequence(record.participantId); const sequence = { index: record.sequenceIndex ?? fallback.index, labels: record.sequence ?? fallback.labels }; return `<tr><td>${sequence.index}</td><td>被试 ${String(record.participantId).padStart(2, '0')}</td><td>第 ${record.stage} 阶段</td><td>${conditionLabels[record.condition] || record.condition}</td><td>${materials[record.materialIndex] || record.title}</td><td>${formatTime(record.startedAt)}</td><td>${formatTime(record.submittedAt)}</td><td>${formatDuration(record.durationMs)}</td><td>${record.accuracy}%（${record.correctCount}/${record.total}）</td></tr>`; }).join('') : '<tr><td colspan="9" class="empty">暂无阅读答题记录</td></tr>'; }
     function getQuestionnaireRows(type = activeQuestionnaireType) { const questionnaires = readExperimentState().questionnaires || {}; return Object.values(questionnaires).filter(row => row.questionnaire === type).sort((a, b) => (a.participantId - b.participantId) || ((a.stage ?? 5) - (b.stage ?? 5))); }
+    function mergeWithDefaultConfig(cfg) {
+      const defaults = buildDefaultConfig();
+      const merged = { ...defaults, ...(cfg || {}) };
+      if (!merged.assignments || !Object.keys(merged.assignments).length) merged.assignments = defaults.assignments;
+      if (!Array.isArray(merged.latinOrders) || !merged.latinOrders.length) merged.latinOrders = defaults.latinOrders;
+      if (!Array.isArray(merged.materialOrder) || !merged.materialOrder.length) merged.materialOrder = defaults.materialOrder;
+      if (!merged.conditionBindings || !Object.keys(merged.conditionBindings).length) merged.conditionBindings = defaults.conditionBindings;
+      return merged;
+    }
     async function refreshRemote() {
       if (window.location.protocol === 'file:' || !window.ExperimentAPI) return;
       try {
         const remote = await window.ExperimentAPI.getAll();
-        remoteConfig = remote.config || buildDefaultConfig();
+        remoteConfig = mergeWithDefaultConfig(remote.config);
         remoteExperimentState = { records: {}, questionnaires: {}, consents: {} };
         Object.entries(remote.states || {}).forEach(([participantId, state]) => {
           Object.assign(remoteExperimentState.records, state.records || {});
