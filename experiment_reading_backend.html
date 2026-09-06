@@ -5,7 +5,8 @@
   <script>
     if (window.location.protocol !== 'file:' && window.location.pathname.endsWith('/experiment_reading_backend.html')) {
       const basePath = window.location.pathname.slice(0, -'/experiment_reading_backend.html'.length) || '/';
-      window.history.replaceState({}, document.title, `${basePath}admin/${window.location.search}${window.location.hash}`);
+      const normalizedBasePath = basePath.endsWith('/') ? basePath : `${basePath}/`;
+      window.history.replaceState({}, document.title, `${normalizedBasePath}admin/${window.location.search}${window.location.hash}`);
     }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />

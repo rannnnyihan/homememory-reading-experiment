@@ -98,39 +98,14 @@
       localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
       body.adminToken = token.trim();
     }
-    return new Promise((resolve, reject) => {
-      const frame = document.createElement('iframe');
-      const frameName = `__hmExperimentPost_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      frame.name = frameName;
-      frame.title = '实验数据提交';
-      frame.style.display = 'none';
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = appsScriptUrl;
-      form.target = frameName;
-      form.style.display = 'none';
-      Object.entries(body).forEach(([name, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      });
-      let settled = false;
-      const finish = (error) => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(timer);
-        frame.remove();
-        form.remove();
-        if (error) reject(error);
-        else resolve({ ok: true });
-      };
-      const timer = window.setTimeout(() => finish(), 15000);
-      frame.onerror = () => finish(new Error('Google Sheets 数据提交失败'));
-      document.body.append(frame, form);
-      form.submit();
-      window.setTimeout(() => finish(), 1200);
+    const formBody = new URLSearchParams(body);
+    return fetch(appsScriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      keepalive: true,
+      body: formBody
+    }).then(() => {
+      return { ok: true };
     });
   }
 
