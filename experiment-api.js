@@ -33,14 +33,6 @@
     if (options.body) headers.set('Content-Type', 'application/json');
     if (requiresAdmin && adminToken()) headers.set('x-admin-token', adminToken());
     let response = await fetch(withPreviewAuth(url), { ...options, headers });
-    if (requiresAdmin && response.status === 401 && !adminToken() && typeof window.prompt === 'function') {
-      const token = window.prompt('请输入实验后台访问令牌');
-      if (token) {
-        localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
-        headers.set('x-admin-token', token.trim());
-        response = await fetch(withPreviewAuth(url), { ...options, headers });
-      }
-    }
     if (!response.ok) throw new Error(`实验数据接口请求失败（${response.status}）`);
     return response.json();
   }
@@ -85,15 +77,7 @@
     if (token) {
       query.adminToken = token.trim();
     }
-    return jsonp(query).catch((error) => {
-      if (!requiresAdmin || !/令牌/.test(error.message || '') || typeof window.prompt !== 'function') {
-        throw error;
-      }
-      const nextToken = window.prompt('请输入实验后台访问令牌');
-      if (!nextToken) throw error;
-      localStorage.setItem(ADMIN_TOKEN_KEY, nextToken.trim());
-      return jsonp({ ...params, adminToken: nextToken.trim() });
-    });
+    return jsonp(query);
   }
 
   function appsScriptPost(payload, requiresAdmin = false) {
