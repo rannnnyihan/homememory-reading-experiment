@@ -254,8 +254,19 @@
           <div class="consent-choice"><label><input type="checkbox" name="smartHomeScenes" value="阅读或学习">阅读或学习</label><label><input type="checkbox" name="smartHomeScenes" value="居家办公">居家办公</label><label><input type="checkbox" name="smartHomeScenes" value="休息或娱乐">休息或娱乐</label><label><input type="checkbox" name="smartHomeScenes" value="睡眠">睡眠</label><label><input type="checkbox" name="smartHomeScenes" value="其他">其他</label><input id="profileSceneOther" type="text" placeholder="其他场景" /></div>
         </div>
         <div class="consent-field">您是否愿意尝试使用身边的日常物体参与智能家居控制？
-          <div class="consent-scale">${Array.from({ length: 7 }, (_, index) => `<label><input type="radio" name="objectAcceptance" value="${index + 1}"><span>${index + 1}</span></label>`).join('')}</div>
+          <div class="consent-scale"><label><input type="radio" name="objectAcceptance" value="1"><span>1</span></label><label><input type="radio" name="objectAcceptance" value="2"><span>2</span></label><label><input type="radio" name="objectAcceptance" value="3"><span>3</span></label><label><input type="radio" name="objectAcceptance" value="4"><span>4</span></label><label><input type="radio" name="objectAcceptance" value="5"><span>5</span></label><label><input type="radio" name="objectAcceptance" value="6"><span>6</span></label><label><input type="radio" name="objectAcceptance" value="7"><span>7</span></label></div>
           <span class="label">1 = 完全不愿意，7 = 非常愿意</span>
+        </div>
+        <div class="consent-field">您对使用手机 App 控制智能家居设备的熟悉程度是？
+          <div class="consent-scale"><label><input type="radio" name="appFamiliarity" value="1"><span>1</span></label><label><input type="radio" name="appFamiliarity" value="2"><span>2</span></label><label><input type="radio" name="appFamiliarity" value="3"><span>3</span></label><label><input type="radio" name="appFamiliarity" value="4"><span>4</span></label><label><input type="radio" name="appFamiliarity" value="5"><span>5</span></label><label><input type="radio" name="appFamiliarity" value="6"><span>6</span></label><label><input type="radio" name="appFamiliarity" value="7"><span>7</span></label></div>
+          <span class="label">1 = 完全不熟悉，7 = 非常熟悉</span>
+        </div>
+        <div class="consent-field">您通常通过什么方式控制智能家居设备？<span class="label">（可多选）</span>
+          <div class="consent-choice"><label><input type="checkbox" name="controlMethods" value="手机 App">手机 App</label><label><input type="checkbox" name="controlMethods" value="实体开关">实体开关</label><label><input type="checkbox" name="controlMethods" value="语音助手">语音助手</label><label><input type="checkbox" name="controlMethods" value="遥控器">遥控器</label><label><input type="checkbox" name="controlMethods" value="自动感应">自动感应</label><label><input type="checkbox" name="controlMethods" value="其他">其他</label></div>
+        </div>
+        <div class="consent-field">我认为使用身边的日常物体调节环境，比重新打开手机或寻找控制面板更自然。
+          <div class="consent-scale"><label><input type="radio" name="objectNaturalness" value="1"><span>1</span></label><label><input type="radio" name="objectNaturalness" value="2"><span>2</span></label><label><input type="radio" name="objectNaturalness" value="3"><span>3</span></label><label><input type="radio" name="objectNaturalness" value="4"><span>4</span></label><label><input type="radio" name="objectNaturalness" value="5"><span>5</span></label><label><input type="radio" name="objectNaturalness" value="6"><span>6</span></label><label><input type="radio" name="objectNaturalness" value="7"><span>7</span></label></div>
+          <span class="label">1 = 非常不同意，7 = 非常同意</span>
         </div>
       </div>
       <label class="consent-check"><input id="consentAgree" type="checkbox" /><span>我已阅读并理解以上说明，自愿参加本次实验，并同意研究人员记录和使用本次实验数据。</span></label>
@@ -968,8 +979,11 @@
       const smartHomeScenes = Array.from(document.querySelectorAll('input[name="smartHomeScenes"]:checked')).map(input => input.value);
       const sceneOther = $('#profileSceneOther').value.trim();
       const objectAcceptance = document.querySelector('input[name="objectAcceptance"]:checked')?.value || '';
-      if (!gender || !Number.isInteger(age) || age < 18 || !major || !smartHomeUse || !smartHomeScenes.length || !objectAcceptance) return null;
-      return { gender, age, major, smartHomeUse, smartHomeScenes: sceneOther ? smartHomeScenes.map(scene => scene === '其他' ? `其他：${sceneOther}` : scene) : smartHomeScenes, objectAcceptance: Number(objectAcceptance) };
+      const appFamiliarity = document.querySelector('input[name="appFamiliarity"]:checked')?.value || '';
+      const controlMethods = Array.from(document.querySelectorAll('input[name="controlMethods"]:checked')).map(input => input.value);
+      const objectNaturalness = document.querySelector('input[name="objectNaturalness"]:checked')?.value || '';
+      if (!gender || !Number.isInteger(age) || age < 18 || !major || !smartHomeUse || !smartHomeScenes.length || !objectAcceptance || !appFamiliarity || !controlMethods.length || !objectNaturalness) return null;
+      return { gender, age, major, smartHomeUse, smartHomeScenes: sceneOther ? smartHomeScenes.map(scene => scene === '其他' ? `其他：${sceneOther}` : scene) : smartHomeScenes, objectAcceptance: Number(objectAcceptance), appFamiliarity: Number(appFamiliarity), controlMethods, objectNaturalness: Number(objectNaturalness) };
     }
     function updateConsentButton() {
       $('#consentConfirmButton').disabled = !($('#consentAgree').checked && collectConsentProfile());
