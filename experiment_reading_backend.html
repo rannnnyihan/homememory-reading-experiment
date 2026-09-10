@@ -126,14 +126,14 @@
       const completeParticipants = Array.from({ length: 24 }, (_, index) => index + 1).filter(participant => [0, 1, 2, 3].every(stage => isStageComplete(participant, stage, state.records || {}, state.questionnaires || {})) && state.questionnaires?.[getQuestionnaireKey(participant, null, 'OVERALL')]).length;
       $('#questionnaireDoneMetric').textContent = `${completeParticipants} / 24`;
       const items = questionnaireDefinitions[activeQuestionnaireType];
-      $('#questionnaireHead').innerHTML = `<tr><th>序号</th><th>实验顺序</th><th>被试</th><th>阶段</th><th>实验方式</th><th>文章</th><th>提交时间</th>${items.map((item, index) => `<th>q${index + 1}<br>${item}</th>`).join('')}</tr>`;
+      $('#questionnaireHead').innerHTML = `<tr><th>序号</th><th>被试</th><th>阶段</th><th>实验方式</th><th>文章</th><th>提交时间</th>${items.map((item, index) => `<th>q${index + 1}<br>${item}</th>`).join('')}</tr>`;
       $('#questionnaireRows').innerHTML = rows.length ? rows.map(row => {
         const fallback = getSequence(row.participantId);
         const sequence = { index: row.sequenceIndex ?? fallback.index, labels: row.sequence ?? fallback.labels };
         const record = row.stage ? `第 ${row.stage} 阶段` : '实验结束';
         const condition = row.condition ? conditionLabels[row.condition] : '—';
         const article = row.materialIndex === null || row.materialIndex === undefined ? '—' : materials[row.materialIndex];
-        return `<tr><td>${sequence.index}</td><td class="sequence-cell">${sequence.labels}</td><td>被试 ${String(row.participantId).padStart(2, '0')}</td><td>${record}</td><td>${condition}</td><td>${article}</td><td>${formatTime(row.submittedAt)}</td>${items.map((_, index) => `<td>${row.responses?.[`q${index + 1}`] ?? ''}</td>`).join('')}</tr>`;
+        return `<tr><td>${sequence.index}</td><td>被试 ${String(row.participantId).padStart(2, '0')}</td><td>${record}</td><td>${condition}</td><td>${article}</td><td>${formatTime(row.submittedAt)}</td>${items.map((_, index) => `<td>${row.responses?.[`q${index + 1}`] ?? ''}</td>`).join('')}</tr>`;
       }).join('') : `<tr><td colspan="${7 + items.length}" class="empty">暂无 ${questionnaireLabels[activeQuestionnaireType]} 原始数据</td></tr>`;
     }
     function render() { config = getConfig(); renderSchedule(); renderReadingRecords(); renderQuestionnaireRecords(); }
