@@ -29,11 +29,13 @@ jobs:
           cp experiment-api.js _site/experiment-api.v2.js
           cp experiment-api.js _site/experiment-api.v3.js
           cp experiment-api.js _site/experiment-api.v4.js
+          cp experiment-api.js _site/experiment-api.v5.js
           cp experiment_reading_backend.html _site/admin/index.html
           cp experiment-api.js experiment-deployment-config.js _site/admin/
           cp experiment-api.js _site/admin/experiment-api.v2.js
           cp experiment-api.js _site/admin/experiment-api.v3.js
           cp experiment-api.js _site/admin/experiment-api.v4.js
+          cp experiment-api.js _site/admin/experiment-api.v5.js
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
