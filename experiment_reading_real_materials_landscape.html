@@ -160,6 +160,16 @@
     .consent-check { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; padding: 13px 14px; background: var(--accent-soft); border: 1px solid #c8dff3; color: #344c60; font-size: 13px; line-height: 1.6; }
     .consent-check input { margin-top: 3px; accent-color: var(--accent); }
     .consent-source { margin: 15px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .consent-form { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .consent-form h3 { margin: 0 0 12px; color: var(--ink); font-size: 14px; }
+    .consent-field { display: block; margin: 0 0 12px; color: var(--ink); font-size: 13px; font-weight: 600; }
+    .consent-field input, .consent-field select { width: 100%; height: 38px; margin-top: 6px; padding: 0 10px; border: 1px solid var(--line); border-radius: 2px; background: #fff; color: var(--ink); font-size: 13px; }
+    .consent-choice { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 7px 0 14px; color: var(--ink); font-size: 13px; font-weight: 400; }
+    .consent-choice label { display: inline-flex; align-items: center; gap: 5px; }
+    .consent-choice input { accent-color: var(--accent); }
+    .consent-scale { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 460px; margin-top: 8px; }
+    .consent-scale label { display: grid; justify-items: center; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 400; }
+    .consent-scale input { accent-color: var(--accent); }
     .consent-source a { color: var(--accent-dark); }
     .questionnaire-card { width: min(860px, 100%); max-height: calc(100vh - 48px); overflow: auto; }
     /* 问卷采用普通页面流，题目不会在内部滚动容器或视口中吸顶。 */
@@ -225,6 +235,28 @@
         <p>参加完全自愿。你可以拒绝参加，也可以在任何阶段停止，不会因此受到惩罚或损失应有的权益。</p>
         <h3>六、联系方式</h3>
         <p>研究负责人及联系方式：由研究人员现场填写。</p>
+      </div>
+      <div class="consent-form">
+        <h3>七、参与者基本信息</h3>
+        <label class="consent-field">性别
+          <select id="profileGender" required><option value="">请选择</option><option>男</option><option>女</option><option>其他</option><option>不愿回答</option></select>
+        </label>
+        <label class="consent-field">年龄
+          <input id="profileAge" type="number" min="18" max="100" placeholder="请输入年龄" required />
+        </label>
+        <label class="consent-field">专业或所学方向
+          <input id="profileMajor" type="text" maxlength="60" placeholder="请输入专业或所学方向" required />
+        </label>
+        <div class="consent-field">您是否使用过智能家居设备？
+          <div class="consent-choice"><label><input type="radio" name="smartHomeUse" value="从未使用过">从未使用过</label><label><input type="radio" name="smartHomeUse" value="偶尔使用">偶尔使用</label><label><input type="radio" name="smartHomeUse" value="经常使用">经常使用</label><label><input type="radio" name="smartHomeUse" value="几乎每天使用">几乎每天使用</label></div>
+        </div>
+        <div class="consent-field">您通常在哪些场景中使用智能家居设备？<span class="label">（可多选）</span>
+          <div class="consent-choice"><label><input type="checkbox" name="smartHomeScenes" value="阅读或学习">阅读或学习</label><label><input type="checkbox" name="smartHomeScenes" value="居家办公">居家办公</label><label><input type="checkbox" name="smartHomeScenes" value="休息或娱乐">休息或娱乐</label><label><input type="checkbox" name="smartHomeScenes" value="睡眠">睡眠</label><label><input type="checkbox" name="smartHomeScenes" value="其他">其他</label><input id="profileSceneOther" type="text" placeholder="其他场景" /></div>
+        </div>
+        <div class="consent-field">您是否愿意尝试使用身边的日常物体参与智能家居控制？
+          <div class="consent-scale">${Array.from({ length: 7 }, (_, index) => `<label><input type="radio" name="objectAcceptance" value="${index + 1}"><span>${index + 1}</span></label>`).join('')}</div>
+          <span class="label">1 = 完全不愿意，7 = 非常愿意</span>
+        </div>
       </div>
       <label class="consent-check"><input id="consentAgree" type="checkbox" /><span>我已阅读并理解以上说明，自愿参加本次实验，并同意研究人员记录和使用本次实验数据。</span></label>
       <p class="consent-source">本页面按研究知情同意的通用要素整理，正式实验前请结合学校伦理审批意见和实际联系方式进一步确认。参考：<a href="https://www.hhs.gov/ohrp/regulations-and-policy/guidance/faq/informed-consent/index.html" target="_blank" rel="noreferrer">HHS/OHRP Informed Consent FAQ</a></p>
@@ -928,6 +960,20 @@
       $('#consentConfirmButton').disabled = true;
       $('#consentScreen').classList.remove('hidden');
     }
+    function collectConsentProfile() {
+      const gender = $('#profileGender').value;
+      const age = Number($('#profileAge').value);
+      const major = $('#profileMajor').value.trim();
+      const smartHomeUse = document.querySelector('input[name="smartHomeUse"]:checked')?.value || '';
+      const smartHomeScenes = Array.from(document.querySelectorAll('input[name="smartHomeScenes"]:checked')).map(input => input.value);
+      const sceneOther = $('#profileSceneOther').value.trim();
+      const objectAcceptance = document.querySelector('input[name="objectAcceptance"]:checked')?.value || '';
+      if (!gender || !Number.isInteger(age) || age < 18 || !major || !smartHomeUse || !smartHomeScenes.length || !objectAcceptance) return null;
+      return { gender, age, major, smartHomeUse, smartHomeScenes: sceneOther ? smartHomeScenes.map(scene => scene === '其他' ? `其他：${sceneOther}` : scene) : smartHomeScenes, objectAcceptance: Number(objectAcceptance) };
+    }
+    function updateConsentButton() {
+      $('#consentConfirmButton').disabled = !($('#consentAgree').checked && collectConsentProfile());
+    }
     function continueAfterParticipantEntry() {
       const firstIncomplete = getFirstIncompleteStage();
       if (firstIncomplete === undefined) {
@@ -973,10 +1019,13 @@
     }
     $('#startExperimentButton').addEventListener('click', startExperiment);
     $('#beginTaskButton').addEventListener('click', beginTask);
-    $('#consentAgree').addEventListener('change', event => { $('#consentConfirmButton').disabled = !event.target.checked; });
+    $('#consentAgree').addEventListener('change', updateConsentButton);
+    document.querySelectorAll('#consentScreen input, #consentScreen select').forEach(input => input.addEventListener('input', updateConsentButton));
+    document.querySelectorAll('#consentScreen input[type="radio"], #consentScreen input[type="checkbox"]').forEach(input => input.addEventListener('change', updateConsentButton));
     $('#consentConfirmButton').addEventListener('click', () => {
-      if (!$('#consentAgree').checked) return;
-      consents[participantId] = { participantId, version: 'v1', agreedAt: Date.now() };
+      const profile = collectConsentProfile();
+      if (!$('#consentAgree').checked || !profile) return;
+      consents[participantId] = { participantId, version: 'v2', agreedAt: Date.now(), profile };
       save();
       continueAfterParticipantEntry();
     });
