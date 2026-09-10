@@ -148,6 +148,8 @@
     .setup-button:hover { background: var(--accent-dark); }
     .task-condition { display: inline-block; margin-bottom: 10px; color: var(--accent); font-size: 13px; font-weight: 600; }
     .task-copy { padding: 14px 15px; margin: 18px 0 0 !important; background: #f5f6f7; border-left: 3px solid var(--accent); color: #4a4f52 !important; white-space: pre-line; }
+    .interaction-guide { display: none; width: 100%; max-height: 280px; object-fit: contain; margin: 16px 0 2px; border: 1px solid var(--line); background: #fff; }
+    .interaction-guide.visible { display: block; }
     .completion-card { text-align: center; }
     .consent-card { width: min(760px, 100%); max-height: calc(100vh - 48px); overflow: auto; }
     .consent-card h2 { margin-bottom: 18px; }
@@ -234,6 +236,7 @@
       <span class="task-condition" id="introCondition">实验阶段</span>
       <h2 id="introTitle">阅读任务</h2>
       <p id="introArticle"></p>
+      <img class="interaction-guide" id="interactionGuide" alt="当前实验组交互方式示意图" />
       <p class="task-copy" id="introCopy">这里是实验任务描述占位区，后续再共同优化具体操作说明。</p>
       <button class="setup-button" id="beginTaskButton">开始本篇任务</button>
     </div>
@@ -292,6 +295,11 @@
       tissue: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用长方体实体物体——抽纸盒作为控制媒介，通过握持、平移或倾斜完成智能家居控制操作。',
       cup: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用圆柱体实体物体——水杯作为控制媒介，通过握持、旋转或倾斜完成智能家居控制操作。',
       both: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用抽纸盒和水杯协同完成控制操作，分别通过两种物体的握持、平移、旋转或倾斜完成智能家居控制。'
+    };
+    const interactionGuideImages = {
+      tissue: './assets/experiment-groups/tissue.png',
+      cup: './assets/experiment-groups/cup.png',
+      both: './assets/experiment-groups/both.png'
     };
     const taskPrompts = {
       app: [
@@ -889,6 +897,14 @@
       $('#introCondition').textContent = `第 ${current + 1} 阶段 · ${conditionLabels[condition]}`;
       $('#introTitle').textContent = '阅读任务准备';
       $('#introArticle').textContent = `本阶段文章：《${materials[materialIndex].title}》`;
+      const guide = $('#interactionGuide');
+      if (interactionGuideImages[condition]) {
+        guide.src = interactionGuideImages[condition];
+        guide.classList.add('visible');
+      } else {
+        guide.removeAttribute('src');
+        guide.classList.remove('visible');
+      }
       $('#introCopy').textContent = `${conditionDescriptions[condition] || '请按照实验提示完成本阶段任务。'}\n\n请在阅读过程中根据页面中的蓝色提示完成本阶段控制任务，然后继续阅读文章并回答右侧题目。系统将记录本阶段的完成时间和答题正确率。\n\n本阶段控制任务：${(taskPrompts[condition] || [])[current] || '请按照页面提示完成控制任务。'}`;
       $('#setupScreen').classList.add('hidden');
       $('#consentScreen').classList.add('hidden');
