@@ -100,6 +100,8 @@
     .questions-body { padding: 16px 20px 22px; background: var(--paper); }
     .question { border: 1px solid var(--line); border-radius: 2px; margin-bottom: 12px; background: #fff; overflow: hidden; }
     .question-title { padding: 14px 16px 11px; font-weight: 600; font-size: 14px; line-height: 1.55; }
+    .task-prompt { margin: 0 0 10px; padding: 10px 14px; border-left: 3px solid #1769aa; background: #f1f7fc; color: #1769aa; font-size: 13px; line-height: 1.65; }
+    .task-prompt strong { margin-right: 6px; font-weight: 700; }
     .options { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 0 12px 14px; }
     .option { position: relative; display: flex; align-items: flex-start; gap: 8px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; color: #4a4f52; font-size: 13px; line-height: 1.5; transition: .16s ease; }
     .option:hover { border-color: #8fbbe4; background: #f5f9fd; }
@@ -291,6 +293,12 @@
       tissue: '请使用抽纸盒作为交互物完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。',
       cup: '请使用水杯作为交互物完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。',
       both: '请使用抽纸盒和水杯共同完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。'
+    };
+    const taskPrompts = {
+      app: ['请使用手机 App，打开阅读场景，开启灯光和加湿器。', '请使用手机 App，将窗帘调节至半开状态。', '请使用手机 App，将窗帘完全打开，并将灯光调暗。', '请使用手机 App，关闭窗帘，并关闭阅读场景中的灯光和加湿器。'],
+      tissue: ['请长时间握持抽纸盒，打开阅读场景，开启灯光和加湿器。', '请握持抽纸盒并进行平移，将窗帘调节至半开状态。', '请握持抽纸盒并进行平移，将窗帘完全打开；随后倾斜抽纸盒切换至灯光控制，再通过平移将灯光调暗。', '请握持并平移抽纸盒，关闭窗帘；随后继续握持并带走抽纸盒，关闭阅读场景。'],
+      cup: ['请长时间握持水杯，打开阅读场景，开启灯光和加湿器。', '请握持水杯并进行旋转，将窗帘调节至半开状态。', '请握持水杯并进行旋转，将窗帘完全打开；随后倾斜水杯切换至灯光控制，再通过旋转将灯光调暗。', '请倾斜水杯切换至窗帘控制，并旋转关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。'],
+      both: ['请长时间握持水杯，打开阅读场景，开启灯光和加湿器。', '请握持抽纸盒并进行平移，将窗帘调节至半开状态。', '请通过平移抽纸盒，将窗帘完全打开；随后旋转水杯切换至灯光控制，并将灯光调暗。', '请使用抽纸盒平移关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。']
     };
     const stageQuestionnaireTypes = ['FSS', 'NASA', 'TENS'];
     const questionnaireDefinitions = {
@@ -647,10 +655,12 @@
       const answeredCount = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
       const submitLabel = record ? '本篇已提交' : '提交本篇';
       const submitHint = record ? `<span class="submitted-mark">✓ 已提交，不可修改</span>` : `已完成 ${answeredCount} / ${m.questions.length} 题`;
+      const prompts = taskPrompts[condition] || taskPrompts.app;
       $('#questionsBody').innerHTML = `<div>${m.questions.map((q, qi) => {
         const selected = answers[prefix + qi];
         const orderedOptions = getOptionOrder(materialIndex, qi, q).map(index => q[1][index]);
-        return `<section class="question"><div class="question-title">${qi + 1}. ${q[0]}：</div><div class="options">${orderedOptions.map((text, oi) => { const letter = String.fromCharCode(65 + oi); return `<label class="option"><input type="radio" name="q${current}-${qi}" value="${letter}" ${selected === letter ? 'checked' : ''} ${record ? 'disabled' : ''}><span><b>${letter}.</b> ${text}</span></label>`; }).join('')}</div><div class="choice-status ${selected ? 'done' : ''}">${selected ? `已选择：${selected}` : '尚未选择'}</div></section>`;
+        const prompt = qi % 2 === 0 ? `<div class="task-prompt"><strong>任务${qi / 2 + 1}：</strong>${prompts[qi / 2]}</div>` : '';
+        return `${prompt}<section class="question"><div class="question-title">${qi + 1}. ${q[0]}：</div><div class="options">${orderedOptions.map((text, oi) => { const letter = String.fromCharCode(65 + oi); return `<label class="option"><input type="radio" name="q${current}-${qi}" value="${letter}" ${selected === letter ? 'checked' : ''} ${record ? 'disabled' : ''}><span><b>${letter}.</b> ${text}</span></label>`; }).join('')}</div><div class="choice-status ${selected ? 'done' : ''}">${selected ? `已选择：${selected}` : '尚未选择'}</div></section>`;
       }).join('')}</div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
       document.querySelectorAll('input[type="radio"]').forEach(input => input.addEventListener('change', event => {
         const questionIndex = Number(event.target.name.split('-')[1]);
