@@ -1014,7 +1014,7 @@
       }
       if (!remoteLoaded) config = readConfig();
       save();
-      if (!consents[participantId]) showConsent();
+      if (!consents[participantId]?.profile) showConsent();
       else continueAfterParticipantEntry();
     }
     $('#startExperimentButton').addEventListener('click', startExperiment);
