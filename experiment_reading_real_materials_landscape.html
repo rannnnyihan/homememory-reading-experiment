@@ -738,9 +738,9 @@
       $('#questionsBody').innerHTML = `<div>${m.questions.map((q, qi) => {
         const selected = answers[prefix + qi];
         const orderedOptions = getOptionOrder(materialIndex, qi, q).map(index => q[1][index]);
-        const prompt = qi % 2 === 0 ? `<div class="task-prompt"><strong>任务${qi / 2 + 1}：</strong>${prompts[qi / 2]}</div>` : '';
+        const prompt = qi < 6 && qi % 2 === 0 ? `<div class="task-prompt"><strong>任务${qi / 2 + 1}：</strong>${prompts[qi / 2]}</div>` : '';
         return `${prompt}<section class="question"><div class="question-title">${qi + 1}. ${q[0]}：</div><div class="options">${orderedOptions.map((text, oi) => { const letter = String.fromCharCode(65 + oi); return `<label class="option"><input type="radio" name="q${current}-${qi}" value="${letter}" ${selected === letter ? 'checked' : ''} ${record ? 'disabled' : ''}><span><b>${letter}.</b> ${text}</span></label>`; }).join('')}</div><div class="choice-status ${selected ? 'done' : ''}">${selected ? `已选择：${selected}` : '尚未选择'}</div></section>`;
-      }).join('')}</div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
+      }).join('')}<div class="task-prompt"><strong>任务4：</strong>${prompts[3]}</div></div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
       document.querySelectorAll('input[type="radio"]').forEach(input => input.addEventListener('change', event => {
         const questionIndex = Number(event.target.name.split('-')[1]);
         answers[prefix + questionIndex] = event.target.value;
@@ -966,6 +966,9 @@
       $('#taskIntroScreen').classList.add('hidden');
       $('#experimentApp').hidden = false;
       render();
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     }
     function showConsent() {
       $('#setupScreen').classList.add('hidden');
