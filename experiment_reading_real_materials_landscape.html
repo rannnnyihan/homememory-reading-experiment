@@ -5,8 +5,7 @@
   <script>
     if (window.location.protocol !== 'file:' && window.location.pathname.endsWith('/experiment_reading_real_materials_landscape.html')) {
       const basePath = window.location.pathname.slice(0, -'/experiment_reading_real_materials_landscape.html'.length) || '/';
-      const normalizedBasePath = basePath.endsWith('/') ? basePath : `${basePath}/`;
-      window.history.replaceState({}, document.title, `${normalizedBasePath}${window.location.search}${window.location.hash}`);
+      window.history.replaceState({}, document.title, `${basePath}${window.location.search}${window.location.hash}`);
     }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -295,43 +294,62 @@
       both: '请使用抽纸盒和水杯共同完成当前居家办公场景中的设备控制。完成控制后，继续阅读文章并回答右侧题目。'
     };
     const taskPrompts = {
-      app: ['请使用手机 App，打开阅读场景，开启灯光和加湿器。', '请使用手机 App，将窗帘调节至半开状态。', '请使用手机 App，将窗帘完全打开，并将灯光调暗。', '请使用手机 App，关闭窗帘，并关闭阅读场景中的灯光和加湿器。'],
-      tissue: ['请长时间握持抽纸盒，打开阅读场景，开启灯光和加湿器。', '请握持抽纸盒并进行平移，将窗帘调节至半开状态。', '请握持抽纸盒并进行平移，将窗帘完全打开；随后倾斜抽纸盒切换至灯光控制，再通过平移将灯光调暗。', '请握持并平移抽纸盒，关闭窗帘；随后继续握持并带走抽纸盒，关闭阅读场景。'],
-      cup: ['请长时间握持水杯，打开阅读场景，开启灯光和加湿器。', '请握持水杯并进行旋转，将窗帘调节至半开状态。', '请握持水杯并进行旋转，将窗帘完全打开；随后倾斜水杯切换至灯光控制，再通过旋转将灯光调暗。', '请倾斜水杯切换至窗帘控制，并旋转关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。'],
-      both: ['请长时间握持水杯，打开阅读场景，开启灯光和加湿器。', '请握持抽纸盒并进行平移，将窗帘调节至半开状态。', '请通过平移抽纸盒，将窗帘完全打开；随后旋转水杯切换至灯光控制，并将灯光调暗。', '请使用抽纸盒平移关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。']
+      app: [
+        '请使用手机 App，打开阅读场景，开启灯光和加湿器。',
+        '请使用手机 App，将窗帘调节至半开状态。',
+        '请使用手机 App，将窗帘完全打开，并将灯光调暗。',
+        '请使用手机 App，关闭窗帘，并关闭阅读场景中的灯光和加湿器。'
+      ],
+      tissue: [
+        '请长时间握持抽纸盒，打开阅读场景，开启灯光和加湿器。',
+        '请握持抽纸盒并进行平移，将窗帘调节至半开状态。',
+        '请握持抽纸盒并进行平移，将窗帘完全打开；随后倾斜抽纸盒切换至灯光控制，再通过平移将灯光调暗。',
+        '请握持并平移抽纸盒，关闭窗帘；随后继续握持并带走抽纸盒，关闭阅读场景。'
+      ],
+      cup: [
+        '请长时间握持水杯，打开阅读场景，开启灯光和加湿器。',
+        '请握持水杯并进行旋转，将窗帘调节至半开状态。',
+        '请握持水杯并进行旋转，将窗帘完全打开；随后倾斜水杯切换至灯光控制，再通过旋转将灯光调暗。',
+        '请倾斜水杯切换至窗帘控制，并旋转关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。'
+      ],
+      both: [
+        '请长时间握持水杯，打开阅读场景，开启灯光和加湿器。',
+        '请握持抽纸盒并进行平移，将窗帘调节至半开状态。',
+        '请通过平移抽纸盒，将窗帘完全打开；随后旋转水杯切换至灯光控制，并将灯光调暗。',
+        '请使用抽纸盒平移关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。'
+      ]
     };
-    const stageQuestionnaireTypes = ['FSS', 'NASA', 'TENS'];
+    const stageQuestionnaireTypes = ['FSS', 'NASA', 'UEQS', 'ETAM'];
     const questionnaireDefinitions = {
       FSS: {
         title: 'FSS｜任务流畅感与沉浸体验',
         description: '请根据刚才这一篇阅读任务的整体体验评分。1 = 非常不同意，7 = 非常同意。',
         scale: 'likert7',
         items: [
-          '我能够全神贯注于当前阅读任务。', '我感觉自己完全沉浸在当前任务中。', '我对当前任务的目标非常清楚。',
-          '我清楚自己做得是否正确。', '我的注意力没有被其他事情打断。', '我感觉自己能够掌控当前的任务过程。',
-          '我没有明显意识到时间的流逝。', '当前任务本身让我感到投入。', '我的行动与思考衔接得很自然。',
-          '完成当前任务的过程是流畅的。'
+          '我感觉当前任务的挑战程度恰到好处。', '我的思考和行动进行得流畅而顺利。', '我没有意识到时间正在流逝。',
+          '我能够毫不费力地集中注意力。', '我的思路非常清晰。', '我完全沉浸在正在进行的事情中。',
+          '合适的想法或行动会自然而然地出现。', '在每一个步骤中，我都清楚自己应该做什么。',
+          '我感觉整个过程都在自己的掌控之中。', '我完全投入其中，几乎忘记了周围的一切。'
         ]
       },
       NASA: {
         title: 'NASA-TLX｜任务负荷',
-        description: '请评价刚才这一篇任务的负荷。1 = 非常低（表现题为非常好），7 = 非常高（表现题为非常差）。',
+        description: '请评价刚才这一篇任务的负荷。除任务表现外，1 = 非常低，7 = 非常高；任务表现为1 = 完美，7 = 失败。',
         scale: 'likert7',
-        items: ['心理需求：思考、记忆、判断和理解的负荷有多高？', '身体需求：身体活动和操作的负荷有多高？', '时间需求：任务节奏和时间压力有多大？', '表现：你对自己完成任务效果的满意程度如何？', '努力程度：为了完成任务，你需要付出多大努力？', '挫败感：完成任务时，你感到多烦躁、不安或受挫？']
+        items: ['心理需求：任务需要多少思考、判断、记忆、观察或信息搜索？', '身体需求：任务需要多少身体操作或身体活动？', '时间需求：完成任务时，你感受到多大的时间压力或紧迫感？', '任务表现：你认为自己完成任务目标的表现如何？', '努力程度：为了达到当前表现，你付出了多少心理或身体努力？', '挫败感：任务过程中，你感到多大程度的烦躁、紧张、压力、沮丧或不安？']
       },
-      TENS: {
-        title: 'TENS-Interface｜交互体验与心理需要',
-        description: '请评价刚才使用的交互方式。1 = 非常不同意，7 = 非常同意。',
-        scale: 'likert7',
-        groups: [
-          { name: '自主性', items: ['我可以按自己的意愿选择如何完成任务。', '这种交互方式让我感到有选择权。', '我能自主决定设备的调节方式。', '整个操作过程不会让我感到被迫。'] },
-          { name: '胜任感', items: ['我能够理解这种交互方式如何操作。', '我能够成功完成需要的设备控制。', '我能感受到自己掌握了这种交互方式。', '交互反馈让我知道自己是否操作正确。'] },
-          { name: '关联感', items: ['这种交互方式与我的日常生活场景有联系。', '我能理解物体、场景和设备之间的关系。', '这种交互方式让我感觉自己与当前环境建立了联系。', '我愿意在类似生活场景中继续使用这种交互方式。'] }
+      UEQS: {
+        title: 'UEQ-S｜用户体验评价',
+        description: '请评价刚才使用的交互方式。请选择最符合实际体验的位置。',
+        scale: 'ueqs',
+        items: [
+          ['碍手碍脚的', '能提供辅助的'], ['复杂的', '简单的'], ['低效的', '高效的'], ['令人眼花缭乱的', '一目了然的'],
+          ['乏味的', '带劲的'], ['无趣的', '有趣的'], ['常规的', '独创的'], ['传统的', '新颖的']
         ]
       },
       ETAM: {
-        title: 'ETAM｜整体技术接受度',
-        description: '请综合考虑四种实验方式的整体体验。1 = 非常不同意，7 = 非常同意。',
+        title: 'ETAM｜技术接受度',
+        description: '请评价刚才这一阶段使用的交互方式。1 = 非常不同意，7 = 非常同意。',
         scale: 'likert7',
         groups: [
           { name: '感知有用性', items: ['这些交互方式有助于我完成居家办公任务。', '这些交互方式能提高我控制家居设备的效率。', '这些交互方式对日常生活是有价值的。'] },
@@ -339,6 +357,22 @@
           { name: '信任', items: ['我相信这些交互方式会按照我的意图工作。', '我相信这些交互方式能够稳定地控制设备。', '我愿意信任这些交互方式处理类似任务。'] },
           { name: '使用意愿', items: ['如果条件允许，我愿意继续使用这些交互方式。', '我愿意向他人推荐类似的交互方式。', '未来有机会时，我会优先考虑使用这些交互方式。'] }
         ]
+      },
+      OVERALL: {
+        title: '总体实验评价',
+        description: '请综合比较四个实验阶段的整体体验。单选题请选择一个最符合的选项；评分题为1 = 非常不同意，7 = 非常同意。',
+        scale: 'likert7',
+        items: [
+          '最有趣的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
+          '我最愿意长期使用的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
+          '我认为最容易完成任务的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
+          '我认为最符合日常使用习惯的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
+          '使用日常物体控制智能家居设备很有吸引力。',
+          '物体的形态、动作与控制功能之间的联系很自然。',
+          '使用两个日常物体协同控制整个场景，比使用单个物体更自然。',
+          '如果条件允许，我愿意在真实生活中使用类似的智能家居交互方式。'
+        ],
+        choiceCount: 4
       }
     };
     const answerLayouts = [
@@ -541,12 +575,8 @@
     function save() {
       const payload = getStatePayload();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      if (participantId && window.location.protocol !== 'file:') {
-        if (window.ExperimentAPI) {
-          window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
-        } else {
-          showToast('警告：云端接口未加载，数据仅保存在本机');
-        }
+      if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
+        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
       }
     }
     async function hydrateRemoteParticipant() {
@@ -554,18 +584,11 @@
       try {
         const remote = await window.ExperimentAPI.getParticipant(participantId);
         if (remote?.config) config = remote.config;
-        const remoteState = remote?.state || {};
-        const remoteHasData = Boolean(remoteState.records && Object.keys(remoteState.records).length) || Boolean(remoteState.questionnaires && Object.keys(remoteState.questionnaires).length) || Boolean(remoteState.consents && Object.keys(remoteState.consents).length);
-        if (remoteHasData) {
-          applyRemoteState(remoteState);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
-          if (!$('#experimentApp').hidden) render();
-        } else {
-          // 云端为空但本机已有数据：自动补传云端，修复历史未同步的数据。
-          save();
-        }
+        if (remote?.state) applyRemoteState(remote.state);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
+        if (!$('#experimentApp').hidden) render();
       } catch (_) {
-        // 云端读取失败时保留本机数据，下次再同步。
+        // EdgeOne API 尚未配置时继续使用本地预览数据。
       }
     }
     function getAssignment() {
@@ -584,10 +607,10 @@
       return `${getRecordKey()}-q`;
     }
     function getQuestionnaireKey(type, stage = current) {
-      return type === 'ETAM' ? `p${participantId}-etam` : `p${participantId}-s${stage}-${type}`;
+      return type === 'OVERALL' ? `p${participantId}-overall` : `p${participantId}-s${stage}-${type}`;
     }
     function getQuestionnaireTypes() {
-      return questionnaireMode === 'etam' ? ['ETAM'] : [activeQuestionnaireType];
+      return questionnaireMode === 'overall' ? ['OVERALL'] : [activeQuestionnaireType];
     }
     function getStageSequenceInfo() {
       const assignment = getAssignment();
@@ -682,10 +705,15 @@
     function flattenQuestionnaireItems(type) {
       const definition = questionnaireDefinitions[type];
       if (definition.groups) return definition.groups.flatMap(group => group.items.map(item => ({ group: group.name, text: item })));
-      return definition.items.map(text => ({ text }));
+      return definition.items.map(text => ({ text: Array.isArray(text) ? text.join(' —— ') : text }));
     }
     function questionnaireOptions(definition, selected, type, index) {
+      if (definition.choiceCount && index < definition.choiceCount) {
+        const options = ['移动端图形用户界面组（GUI 组）', '长方体实体交互组（抽纸盒组）', '圆柱体实体交互组（水杯组）', '双物体协同实体交互组（抽纸盒＋水杯组）'];
+        return `<select data-questionnaire="${type}" data-index="${index}"><option value="" ${selected === undefined ? 'selected' : ''}>请选择</option>${options.map((option, optionIndex) => `<option value="${optionIndex + 1}" ${String(selected) === String(optionIndex + 1) ? 'selected' : ''}>${option}</option>`).join('')}</select>`;
+      }
       if (definition.scale === 'likert7') return `<div class="likert-scale" role="radiogroup" aria-label="第 ${index + 1} 题 1 到 7 分">${Array.from({ length: 7 }, (_, itemIndex) => { const value = itemIndex + 1; return `<label class="likert-point"><input type="radio" name="${type}-${index}" data-questionnaire="${type}" data-index="${index}" value="${value}" ${String(selected) === String(value) ? 'checked' : ''}><span>${value}</span></label>`; }).join('')}</div>`;
+      if (definition.scale === 'ueqs') return `<div class="ueqs-scale"><span>${definition.items[index][0]}</span><div class="likert-scale" role="radiogroup" aria-label="第 ${index + 1} 题 UEQ-S 评价">${Array.from({ length: 7 }, (_, itemIndex) => { const value = itemIndex + 1; return `<label class="likert-point"><input type="radio" name="${type}-${index}" data-questionnaire="${type}" data-index="${index}" value="${value}" ${String(selected) === String(value) ? 'checked' : ''}><span>${value}</span></label>`; }).join('')}</div><span>${definition.items[index][1]}</span></div>`;
       return `<select data-questionnaire="${type}" data-index="${index}"><option value="" ${selected === undefined ? 'selected' : ''}>请选择 0—20</option>${Array.from({ length: 21 }, (_, value) => `<option value="${value}" ${String(selected) === String(value) ? 'selected' : ''}>${value}</option>`).join('')}</select>`;
     }
     function isQuestionnaireComplete(type) {
@@ -745,10 +773,10 @@
       $('#completionScreen').classList.add('hidden');
       $('#experimentApp').hidden = true;
       $('#questionnaireScreen').classList.remove('hidden');
-      if (mode === 'etam') {
+      if (mode === 'overall') {
         $('#questionnaireMeta').textContent = '四阶段完成后问卷';
-        $('#questionnaireTitle').textContent = '请填写整体体验问卷';
-        $('#questionnaireIntro').textContent = '请综合考虑刚才完成的四种实验方式，填写最后的整体技术接受度问卷。';
+        $('#questionnaireTitle').textContent = '请填写最终总体体验问卷';
+        $('#questionnaireIntro').textContent = '请综合考虑刚才完成的四个实验阶段，填写最终总体体验评价。';
       } else {
         const condition = getCurrentCondition();
         $('#questionnaireMeta').textContent = `第 ${current + 1} 阶段 · ${conditionLabels[condition]}`;
@@ -784,7 +812,7 @@
         delete questionnaireDrafts[key];
       });
       save();
-      if (questionnaireMode === 'etam') {
+      if (questionnaireMode === 'overall') {
         $('#questionnaireScreen').classList.add('hidden');
         $('#completionScreen').classList.remove('hidden');
         showToast('整体问卷已提交，实验完成');
@@ -801,7 +829,7 @@
         showTaskIntro();
       } else {
         current = 4;
-        showQuestionnaire('etam');
+        showQuestionnaire('overall');
       }
     }
     function render() {
@@ -847,11 +875,11 @@
         $('#consentScreen').classList.add('hidden');
         $('#taskIntroScreen').classList.add('hidden');
         $('#experimentApp').hidden = true;
-        if (questionnaires[getQuestionnaireKey('ETAM')]) {
+        if (questionnaires[getQuestionnaireKey('OVERALL')]) {
           $('#questionnaireScreen').classList.add('hidden');
           $('#completionScreen').classList.remove('hidden');
         } else {
-          showQuestionnaire('etam');
+          showQuestionnaire('overall');
         }
         return;
       }
@@ -888,11 +916,11 @@
       const firstIncomplete = getFirstIncompleteStage();
       if (firstIncomplete === undefined) {
         current = 4;
-        if (questionnaires[getQuestionnaireKey('ETAM')]) {
+        if (questionnaires[getQuestionnaireKey('OVERALL')]) {
           $('#setupScreen').classList.add('hidden');
           $('#completionScreen').classList.remove('hidden');
         } else {
-          showQuestionnaire('etam');
+          showQuestionnaire('overall');
         }
         return;
       }
