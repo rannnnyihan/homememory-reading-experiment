@@ -190,6 +190,11 @@
     .likert-point { display: grid; justify-items: center; gap: 4px; color: var(--muted); font-size: 11px; cursor: pointer; }
     .likert-point input { position: absolute; opacity: 0; pointer-events: none; }
     .likert-point span { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #aeb4b8; border-radius: 50%; background: #fff; color: #62686c; transition: .16s ease; }
+    .ueqs-scale { display: grid; grid-template-columns: minmax(105px, 1fr) minmax(250px, 440px) minmax(105px, 1fr); gap: 12px; align-items: center; width: 100%; }
+    .ueqs-scale > span { color: #4a4f52; font-size: 13px; line-height: 1.35; }
+    .ueqs-scale > span:last-child { text-align: right; }
+    .ueqs-scale .likert-scale { width: 100%; }
+    @media (max-width: 620px) { .ueqs-scale { grid-template-columns: 1fr; gap: 6px; } .ueqs-scale > span:last-child { text-align: left; } .ueqs-scale .likert-scale { order: 2; } }
     .likert-point:hover span { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-soft); }
     .likert-point input:checked + span { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 0 0 3px var(--accent-soft); }
     .likert-point input:focus-visible + span { outline: 2px solid #8fbbe4; outline-offset: 2px; }
@@ -800,7 +805,8 @@
           const groupLabel = item.group && item.group !== previousGroup ? `<div class="questionnaire-group">${item.group}</div>` : '';
           previousGroup = item.group || previousGroup;
           const selected = saved[`q${index + 1}`] ?? draft[index];
-          return `${groupLabel}<div class="questionnaire-item"><span>${index + 1}. ${item.text}</span>${questionnaireOptions(definition, selected, type, index)}</div>`;
+          const itemLabel = definition.scale === 'ueqs' ? `${index + 1}.` : `${index + 1}. ${item.text}`;
+          return `${groupLabel}<div class="questionnaire-item"><span>${itemLabel}</span>${questionnaireOptions(definition, selected, type, index)}</div>`;
         }).join('');
         return `<section class="questionnaire-section"><h3>${definition.title}</h3><p>${definition.description}</p>${rows}</section>`;
       }).join('');
