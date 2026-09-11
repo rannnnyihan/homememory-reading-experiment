@@ -144,7 +144,7 @@
     .setup-card label { display: block; margin-bottom: 7px; color: #4a4f52; font-size: 13px; font-weight: 600; }
     .setup-card input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; font-size: 16px; }
     .setup-card input:focus { outline: 2px solid #8fbbe4; border-color: var(--accent); }
-    .setup-button { width: 100%; height: 42px; margin-top: 18px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; }
+    .setup-button { width: 100%; height: 42px; margin-top: 18px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; touch-action: manipulation; }
     .setup-button:hover { background: var(--accent-dark); }
     .setup-button:disabled { cursor: wait; opacity: .62; }
     .task-condition { display: inline-block; margin-bottom: 10px; color: var(--accent); font-size: 13px; font-weight: 600; }
@@ -1071,12 +1071,28 @@
     $('#consentAgree').addEventListener('change', updateConsentButton);
     document.querySelectorAll('#consentScreen input, #consentScreen select').forEach(input => input.addEventListener('input', updateConsentButton));
     document.querySelectorAll('#consentScreen input[type="radio"], #consentScreen input[type="checkbox"]').forEach(input => input.addEventListener('change', updateConsentButton));
+    let consentSubmitting = false;
     $('#consentConfirmButton').addEventListener('click', () => {
+      if (consentSubmitting) return;
       const profile = collectConsentProfile();
-      if (!$('#consentAgree').checked || !profile) return;
+      if (!$('#consentAgree').checked || !profile) {
+        showToast('请填写全部基本信息并勾选知情同意');
+        return;
+      }
+      consentSubmitting = true;
+      const button = $('#consentConfirmButton');
+      button.disabled = true;
+      button.textContent = '正在进入实验…';
       consents[participantId] = { participantId, version: 'v2', agreedAt: Date.now(), profile };
-      save();
-      continueAfterParticipantEntry();
+      try {
+        // 页面先进入下一步；云端写入由 save() 在后台队列中完成。
+        continueAfterParticipantEntry();
+      } catch (error) {
+        consentSubmitting = false;
+        button.disabled = false;
+        button.textContent = '确认并进入实验';
+        showToast(`进入实验失败：${error.message}`);
+      }
     });
     $('#participantInput').addEventListener('keydown', event => { if (event.key === 'Enter') startExperiment(); });
     if (participantId) $('#participantInput').value = participantId;

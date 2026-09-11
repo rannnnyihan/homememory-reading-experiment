@@ -112,10 +112,18 @@
     }
     async function refreshRemote(showFeedback = false) {
       if (window.location.protocol === 'file:' || !window.ExperimentAPI) return;
-      if (refreshInFlight) return;
-      refreshInFlight = true;
       const button = $('#refreshButton');
-      if (showFeedback) { button.disabled = true; button.textContent = '正在刷新…'; }
+      if (refreshInFlight) {
+        if (showFeedback) {
+          button.textContent = '云端同步中…';
+          showToast('云端数据正在同步，页面仍可继续操作');
+          restoreButton(button, '刷新数据', 900);
+        }
+        return;
+      }
+      refreshInFlight = true;
+      // 刷新只在后台更新数据，不锁住按钮或页面上的其他操作。
+      if (showFeedback) button.textContent = '正在刷新…';
       try {
         const remote = await window.ExperimentAPI.getAll();
         // 新建表格时 Config 为空；仍需保留默认拉丁方配置，不能把空对象
@@ -218,7 +226,7 @@
     document.querySelectorAll('.backend-tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.backend-tab').forEach(item => item.classList.toggle('active', item === tab)); document.querySelectorAll('#participantPanel, #consentPanel, #readingPanel, #questionnairePanel').forEach(panel => panel.classList.toggle('hidden', panel.id !== tab.dataset.panel)); render(); }));
     document.querySelectorAll('.questionnaire-tab').forEach(tab => tab.addEventListener('click', () => { activeQuestionnaireType = tab.dataset.questionnaireType; document.querySelectorAll('.questionnaire-tab').forEach(item => item.classList.toggle('active', item === tab)); renderQuestionnaireRecords(); }));
     window.addEventListener('storage', event => { if (event.key === STORAGE_KEY || event.key === CONFIG_KEY) render(); });
-    render(); refreshRemote(); setInterval(refreshRemote, 5000);
+    render(); refreshRemote(); setInterval(refreshRemote, 30000);
   </script>
 </body>
 </html>
