@@ -596,7 +596,8 @@
       } catch (_) { return buildDefaultConfig(); }
     }
     let config = readConfig();
-    const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    const cloudMode = window.location.protocol !== 'file:' && Boolean(window.ExperimentAPI?.usingAppsScript);
+    const state = cloudMode ? {} : JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let participantId = Number.isInteger(state.participantId) ? state.participantId : null;
     let current = Number.isInteger(state.currentStage) ? state.currentStage : 0;
     let questionnaireMode = state.questionnaireMode || 'stage';
@@ -644,7 +645,12 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
         if (!$('#experimentApp').hidden) render();
       } catch (_) {
-        // EdgeOne API 尚未配置时继续使用本地预览数据。
+        // 正式部署时不回退到本机缓存，避免不同设备看到不同数据。
+        if (cloudMode) {
+          replaceObject(answers, {}); replaceObject(records, {}); replaceObject(starts, {});
+          replaceObject(questionnaires, {}); replaceObject(questionnaireDrafts, {}); replaceObject(consents, {});
+          showToast('云端数据读取失败，请检查网络后重试');
+        }
       }
     }
     function getAssignment() {
@@ -966,6 +972,7 @@
       $('#taskIntroScreen').classList.add('hidden');
       $('#experimentApp').hidden = false;
       render();
+      // 每次进入新的阅读任务都从文章开头开始，避免沿用上一页停留在第 8 题的滚动位置。
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
@@ -1032,8 +1039,13 @@
             remoteLoaded = true;
           }
         } catch (_) {
-          // 云端暂不可用时，允许继续使用本机缓存。
+          showToast('云端数据读取失败，无法使用本机缓存代替');
+          return;
         }
+      }
+      if (!remoteLoaded && cloudMode) {
+        showToast('未读取到云端被试数据，请稍后重试');
+        return;
       }
       if (!remoteLoaded) config = readConfig();
       save();
