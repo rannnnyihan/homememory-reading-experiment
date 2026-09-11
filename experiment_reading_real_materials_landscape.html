@@ -1041,7 +1041,7 @@
         try {
           const remote = await window.ExperimentAPI.getParticipant(participantId);
           if (remote?.config) config = remote.config;
-          if (remote?.state && Object.keys(remote.state).length > 0) {
+          if (remote && remote.state && typeof remote.state === 'object') {
             applyRemoteState(remote.state);
             remoteLoaded = true;
           }
