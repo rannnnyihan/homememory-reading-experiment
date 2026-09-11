@@ -226,7 +226,12 @@
     document.querySelectorAll('.backend-tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.backend-tab').forEach(item => item.classList.toggle('active', item === tab)); document.querySelectorAll('#participantPanel, #consentPanel, #readingPanel, #questionnairePanel').forEach(panel => panel.classList.toggle('hidden', panel.id !== tab.dataset.panel)); render(); }));
     document.querySelectorAll('.questionnaire-tab').forEach(tab => tab.addEventListener('click', () => { activeQuestionnaireType = tab.dataset.questionnaireType; document.querySelectorAll('.questionnaire-tab').forEach(item => item.classList.toggle('active', item === tab)); renderQuestionnaireRecords(); }));
     window.addEventListener('storage', event => { if (event.key === STORAGE_KEY || event.key === CONFIG_KEY) render(); });
-    render(); refreshRemote(); setInterval(refreshRemote, 30000);
+    async function runCloudSyncLoop() {
+      await refreshRemote();
+      // 等本次读取完成后再计时，避免慢网络下产生重叠请求。
+      window.setTimeout(runCloudSyncLoop, document.hidden ? 15000 : 3000);
+    }
+    render(); runCloudSyncLoop();
   </script>
 </body>
 </html>
