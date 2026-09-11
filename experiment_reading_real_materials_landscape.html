@@ -1029,6 +1029,11 @@
         return;
       }
       participantId = value;
+      // 正式部署只使用云端状态；旧设备遗留的本机进度不能决定入口页面。
+      if (cloudMode) {
+        replaceObject(answers, {}); replaceObject(records, {}); replaceObject(starts, {});
+        replaceObject(questionnaires, {}); replaceObject(questionnaireDrafts, {}); replaceObject(consents, {});
+      }
       let remoteLoaded = false;
       if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
         try {
