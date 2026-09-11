@@ -235,7 +235,7 @@
         <h3>三、可能的不适与预期收益</h3>
         <p>任务可能带来轻微的视觉疲劳、注意力疲劳或设备操作负担。你可以在感到不适时暂停或退出。本研究不保证给你带来直接收益，但结果可能帮助研究者改进日常物体交互设计。</p>
         <h3>四、数据与隐私</h3>
-        <p>系统使用被试编号记录数据，不要求填写姓名。数据仅用于本研究的分析和展示，研究结果将尽量以汇总形式呈现。本原型会先将数据保存在当前设备浏览器中，由研究人员导出和管理。</p>
+          <p>系统使用被试编号记录数据，不要求填写姓名。数据将保存至研究者配置的 Google Sheets 云端数据表，仅用于本研究的分析和展示；研究结果将尽量以汇总形式呈现。</p>
         <h3>五、自愿参加与退出</h3>
         <p>参加完全自愿。你可以拒绝参加，也可以在任何阶段停止，不会因此受到惩罚或损失应有的权益。</p>
         <h3>六、联系方式</h3>
@@ -633,9 +633,9 @@
     }
     function save() {
       const payload = getStatePayload();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
-        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
+        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，请检查网络后重试'));
       }
     }
     async function hydrateRemoteParticipant() {
@@ -644,7 +644,7 @@
         const remote = await window.ExperimentAPI.getParticipant(participantId);
         if (remote?.config) config = remote.config;
         if (remote?.state) applyRemoteState(remote.state);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
+        if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
         if (!$('#experimentApp').hidden) render();
       } catch (_) {
         // 正式部署时不回退到本机缓存，避免不同设备看到不同数据。
