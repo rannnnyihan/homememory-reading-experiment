@@ -89,14 +89,51 @@
     if (token) {
       body.adminToken = token.trim();
     }
-    const formBody = new URLSearchParams(body);
-    return fetch(appsScriptUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      keepalive: true,
-      body: formBody
-    }).then(() => {
-      return { ok: true };
+    // 使用原生表单提交，避免 iOS Safari 在网络切换或页面跳转后
+    // 静默丢弃 no-cors/keepalive fetch。iframe onload 同时保证写入队列顺序。
+    return new Promise((resolve, reject) => {
+      const requestId = `hm_apps_script_post_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const iframe = document.createElement('iframe');
+      const form = document.createElement('form');
+      let submitted = false;
+      let settled = false;
+      const cleanup = () => {
+        form.remove();
+        iframe.remove();
+      };
+      const finish = (error) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        cleanup();
+        if (error) reject(error);
+        else resolve({ ok: true });
+      };
+      iframe.name = requestId;
+      iframe.src = 'about:blank';
+      iframe.hidden = true;
+      iframe.addEventListener('load', () => {
+        if (submitted) {
+          finish();
+          return;
+        }
+        document.body.appendChild(form);
+        submitted = true;
+        form.submit();
+      });
+      form.method = 'POST';
+      form.action = appsScriptUrl;
+      form.target = requestId;
+      form.hidden = true;
+      Object.entries(body).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      });
+      const timer = window.setTimeout(() => finish(new Error('Google Sheets 数据写入超时')), 30000);
+      document.body.appendChild(iframe);
     });
   }
 
