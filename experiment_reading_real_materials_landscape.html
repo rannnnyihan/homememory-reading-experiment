@@ -146,6 +146,7 @@
     .setup-card input:focus { outline: 2px solid #8fbbe4; border-color: var(--accent); }
     .setup-button { width: 100%; height: 42px; margin-top: 18px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; }
     .setup-button:hover { background: var(--accent-dark); }
+    .setup-button:disabled { cursor: wait; opacity: .62; }
     .task-condition { display: inline-block; margin-bottom: 10px; color: var(--accent); font-size: 13px; font-weight: 600; }
     .task-copy { padding: 14px 15px; margin: 18px 0 0 !important; background: #f5f6f7; border-left: 3px solid var(--accent); color: #4a4f52 !important; white-space: pre-line; }
     .interaction-guide { display: none; width: 100%; max-height: 280px; object-fit: contain; margin: 16px 0 2px; border: 1px solid var(--line); background: #fff; }
@@ -1024,40 +1025,46 @@
       if (records[`p${participantId}-s${current}`]) showQuestionnaire('stage', getFirstIncompleteQuestionnaire(current));
       else showTaskIntro();
     }
+    let startExperimentInFlight = false;
     async function startExperiment() {
+      if (startExperimentInFlight) return;
       const value = Number($('#participantInput').value);
       if (!Number.isInteger(value) || value < 1 || value > 24) {
         showToast('请输入 1—24 之间的被试编号');
         return;
       }
+      const startButton = $('#startExperimentButton');
+      startExperimentInFlight = true;
+      startButton.disabled = true;
+      startButton.textContent = '正在读取云端数据…';
       participantId = value;
       // 正式部署只使用云端状态；旧设备遗留的本机进度不能决定入口页面。
       if (cloudMode) {
         replaceObject(answers, {}); replaceObject(records, {}); replaceObject(starts, {});
         replaceObject(questionnaires, {}); replaceObject(questionnaireDrafts, {}); replaceObject(consents, {});
       }
-      let remoteLoaded = false;
-      if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
-        try {
+      try {
+        let remoteLoaded = false;
+        if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
           const remote = await window.ExperimentAPI.getParticipant(participantId);
           if (remote?.config) config = remote.config;
           if (remote && remote.state && typeof remote.state === 'object') {
             applyRemoteState(remote.state);
             remoteLoaded = true;
           }
-        } catch (_) {
-          showToast('云端数据读取失败，无法使用本机缓存代替');
-          return;
         }
+        if (!remoteLoaded && cloudMode) throw new Error('未读取到云端被试数据，请稍后重试');
+        if (!remoteLoaded) config = readConfig();
+        save();
+        if (!consents[participantId]?.profile) showConsent();
+        else continueAfterParticipantEntry();
+      } catch (error) {
+        showToast(error.message || '云端数据读取失败，无法使用本机缓存代替');
+      } finally {
+        startExperimentInFlight = false;
+        startButton.disabled = false;
+        startButton.textContent = '开始实验';
       }
-      if (!remoteLoaded && cloudMode) {
-        showToast('未读取到云端被试数据，请稍后重试');
-        return;
-      }
-      if (!remoteLoaded) config = readConfig();
-      save();
-      if (!consents[participantId]?.profile) showConsent();
-      else continueAfterParticipantEntry();
     }
     $('#startExperimentButton').addEventListener('click', startExperiment);
     $('#beginTaskButton').addEventListener('click', beginTask);
