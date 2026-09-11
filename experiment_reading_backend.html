@@ -229,7 +229,7 @@
     async function runCloudSyncLoop() {
       await refreshRemote();
       // 等本次读取完成后再计时，避免慢网络下产生重叠请求。
-      window.setTimeout(runCloudSyncLoop, document.hidden ? 15000 : 3000);
+      window.setTimeout(runCloudSyncLoop, document.hidden ? 30000 : 10000);
     }
     render(); runCloudSyncLoop();
   </script>

@@ -52,7 +52,7 @@
         if (settled) return;
         cleanup();
         reject(new Error('Google Sheets 数据读取超时'));
-      }, 15000);
+      }, 30000);
       window[callbackName] = (data) => {
         if (settled) return;
         window.clearTimeout(timer);
@@ -66,6 +66,7 @@
         cleanup();
         reject(new Error('Google Sheets 数据读取失败'));
       };
+      query.set('_ts', Date.now().toString());
       script.src = `${appsScriptUrl}?${query.toString()}`;
       document.head.appendChild(script);
     });
@@ -77,17 +78,9 @@
     if (token) {
       query.adminToken = token.trim();
     }
-    const requestUrl = `${appsScriptUrl}?${new URLSearchParams(query).toString()}`;
-    // Apps Script allows cross-origin reads. Fetch is more reliable than JSONP
-    // when its response is redirected to script.googleusercontent.com.
-    return fetch(requestUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' })
-      .then((response) => {
-        if (!response.ok) throw new Error(`Google Sheets 数据读取失败（${response.status}）`);
-        return response.json();
-      })
-      .catch((fetchError) => jsonp(query).catch((jsonpError) => {
-        throw new Error(`${fetchError.message}；备用读取也失败：${jsonpError.message}`);
-      }));
+    // 直接使用 JSONP，避开 Safari/iPad 对 Apps Script 跨域重定向 fetch
+    // 偶发报 Load failed 后再等待一次备用请求造成的双倍延时。
+    return jsonp(query);
   }
 
   function appsScriptPost(payload, requiresAdmin = false) {
