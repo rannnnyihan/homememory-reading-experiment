@@ -29,7 +29,7 @@
     select { min-width: 150px; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px; background: #fff; color: var(--ink); } select:focus { outline: 2px solid #8fbbe4; border-color: var(--blue); }
     .condition-tag { display: inline-block; min-width: 138px; color: var(--blue-dark); font-weight: 600; } .schedule-wrap, .results-wrap { overflow-x: auto; } .schedule-table select { min-width: 155px; } .subject { font-weight: 600; }
     .status-done { color: var(--green); font-weight: 600; } .status-pending { color: var(--muted); } .sequence-cell { max-width: 360px; white-space: normal; line-height: 1.5; }
-    .button { border: 1px solid var(--line); border-radius: 2px; padding: 8px 13px; background: #fff; color: #4a4f52; cursor: pointer; } .button:hover { border-color: var(--blue); color: var(--blue-dark); } .button.primary { background: var(--blue); color: #fff; border-color: var(--blue); } .button.primary:hover { background: var(--blue-dark); } .button.danger { color: #b00; } .button.danger:hover { border-color: #b00; background: #fff5f5; }
+    .button { border: 1px solid var(--line); border-radius: 2px; padding: 8px 13px; background: #fff; color: #4a4f52; cursor: pointer; } .button:hover { border-color: var(--blue); color: var(--blue-dark); } .button:disabled { cursor: wait; opacity: .62; } .button.primary { background: var(--blue); color: #fff; border-color: var(--blue); } .button.primary:hover { background: var(--blue-dark); } .button.danger { color: #b00; } .button.danger:hover { border-color: #b00; background: #fff5f5; }
     .hint { margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; } .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; } .metric { padding: 15px 17px; background: #fff; border: 1px solid var(--line); } .metric small { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; } .metric strong { color: var(--blue-dark); font-size: 22px; font-weight: 600; }
     .consent-progress { height: 6px; margin-top: 10px; overflow: hidden; background: #e5e7e9; border-radius: 5px; } .consent-progress span { display: block; height: 100%; background: var(--green); border-radius: 5px; transition: width .2s ease; }
     .raw-data { max-width: 480px; white-space: normal; color: #4a4f52; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.6; } .empty { color: var(--muted); text-align: center; }
@@ -95,10 +95,21 @@
     function renderReadingRecords() { const rows = getReadingRows(); $('#readingCountMetric').textContent = `${rows.length} / 96`; $('#durationMetric').textContent = rows.length ? formatDuration(rows.reduce((sum, record) => sum + record.durationMs, 0) / rows.length) : '—'; $('#accuracyMetric').textContent = rows.length ? `${Math.round(rows.reduce((sum, record) => sum + record.accuracy, 0) / rows.length * 10) / 10}%` : '—'; const state = readExperimentState(); const completeParticipants = Array.from({ length: 24 }, (_, index) => index + 1).filter(participant => [0, 1, 2, 3].every(stage => state.records?.[`p${participant}-s${stage}`])).length; $('#participantDoneMetric').textContent = `${completeParticipants} / 24`; $('#readingRows').innerHTML = rows.length ? rows.map(record => { const fallback = getSequence(record.participantId); const sequence = { index: record.sequenceIndex ?? fallback.index, labels: record.sequence ?? fallback.labels }; return `<tr><td>${sequence.index}</td><td>被试 ${String(record.participantId).padStart(2, '0')}</td><td>第 ${record.stage} 阶段</td><td>${conditionLabels[record.condition] || record.condition}</td><td>${materials[record.materialIndex] || record.title}</td><td>${formatTime(record.startedAt)}</td><td>${formatTime(record.submittedAt)}</td><td>${formatDuration(record.durationMs)}</td><td>${record.accuracy}%（${record.correctCount}/${record.total}）</td></tr>`; }).join('') : '<tr><td colspan="9" class="empty">暂无阅读答题记录</td></tr>'; }
     function getQuestionnaireRows(type = activeQuestionnaireType) { const questionnaires = readExperimentState().questionnaires || {}; return Object.values(questionnaires).filter(row => row.questionnaire === type).sort((a, b) => (a.participantId - b.participantId) || ((a.stage ?? 5) - (b.stage ?? 5))); }
     let refreshInFlight = false;
-    async function refreshRemote() {
+    function restoreButton(button, label, delay = 1200) {
+      window.setTimeout(() => { button.textContent = label; button.disabled = false; }, delay);
+    }
+    function cloudDataIsEmpty(remote) {
+      return Object.values(remote.states || {}).every(state =>
+        ['records', 'questionnaires', 'questionnaireDrafts', 'consents', 'answers', 'starts']
+          .every(key => Object.keys(state?.[key] || {}).length === 0)
+      );
+    }
+    async function refreshRemote(showFeedback = false) {
       if (window.location.protocol === 'file:' || !window.ExperimentAPI) return;
       if (refreshInFlight) return;
       refreshInFlight = true;
+      const button = $('#refreshButton');
+      if (showFeedback) { button.disabled = true; button.textContent = '正在刷新…'; }
       try {
         const remote = await window.ExperimentAPI.getAll();
         // 新建表格时 Config 为空；仍需保留默认拉丁方配置，不能把空对象
@@ -119,8 +130,10 @@
         remoteExperimentState = nextRemoteState;
         config = remoteConfig;
         render();
+        if (showFeedback) { button.textContent = '刷新完成'; restoreButton(button, '刷新数据'); }
       } catch (_) {
         showToast('云端数据读取失败，请检查网络后重试');
+        if (showFeedback) { button.textContent = '刷新失败'; restoreButton(button, '刷新数据', 1800); }
       } finally {
         refreshInFlight = false;
       }
@@ -158,9 +171,38 @@
     function exportAllQuestionnaires() { stageQuestionnaireTypes.concat('OVERALL').forEach(type => exportQuestionnaires(type)); }
     async function clearReading() { if (!confirm('确定清空全部阅读答题记录吗？问卷原始数据不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('reading'); const state = readExperimentState(); delete state.records; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('阅读答题记录已清空'); }
     async function clearQuestionnaires() { if (!confirm('确定清空全部问卷原始数据吗？阅读答题记录不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('questionnaires'); const state = readExperimentState(); delete state.questionnaires; delete state.questionnaireDrafts; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('问卷原始数据已清空'); }
-    async function clearAllRecords() { const password = window.prompt('请输入清空数据密码：'); if (password === null) return; if (password !== '863240779') { showToast('密码错误，未清空任何数据'); return; } if (!confirm('确定清空全部阅读记录、所有问卷记录和知情同意吗？此操作会同时清空 Google Sheets 云端数据，且无法恢复。')) return; try { if (window.location.protocol !== 'file:' && window.ExperimentAPI) { for (let participant = 1; participant <= 24; participant++) await window.ExperimentAPI.saveParticipant(participant, { participantId: participant, currentStage: 0, questionnaireMode: 'stage', activeQuestionnaireType: 'FSS', answers: {}, records: {}, starts: {}, questionnaires: {}, questionnaireDrafts: {}, consents: {} }); } const state = readExperimentState(); delete state.records; delete state.questionnaires; delete state.questionnaireDrafts; delete state.consents; delete state.answers; delete state.starts; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = { records: {}, questionnaires: {}, consents: {} }; render(); showToast('全部阅读、问卷和知情同意记录已清空'); } catch (error) { showToast(`清空失败：${error.message}`); } }
+    async function clearAllRecords() {
+      const password = window.prompt('请输入清空数据密码：');
+      if (password === null) return;
+      if (password !== '863240779') { showToast('密码错误，未清空任何数据'); return; }
+      if (!confirm('确定清空全部阅读记录、所有问卷记录和知情同意吗？此操作会同时清空 Google Sheets 云端数据，且无法恢复。')) return;
+      const button = $('#clearAllButton');
+      button.disabled = true;
+      button.textContent = '正在删除…';
+      try {
+        if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
+          await window.ExperimentAPI.clear('all');
+          let verified = false;
+          for (let attempt = 0; attempt < 10; attempt += 1) {
+            const remote = await window.ExperimentAPI.getAll();
+            if (cloudDataIsEmpty(remote)) { verified = true; break; }
+            await new Promise(resolve => window.setTimeout(resolve, 800));
+          }
+          if (!verified) throw new Error('云端仍返回旧数据，请稍后重试');
+        }
+        remoteExperimentState = { records: {}, questionnaires: {}, consents: {} };
+        render();
+        button.textContent = '删除完成';
+        showToast('全部阅读、问卷和知情同意记录已从云端删除');
+        restoreButton(button, '清空全部记录');
+      } catch (error) {
+        button.textContent = '删除失败';
+        restoreButton(button, '清空全部记录', 1800);
+        showToast(`删除失败：${error.message}`);
+      }
+    }
     function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
-    $('#saveButton').addEventListener('click', saveConfig); $('#clearAllButton').addEventListener('click', clearAllRecords); $('#resetLatinButton').addEventListener('click', resetLatin); $('#refreshButton').addEventListener('click', refreshRemote); $('#exportReadingButton').addEventListener('click', exportReading); $('#exportQuestionnaireButton').addEventListener('click', () => exportQuestionnaires(activeQuestionnaireType)); $('#exportAllQuestionnaireButton').addEventListener('click', exportAllQuestionnaires);
+    $('#saveButton').addEventListener('click', saveConfig); $('#clearAllButton').addEventListener('click', clearAllRecords); $('#resetLatinButton').addEventListener('click', resetLatin); $('#refreshButton').addEventListener('click', () => refreshRemote(true)); $('#exportReadingButton').addEventListener('click', exportReading); $('#exportQuestionnaireButton').addEventListener('click', () => exportQuestionnaires(activeQuestionnaireType)); $('#exportAllQuestionnaireButton').addEventListener('click', exportAllQuestionnaires);
     document.querySelectorAll('.backend-tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.backend-tab').forEach(item => item.classList.toggle('active', item === tab)); document.querySelectorAll('#participantPanel, #consentPanel, #readingPanel, #questionnairePanel').forEach(panel => panel.classList.toggle('hidden', panel.id !== tab.dataset.panel)); render(); }));
     document.querySelectorAll('.questionnaire-tab').forEach(tab => tab.addEventListener('click', () => { activeQuestionnaireType = tab.dataset.questionnaireType; document.querySelectorAll('.questionnaire-tab').forEach(item => item.classList.toggle('active', item === tab)); renderQuestionnaireRecords(); }));
     window.addEventListener('storage', event => { if (event.key === STORAGE_KEY || event.key === CONFIG_KEY) render(); });
