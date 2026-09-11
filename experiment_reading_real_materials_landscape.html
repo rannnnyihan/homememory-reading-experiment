@@ -596,7 +596,9 @@
       } catch (_) { return buildDefaultConfig(); }
     }
     let config = readConfig();
-    const cloudMode = window.location.protocol !== 'file:' && Boolean(window.ExperimentAPI?.usingAppsScript);
+    // GitHub Pages/EdgeOne 等线上地址一律以云端为唯一数据源。
+    // 不依赖接口脚本的加载时序，避免初始化稍慢时误读旧 localStorage 进度。
+    const cloudMode = window.location.protocol !== 'file:';
     const state = cloudMode ? {} : JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let participantId = Number.isInteger(state.participantId) ? state.participantId : null;
     let current = Number.isInteger(state.currentStage) ? state.currentStage : 0;
