@@ -98,6 +98,12 @@
     function restoreButton(button, label, delay = 1200) {
       window.setTimeout(() => { button.textContent = label; button.disabled = false; }, delay);
     }
+    function wait(milliseconds) {
+      return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+    }
+    function nextPaint() {
+      return new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
+    }
     function cloudDataIsEmpty(remote) {
       return Object.values(remote.states || {}).every(state =>
         ['records', 'questionnaires', 'questionnaireDrafts', 'consents', 'answers', 'starts']
@@ -179,7 +185,10 @@
       const button = $('#clearAllButton');
       button.disabled = true;
       button.textContent = '正在删除…';
+      const deletingStartedAt = Date.now();
       try {
+        // 先让浏览器真正绘制按钮状态，再开始云端请求。
+        await nextPaint();
         if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
           await window.ExperimentAPI.clear('all');
           let verified = false;
@@ -192,6 +201,9 @@
         }
         remoteExperimentState = { records: {}, questionnaires: {}, consents: {} };
         render();
+        // 避免请求过快时“正在删除…”一闪而过。
+        const remainingVisibleTime = 1000 - (Date.now() - deletingStartedAt);
+        if (remainingVisibleTime > 0) await wait(remainingVisibleTime);
         button.textContent = '删除完成';
         showToast('全部阅读、问卷和知情同意记录已从云端删除');
         restoreButton(button, '清空全部记录');
