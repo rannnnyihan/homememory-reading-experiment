@@ -161,17 +161,33 @@
     .consent-check { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; padding: 13px 14px; background: var(--accent-soft); border: 1px solid #c8dff3; color: #344c60; font-size: 13px; line-height: 1.6; }
     .consent-check input { margin-top: 3px; accent-color: var(--accent); }
     .consent-source { margin: 15px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
-    .consent-form { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
-    .consent-form h3 { margin: 0 0 12px; color: var(--ink); font-size: 14px; }
-    .consent-field { display: block; margin: 0 0 12px; color: var(--ink); font-size: 13px; font-weight: 600; }
+    .consent-form { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .consent-form h3 { margin: 0 0 16px; color: var(--ink); font-size: 17px; }
+    .consent-field { display: block; margin: 0 0 12px; padding: 16px; border: 1px solid #ebedf0; border-radius: 12px; background: #fff; color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.55; }
     .consent-field input, .consent-field select { width: 100%; height: 38px; margin-top: 6px; padding: 0 10px; border: 1px solid var(--line); border-radius: 2px; background: #fff; color: var(--ink); font-size: 13px; }
-    .consent-choice { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 7px 0 14px; color: var(--ink); font-size: 13px; font-weight: 400; }
-    .consent-choice label { display: inline-flex; align-items: center; gap: 5px; }
-    .consent-choice input { accent-color: var(--accent); }
-    .consent-scale { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 460px; margin-top: 8px; }
-    .consent-scale label { display: grid; justify-items: center; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 400; }
-    .consent-scale input { accent-color: var(--accent); }
+    .consent-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 12px 0 0; color: var(--ink); font-size: 13px; font-weight: 400; }
+    .consent-choice label { display: flex; align-items: center; gap: 9px; min-height: 44px; margin: 0; padding: 9px 11px; border: 1px solid #dfe3e6; border-radius: 10px; background: #fafbfc; cursor: pointer; white-space: nowrap; }
+    .consent-choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+    .consent-choice input { flex: 0 0 auto; width: 20px; height: 20px; margin: 0; padding: 0; accent-color: var(--accent); }
+    .consent-choice input[type="text"] { grid-column: 1 / -1; width: 100%; height: 42px; margin-top: 2px; padding: 0 12px; }
+    .consent-scale { display: grid; grid-template-columns: repeat(7, minmax(42px, 1fr)); gap: 8px; width: 100%; margin-top: 14px; }
+    .consent-scale label { position: relative; display: grid; place-items: center; min-height: 44px; margin: 0; padding: 0; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; }
+    .consent-scale input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .consent-scale span { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #b9c0c5; border-radius: 50%; background: #fff; transition: .16s ease; }
+    .consent-scale label:hover span { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+    .consent-scale input:checked + span { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .consent-scale input:focus-visible + span { outline: 2px solid #8fbbe4; outline-offset: 2px; }
+    .scale-anchors { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; color: var(--muted); font-size: 12px; font-weight: 400; }
+    .scale-anchors span:last-child { text-align: right; }
     .consent-source a { color: var(--accent-dark); }
+    @media (max-width: 620px) {
+      .consent-card { padding: 22px 16px; }
+      .consent-field { padding: 14px 12px; }
+      .consent-choice { grid-template-columns: 1fr 1fr; }
+      .consent-choice label { white-space: normal; }
+      .consent-scale { gap: 4px; }
+      .consent-scale span { width: 38px; height: 38px; }
+    }
     .questionnaire-card { width: min(860px, 100%); max-height: calc(100vh - 48px); overflow: auto; }
     /* 问卷采用普通页面流，题目不会在内部滚动容器或视口中吸顶。 */
     #questionnaireScreen { display: block; min-height: 100vh; padding: 32px 24px 48px; }
@@ -261,18 +277,18 @@
         </div>
         <div class="consent-field">您是否愿意尝试使用身边的日常物体参与智能家居控制？
           <div class="consent-scale"><label><input type="radio" name="objectAcceptance" value="1"><span>1</span></label><label><input type="radio" name="objectAcceptance" value="2"><span>2</span></label><label><input type="radio" name="objectAcceptance" value="3"><span>3</span></label><label><input type="radio" name="objectAcceptance" value="4"><span>4</span></label><label><input type="radio" name="objectAcceptance" value="5"><span>5</span></label><label><input type="radio" name="objectAcceptance" value="6"><span>6</span></label><label><input type="radio" name="objectAcceptance" value="7"><span>7</span></label></div>
-          <span class="label">1 = 完全不愿意，7 = 非常愿意</span>
+          <div class="scale-anchors"><span>1 · 完全不愿意</span><span>7 · 非常愿意</span></div>
         </div>
         <div class="consent-field">您对使用手机 App 控制智能家居设备的熟悉程度是？
           <div class="consent-scale"><label><input type="radio" name="appFamiliarity" value="1"><span>1</span></label><label><input type="radio" name="appFamiliarity" value="2"><span>2</span></label><label><input type="radio" name="appFamiliarity" value="3"><span>3</span></label><label><input type="radio" name="appFamiliarity" value="4"><span>4</span></label><label><input type="radio" name="appFamiliarity" value="5"><span>5</span></label><label><input type="radio" name="appFamiliarity" value="6"><span>6</span></label><label><input type="radio" name="appFamiliarity" value="7"><span>7</span></label></div>
-          <span class="label">1 = 完全不熟悉，7 = 非常熟悉</span>
+          <div class="scale-anchors"><span>1 · 完全不熟悉</span><span>7 · 非常熟悉</span></div>
         </div>
         <div class="consent-field">您通常通过什么方式控制智能家居设备？<span class="label">（可多选）</span>
           <div class="consent-choice"><label><input type="checkbox" name="controlMethods" value="手机 App">手机 App</label><label><input type="checkbox" name="controlMethods" value="实体开关">实体开关</label><label><input type="checkbox" name="controlMethods" value="语音助手">语音助手</label><label><input type="checkbox" name="controlMethods" value="遥控器">遥控器</label><label><input type="checkbox" name="controlMethods" value="自动感应">自动感应</label><label><input type="checkbox" name="controlMethods" value="其他">其他</label></div>
         </div>
         <div class="consent-field">我认为使用身边的日常物体调节环境，比重新打开手机或寻找控制面板更自然。
           <div class="consent-scale"><label><input type="radio" name="objectNaturalness" value="1"><span>1</span></label><label><input type="radio" name="objectNaturalness" value="2"><span>2</span></label><label><input type="radio" name="objectNaturalness" value="3"><span>3</span></label><label><input type="radio" name="objectNaturalness" value="4"><span>4</span></label><label><input type="radio" name="objectNaturalness" value="5"><span>5</span></label><label><input type="radio" name="objectNaturalness" value="6"><span>6</span></label><label><input type="radio" name="objectNaturalness" value="7"><span>7</span></label></div>
-          <span class="label">1 = 非常不同意，7 = 非常同意</span>
+          <div class="scale-anchors"><span>1 · 非常不同意</span><span>7 · 非常同意</span></div>
         </div>
       </div>
       <label class="consent-check"><input id="consentAgree" type="checkbox" /><span>我已阅读并理解以上说明，自愿参加本次实验，并同意研究人员记录和使用本次实验数据。</span></label>
