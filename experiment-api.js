@@ -37,7 +37,7 @@
     return response.json();
   }
 
-  function jsonp(params) {
+  function jsonpOnce(params, timeoutMs = 18000) {
     return new Promise((resolve, reject) => {
       const callbackName = `__hmExperimentJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
       const script = document.createElement('script');
@@ -52,7 +52,7 @@
         if (settled) return;
         cleanup();
         reject(new Error('Google Sheets 数据读取超时'));
-      }, 30000);
+      }, timeoutMs);
       window[callbackName] = (data) => {
         if (settled) return;
         window.clearTimeout(timer);
@@ -70,6 +70,22 @@
       script.src = `${appsScriptUrl}?${query.toString()}`;
       document.head.appendChild(script);
     });
+  }
+
+  async function jsonp(params) {
+    const attempts = [12000, 18000, 24000];
+    let lastError;
+    for (let index = 0; index < attempts.length; index++) {
+      try {
+        return await jsonpOnce({ ...params, _attempt: index + 1 }, attempts[index]);
+      } catch (error) {
+        lastError = error;
+        if (index < attempts.length - 1) {
+          await new Promise(resolve => window.setTimeout(resolve, 600 * (index + 1)));
+        }
+      }
+    }
+    throw lastError || new Error('Google Sheets 数据读取失败');
   }
 
   function appsScriptGet(params, requiresAdmin = false) {

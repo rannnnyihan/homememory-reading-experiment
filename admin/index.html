@@ -2,13 +2,15 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=../experiment_reading_backend.html">
+    <meta http-equiv="refresh" content="0;url=../experiment_reading_backend.html?v=20260911-5">
     <title>阅读理解实验后台</title>
   </head>
   <body>
     <p>正在进入实验后台……</p>
     <script>
-      location.replace('../experiment_reading_backend.html' + location.search);
+      const query = new URLSearchParams(location.search);
+      if (!query.has('v')) query.set('v', '20260911-5');
+      location.replace('../experiment_reading_backend.html?' + query.toString());
     </script>
   </body>
 </html>
