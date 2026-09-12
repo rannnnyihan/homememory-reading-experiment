@@ -101,6 +101,9 @@
     .question-title { padding: 14px 16px 11px; font-weight: 600; font-size: 14px; line-height: 1.55; }
     .task-prompt { margin: 0 0 10px; padding: 10px 14px; border-left: 3px solid #1769aa; background: #f1f7fc; color: #1769aa; font-size: 13px; line-height: 1.65; }
     .task-prompt strong { margin-right: 6px; font-weight: 700; }
+    .task-confirm { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; margin: 8px 0 0; padding: 5px 10px; border: 1px solid #b9d7ef; border-radius: 8px; background: #fff; color: #0854a0; font-weight: 600; cursor: pointer; }
+    .task-confirm:has(input:checked) { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .task-confirm input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
     .options { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 0 12px 14px; }
     .option { position: relative; display: flex; align-items: flex-start; gap: 8px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; color: #4a4f52; font-size: 13px; line-height: 1.5; transition: .16s ease; }
     .option:hover { border-color: #8fbbe4; background: #f5f9fd; }
@@ -627,6 +630,8 @@
     const questionnaires = state.questionnaires || {};
     const questionnaireDrafts = state.questionnaireDrafts || {};
     const consents = state.consents || {};
+    // 仅用于当前页面的提交校验，不进入保存载荷或后台数据。
+    const completedTaskChecks = new Set();
     const $ = (selector) => document.querySelector(selector);
 
     function replaceObject(target, source) {
@@ -757,15 +762,25 @@
       const prefix = getAnswerPrefix();
       const record = records[getRecordKey()];
       const answeredCount = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
+      const taskCheckKey = taskIndex => `${participantId}-${current}-${taskIndex}`;
+      const completedTaskCount = [0, 1, 2, 3].filter(taskIndex => completedTaskChecks.has(taskCheckKey(taskIndex))).length;
+      const allTasksConfirmed = completedTaskCount === 4;
       const submitLabel = record ? '本篇已提交' : '提交本篇';
-      const submitHint = record ? `<span class="submitted-mark">✓ 已提交，不可修改</span>` : `已完成 ${answeredCount} / ${m.questions.length} 题`;
+      const submitHint = record ? `<span class="submitted-mark">✓ 已提交，不可修改</span>` : `阅读题 ${answeredCount} / ${m.questions.length}；控制任务 ${completedTaskCount} / 4`;
       const prompts = taskPrompts[condition] || taskPrompts.app;
+      const taskPrompt = taskIndex => `<div class="task-prompt"><div><strong>任务${taskIndex + 1}：</strong>${prompts[taskIndex]}</div><label class="task-confirm"><input type="checkbox" data-task-confirm="${taskIndex}" ${completedTaskChecks.has(taskCheckKey(taskIndex)) ? 'checked' : ''} ${record ? 'disabled' : ''}><span>我已完成此任务</span></label></div>`;
       $('#questionsBody').innerHTML = `<div>${m.questions.map((q, qi) => {
         const selected = answers[prefix + qi];
         const orderedOptions = getOptionOrder(materialIndex, qi, q).map(index => q[1][index]);
-        const prompt = qi < 6 && qi % 2 === 0 ? `<div class="task-prompt"><strong>任务${qi / 2 + 1}：</strong>${prompts[qi / 2]}</div>` : '';
+        const prompt = qi < 6 && qi % 2 === 0 ? taskPrompt(qi / 2) : '';
         return `${prompt}<section class="question"><div class="question-title">${qi + 1}. ${q[0]}：</div><div class="options">${orderedOptions.map((text, oi) => { const letter = String.fromCharCode(65 + oi); return `<label class="option"><input type="radio" name="q${current}-${qi}" value="${letter}" ${selected === letter ? 'checked' : ''} ${record ? 'disabled' : ''}><span><b>${letter}.</b> ${text}</span></label>`; }).join('')}</div><div class="choice-status ${selected ? 'done' : ''}">${selected ? `已选择：${selected}` : '尚未选择'}</div></section>`;
-      }).join('')}<div class="task-prompt"><strong>任务4：</strong>${prompts[3]}</div></div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
+      }).join('')}${taskPrompt(3)}</div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length || !allTasksConfirmed ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
+      document.querySelectorAll('[data-task-confirm]').forEach(input => input.addEventListener('change', event => {
+        const key = taskCheckKey(Number(event.target.dataset.taskConfirm));
+        if (event.target.checked) completedTaskChecks.add(key);
+        else completedTaskChecks.delete(key);
+        renderQuestions();
+      }));
       document.querySelectorAll('input[type="radio"]').forEach(input => input.addEventListener('change', event => {
         const questionIndex = Number(event.target.name.split('-')[1]);
         answers[prefix + questionIndex] = event.target.value;
@@ -773,6 +788,7 @@
       }));
       $('#clearButton').addEventListener('click', () => {
         for (let i = 0; i < m.questions.length; i++) delete answers[prefix + i];
+        for (let taskIndex = 0; taskIndex < 4; taskIndex++) completedTaskChecks.delete(taskCheckKey(taskIndex));
         save(); renderQuestions(); updateProgress(); showToast('当前材料的作答已清空');
       });
       $('#submitButton').addEventListener('click', submitCurrent);
@@ -925,7 +941,8 @@
       const m = materials[materialIndex];
       const prefix = getAnswerPrefix();
       const answeredCount = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
-      if (answeredCount !== m.questions.length || records[getRecordKey()]) return;
+      const allTasksConfirmed = [0, 1, 2, 3].every(taskIndex => completedTaskChecks.has(`${participantId}-${current}-${taskIndex}`));
+      if (answeredCount !== m.questions.length || !allTasksConfirmed || records[getRecordKey()]) return;
       const correctCount = m.questions.reduce((total, q, i) => total + (answers[`${prefix}${i}`] === answerLayouts[materialIndex][i] ? 1 : 0), 0);
       const submittedAt = Date.now();
       const startedAt = starts[getRecordKey()] || submittedAt;
