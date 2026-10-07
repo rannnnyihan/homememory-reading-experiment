@@ -8,6 +8,7 @@
 (function () {
   const API_PATH = '/api/experiment';
   const ADMIN_TOKEN_KEY = 'homememory-experiment-admin-token';
+  const EXPERIMENT_VERSION = 'three-condition-reading6-v3';
   const appsScriptUrl = String(window.EXPERIMENT_APPS_SCRIPT_URL || '').trim().replace(/\/$/, '');
   const useAppsScript = Boolean(appsScriptUrl);
   let participantWriteQueue = Promise.resolve();
@@ -37,7 +38,7 @@
     return response.json();
   }
 
-  function jsonpOnce(params, timeoutMs = 18000) {
+  function jsonp(params) {
     return new Promise((resolve, reject) => {
       const callbackName = `__hmExperimentJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
       const script = document.createElement('script');
@@ -52,7 +53,7 @@
         if (settled) return;
         cleanup();
         reject(new Error('Google Sheets 数据读取超时'));
-      }, timeoutMs);
+      }, 15000);
       window[callbackName] = (data) => {
         if (settled) return;
         window.clearTimeout(timer);
@@ -66,26 +67,9 @@
         cleanup();
         reject(new Error('Google Sheets 数据读取失败'));
       };
-      query.set('_ts', Date.now().toString());
       script.src = `${appsScriptUrl}?${query.toString()}`;
       document.head.appendChild(script);
     });
-  }
-
-  async function jsonp(params) {
-    const attempts = [12000, 18000, 24000];
-    let lastError;
-    for (let index = 0; index < attempts.length; index++) {
-      try {
-        return await jsonpOnce({ ...params, _attempt: index + 1 }, attempts[index]);
-      } catch (error) {
-        lastError = error;
-        if (index < attempts.length - 1) {
-          await new Promise(resolve => window.setTimeout(resolve, 600 * (index + 1)));
-        }
-      }
-    }
-    throw lastError || new Error('Google Sheets 数据读取失败');
   }
 
   function appsScriptGet(params, requiresAdmin = false) {
@@ -94,9 +78,17 @@
     if (token) {
       query.adminToken = token.trim();
     }
-    // 直接使用 JSONP，避开 Safari/iPad 对 Apps Script 跨域重定向 fetch
-    // 偶发报 Load failed 后再等待一次备用请求造成的双倍延时。
-    return jsonp(query);
+    const requestUrl = `${appsScriptUrl}?${new URLSearchParams(query).toString()}`;
+    // Apps Script allows cross-origin reads. Fetch is more reliable than JSONP
+    // when its response is redirected to script.googleusercontent.com.
+    return fetch(requestUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Google Sheets 数据读取失败（${response.status}）`);
+        return response.json();
+      })
+      .catch((fetchError) => jsonp(query).catch((jsonpError) => {
+        throw new Error(`${fetchError.message}；备用读取也失败：${jsonpError.message}`);
+      }));
   }
 
   function appsScriptPost(payload, requiresAdmin = false) {
@@ -105,51 +97,14 @@
     if (token) {
       body.adminToken = token.trim();
     }
-    // 使用原生表单提交，避免 iOS Safari 在网络切换或页面跳转后
-    // 静默丢弃 no-cors/keepalive fetch。iframe onload 同时保证写入队列顺序。
-    return new Promise((resolve, reject) => {
-      const requestId = `hm_apps_script_post_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const iframe = document.createElement('iframe');
-      const form = document.createElement('form');
-      let submitted = false;
-      let settled = false;
-      const cleanup = () => {
-        form.remove();
-        iframe.remove();
-      };
-      const finish = (error) => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(timer);
-        cleanup();
-        if (error) reject(error);
-        else resolve({ ok: true });
-      };
-      iframe.name = requestId;
-      iframe.src = 'about:blank';
-      iframe.hidden = true;
-      iframe.addEventListener('load', () => {
-        if (submitted) {
-          finish();
-          return;
-        }
-        document.body.appendChild(form);
-        submitted = true;
-        form.submit();
-      });
-      form.method = 'POST';
-      form.action = appsScriptUrl;
-      form.target = requestId;
-      form.hidden = true;
-      Object.entries(body).forEach(([name, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      });
-      const timer = window.setTimeout(() => finish(new Error('Google Sheets 数据写入超时')), 30000);
-      document.body.appendChild(iframe);
+    const formBody = new URLSearchParams(body);
+    return fetch(appsScriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      keepalive: true,
+      body: formBody
+    }).then(() => {
+      return { ok: true };
     });
   }
 
@@ -162,31 +117,31 @@
     async getParticipant(participantId) {
       if (useAppsScript) {
         requireAppsScript();
-        return appsScriptGet({ scope: 'participant', participantId });
+        return appsScriptGet({ scope: 'participant', participantId, experimentVersion: EXPERIMENT_VERSION });
       }
       return edgeRequest(`${API_PATH}?scope=participant&participantId=${encodeURIComponent(participantId)}`);
     },
     async getAll() {
       if (useAppsScript) {
         requireAppsScript();
-        return appsScriptGet({ scope: 'all' }, true);
+        return appsScriptGet({ scope: 'all', experimentVersion: EXPERIMENT_VERSION }, true);
       }
       return edgeRequest(`${API_PATH}?scope=all`, {}, true);
     },
     async saveParticipant(participantId, state) {
       participantWriteQueue = participantWriteQueue.catch(() => {}).then(() => {
-        if (useAppsScript) return appsScriptPost({ action: 'saveParticipant', participantId, state });
-        return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveParticipant', participantId, state }) });
+        if (useAppsScript) return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state });
+        return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state }) });
       });
       return participantWriteQueue;
     },
     async saveConfig(config) {
-      if (useAppsScript) return appsScriptPost({ action: 'saveConfig', config }, true);
-      return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveConfig', config }) }, true);
+      if (useAppsScript) return appsScriptPost({ action: 'saveConfig', experimentVersion: EXPERIMENT_VERSION, config }, true);
+      return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveConfig', experimentVersion: EXPERIMENT_VERSION, config }) }, true);
     },
     async clear(scope) {
-      if (useAppsScript) return appsScriptPost({ action: 'clear', scope }, true);
-      return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'clear', scope }) }, true);
+      if (useAppsScript) return appsScriptPost({ action: 'clear', experimentVersion: EXPERIMENT_VERSION, scope }, true);
+      return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'clear', experimentVersion: EXPERIMENT_VERSION, scope }) }, true);
     }
   };
 })();

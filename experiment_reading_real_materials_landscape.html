@@ -147,9 +147,8 @@
     .setup-card label { display: block; margin-bottom: 7px; color: #4a4f52; font-size: 13px; font-weight: 600; }
     .setup-card input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; font-size: 16px; }
     .setup-card input:focus { outline: 2px solid #8fbbe4; border-color: var(--accent); }
-    .setup-button { width: 100%; height: 42px; margin-top: 18px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; touch-action: manipulation; }
+    .setup-button { width: 100%; height: 42px; margin-top: 18px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; }
     .setup-button:hover { background: var(--accent-dark); }
-    .setup-button:disabled { cursor: wait; opacity: .62; }
     .task-condition { display: inline-block; margin-bottom: 10px; color: var(--accent); font-size: 13px; font-weight: 600; }
     .task-copy { padding: 14px 15px; margin: 18px 0 0 !important; background: #f5f6f7; border-left: 3px solid var(--accent); color: #4a4f52 !important; white-space: pre-line; }
     .interaction-guide { display: none; width: 100%; max-height: 280px; object-fit: contain; margin: 16px 0 2px; border: 1px solid var(--line); background: #fff; }
@@ -236,9 +235,9 @@
     <div class="setup-card">
       <div class="setup-kicker">READING COMPREHENSION EXPERIMENT</div>
       <h2>阅读理解实验</h2>
-      <p>请输入管理员分配的被试编号。系统会按照后台设置的拉丁方顺序安排四个实验阶段。</p>
-      <label for="participantInput">被试编号（1—24）</label>
-      <input id="participantInput" type="number" min="1" max="24" step="1" placeholder="例如：1" />
+      <p>请输入管理员分配的被试编号。系统会按照后台设置的拉丁方顺序安排三个实验阶段。</p>
+      <label for="participantInput">被试编号（1—33）</label>
+      <input id="participantInput" type="number" min="1" max="33" step="1" placeholder="例如：1" />
       <button class="setup-button" id="startExperimentButton">开始实验</button>
     </div>
   </section>
@@ -249,13 +248,13 @@
       <div class="consent-copy">
         <p>感谢你参加本次阅读与智能家居交互实验。请在决定是否参加前，仔细阅读以下说明；如有疑问，可以向研究人员询问。</p>
         <h3>一、研究目的</h3>
-        <p>本研究比较 App-GUI、抽纸盒 TUI、水杯 TUI 以及抽纸盒与水杯协同 TUI 四种家居设备控制方式，在阅读任务中的使用体验和任务表现差异。</p>
+        <p>本研究比较 App-GUI、固定有形实体界面和任意有形实体界面三种跨设备控制方式，在阅读任务中的使用体验和任务表现差异。</p>
         <h3>二、你需要做什么</h3>
-        <p>你将完成 4 个阅读理解任务。每个任务包含一篇文章、8 道选择题以及一组关于任务体验的问卷；全部任务结束后还需完成一份整体体验问卷。预计总时长约 45—60 分钟，可根据实际情况适当休息。系统会记录答题用时、正确率和问卷选项。</p>
+        <p>你将完成 3 个阅读理解任务。每个任务包含一篇文章、6 道选择题以及一组关于任务体验的问卷；全部任务结束后还需完成一份整体体验问卷。预计总时长约 45—60 分钟，可根据实际情况适当休息。系统会记录答题用时、正确率和问卷选项。</p>
         <h3>三、可能的不适与预期收益</h3>
         <p>任务可能带来轻微的视觉疲劳、注意力疲劳或设备操作负担。你可以在感到不适时暂停或退出。本研究不保证给你带来直接收益，但结果可能帮助研究者改进日常物体交互设计。</p>
         <h3>四、数据与隐私</h3>
-          <p>系统使用被试编号记录数据，不要求填写姓名。数据将保存至研究者配置的 Google Sheets 云端数据表，仅用于本研究的分析和展示；研究结果将尽量以汇总形式呈现。</p>
+        <p>系统使用被试编号记录数据，不要求填写姓名。数据仅用于本研究的分析和展示，研究结果将尽量以汇总形式呈现。本原型会先将数据保存在当前设备浏览器中，由研究人员导出和管理。</p>
         <h3>五、自愿参加与退出</h3>
         <p>参加完全自愿。你可以拒绝参加，也可以在任何阶段停止，不会因此受到惩罚或损失应有的权益。</p>
         <h3>六、联系方式</h3>
@@ -313,7 +312,7 @@
     <div class="setup-card completion-card">
       <div class="setup-kicker">TASK COMPLETE</div>
       <h2>实验已完成</h2>
-      <p>四篇文章和四个实验阶段均已提交。感谢参与。</p>
+      <p>三篇文章和三个实验阶段均已提交。感谢参与。</p>
     </div>
   </section>
   <section class="setup-screen hidden" id="questionnaireScreen">
@@ -332,7 +331,7 @@
         <span class="brand-separator">/</span>
         <span class="brand-label">实验任务</span>
       </div>
-      <div class="top-actions"><div class="progress" aria-live="polite"><strong id="progressText">0 / 8</strong></div></div>
+      <div class="top-actions"><div class="progress" aria-live="polite"><strong id="progressText">0 / 6</strong></div></div>
     </header>
     <nav class="tabs" id="tabs" aria-label="阅读材料切换"></nav>
     <section class="layout">
@@ -341,58 +340,49 @@
         <div class="source-body" id="sourceBody"></div>
       </article>
       <article class="panel">
-        <div class="panel-head"><h2 id="questionHeading">阅读理解题目</h2><p>请完成当前材料的 8 道单项选择题。</p></div>
+        <div class="panel-head"><h2 id="questionHeading">阅读理解题目</h2><p>请完成当前材料的 6 道单项选择题。</p></div>
         <div class="questions-body" id="questionsBody"></div>
       </article>
     </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
-  <script src="/homememory-reading-experiment/experiment-deployment-config.js?v=20260911-4"></script>
-  <script src="/homememory-reading-experiment/experiment-api.js?v=20260911-5"></script>
+  <script src="./experiment-deployment-config.js"></script>
+  <script src="./experiment-api.js"></script>
   <script>
-    const STORAGE_KEY = 'homememory-reading-experiment-v1';
-    const CONFIG_KEY = 'homememory-reading-experiment-config-v1';
+    const STORAGE_KEY = 'homememory-reading-experiment-v3-reading6';
+    const CONFIG_KEY = 'homememory-reading-experiment-config-v3-reading6';
+    const PARTICIPANT_COUNT = 33;
+    const STAGE_COUNT = 3;
+    const conditions = ['app', 'fixed', 'arbitrary'];
     const conditionLabels = {
-      app: '移动端图形用户界面组（GUI 组）',
-      tissue: '长方体实体交互组（抽纸盒组）',
-      cup: '圆柱体实体交互组（水杯组）',
-      both: '双物体协同实体交互组（抽纸盒＋水杯组）'
+      app: 'App-GUI 条件',
+      fixed: '固定有形实体界面条件',
+      arbitrary: '任意有形实体界面条件'
     };
     const conditionDescriptions = {
-      app: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用手机端的米家 App，通过图形界面选择相应设备或场景，完成智能家居控制操作。',
-      tissue: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用长方体实体交互媒介完成任务：长握直至屏幕亮起进行触发，通过握持并平移进行调节，向左或向右倾斜完成控制对象的切换。',
-      cup: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用圆柱体实体交互媒介完成任务：长握直至屏幕亮起进行触发，通过握持并顺时针旋转进行调节，向左或向右倾斜完成控制对象的切换。',
-      both: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用两种实体交互媒介协同完成任务：水杯用于场景设备的调节，抽纸盒用于独立设备的调节，分别通过对应的握持、平移、旋转或倾斜方式完成操作。'
+      app: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用手机应用完成场景开启、跨设备选择、参数调节及场景关闭。',
+      fixed: '本阶段的主要任务是完成阅读理解。阅读过程中，请使用与设备存在固定绑定关系的日常物体作为控制器，并使用对应物体控制相应设备。',
+      arbitrary: '本阶段的主要任务是完成阅读理解。阅读过程中，你可以使用手边任意日常物体进行控制。物体与设备之间没有固定绑定关系；请通过旋转动作在灯1、灯2与加湿器之间循环切换，并通过推拉动作连续调节参数。'
     };
-    const interactionGuideImages = {
-      tissue: '/homememory-reading-experiment/assets/experiment-groups/tissue.png',
-      cup: '/homememory-reading-experiment/assets/experiment-groups/cup.png',
-      both: '/homememory-reading-experiment/assets/experiment-groups/both.png'
-    };
+    const interactionGuideImages = {};
     const taskPrompts = {
       app: [
-        '请使用手机 App，打开阅读场景，开启灯光和加湿器。',
-        '请使用手机 App，将窗帘调节至半开状态。',
-        '请使用手机 App，将窗帘完全打开，并将灯光调暗。',
-        '请使用手机 App，关闭窗帘，并关闭阅读场景中的灯光和加湿器。'
+        '请使用手机 App，按照实验提示开启办公场景。',
+        '请使用手机 App，选择指定设备并完成参数调节。',
+        '请使用手机 App，切换至指定设备并完成参数调节。',
+        '请使用手机 App，完成最后一次调节并关闭办公场景。'
       ],
-      tissue: [
-        '请长时间握持抽纸盒，打开阅读场景，开启灯光和加湿器。',
-        '请握持抽纸盒并进行平移，将窗帘调节至半开状态。',
-        '请握持抽纸盒并进行平移，将窗帘完全打开；随后倾斜抽纸盒切换至灯光控制，再通过平移将灯光调暗。',
-        '请握持并平移抽纸盒，关闭窗帘；随后继续握持并带走抽纸盒，关闭阅读场景。'
+      fixed: [
+        '请使用对应的固定绑定物体，按照实验提示开启办公场景。',
+        '请使用与目标设备固定绑定的物体，完成参数调节。',
+        '请切换至与指定设备绑定的物体，完成参数调节。',
+        '请使用对应的固定绑定物体，完成最后一次调节并关闭办公场景。'
       ],
-      cup: [
-        '请长时间握持水杯，打开阅读场景，开启灯光和加湿器。',
-        '请握持水杯并进行旋转，将窗帘调节至半开状态。',
-        '请握持水杯并进行旋转，将窗帘完全打开；随后倾斜水杯切换至灯光控制，再通过旋转将灯光调暗。',
-        '请倾斜水杯切换至窗帘控制，并旋转关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。'
-      ],
-      both: [
-        '请长时间握持水杯，打开阅读场景，开启灯光和加湿器。',
-        '请握持抽纸盒并进行平移，将窗帘调节至半开状态。',
-        '请通过平移抽纸盒，将窗帘完全打开；随后旋转水杯切换至灯光控制，并将灯光调暗。',
-        '请使用抽纸盒平移关闭窗帘；随后长时间握持并带走水杯，关闭阅读场景。'
+      arbitrary: [
+        '请使用手边任意日常物体，按照实验提示开启办公场景。',
+        '请旋转物体选择指定设备，并通过推拉动作完成参数调节。',
+        '请再次旋转物体切换至指定设备，并通过推拉动作完成参数调节。',
+        '请使用当前物体完成最后一次调节并关闭办公场景。'
       ]
     };
     const stageQuestionnaireTypes = ['FSS', 'NASA', 'UEQS', 'ETAM'];
@@ -436,28 +426,27 @@
       },
       OVERALL: {
         title: '总体实验评价',
-        description: '请综合比较四个实验阶段的整体体验。单选题请选择一个最符合的选项；评分题为1 = 非常不同意，7 = 非常同意。',
+        description: '请综合比较三个实验阶段的整体体验。单选题请选择一个最符合的选项；评分题为1 = 非常不同意，7 = 非常同意。',
         scale: 'likert7',
         items: [
-          '最有趣的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
-          '我最愿意长期使用的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
-          '我认为最容易完成任务的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
-          '我认为最符合日常使用习惯的实验方式是：移动端图形用户界面组（GUI 组）／长方体实体交互组（抽纸盒组）／圆柱体实体交互组（水杯组）／双物体协同实体交互组（抽纸盒＋水杯组）。',
+          '最有趣的实验方式是：App-GUI 条件／固定有形实体界面条件／任意有形实体界面条件。',
+          '我最愿意长期使用的实验方式是：App-GUI 条件／固定有形实体界面条件／任意有形实体界面条件。',
+          '我认为最容易完成任务的实验方式是：App-GUI 条件／固定有形实体界面条件／任意有形实体界面条件。',
+          '我认为最符合日常使用习惯的实验方式是：App-GUI 条件／固定有形实体界面条件／任意有形实体界面条件。',
           '使用日常物体控制智能家居设备很有吸引力。',
           '物体的形态、动作与控制功能之间的联系很自然。',
-          '使用两个日常物体协同控制整个场景，比使用单个物体更自然。',
+          '在跨设备控制中，我能够理解固定绑定与任意物体两种有形交互方式的差异。',
           '我认为，通过身边的日常物体调节环境，比重新打开手机 App 或寻找控制面板更自然。'
         ],
         choiceCount: 4
       }
     };
     const answerLayouts = [
-      ['B', 'C', 'A', 'D', 'B', 'D', 'A', 'C'],
-      ['C', 'A', 'D', 'B', 'C', 'D', 'B', 'A'],
-      ['A', 'D', 'B', 'C', 'A', 'D', 'C', 'B'],
-      ['D', 'C', 'A', 'B', 'D', 'C', 'A', 'B']
+      ['B', 'C', 'A', 'D', 'B', 'D'],
+      ['C', 'A', 'D', 'B', 'C', 'D'],
+      ['A', 'D', 'B', 'C', 'A', 'D']
     ];
-    const materials = [
+    const legacyMaterials = [
       {
         title: '母亲的园子', exam: '2024 年江苏省常州市中考语文试题', type: '文学类文本｜散文', theme: '亲情、生命活力与日常生活之美',
         source: 'https://zy.21cnjy.com/20938787',
@@ -597,28 +586,88 @@
       }
     ];
 
+    const materials = [
+      {
+        title: '传统如何进入新诗', exam: '依据 2022 年新高考Ⅰ卷现代文阅读Ⅰ改写', type: '信息类文本｜双材料论述', theme: '传统文化、现代转化与文学创新',
+        source: 'https://zy.21cnjy.com/12414513',
+        article: `<h4>传统如何进入新诗</h4>
+          <p>材料一：讨论文化创新时，人们容易把“传统”和“现代”看成彼此排斥的两端：似乎选择传统就意味着回到过去，追求现代就必须摆脱传统。然而，文化传统并不是一套可以原样搬用的固定答案，而是由语言、经验、审美方式和价值判断构成的资源。真正的继承需要重新解释这些资源，使它们能够回应当代生活。一个传统只有在不断被选择、转化和检验时，才可能继续发挥作用。</p>
+          <p>吸收外来文化同样如此。一个文化共同体对外来资源的吸收能力，往往取决于自身传统是否稳固。自身缺乏判断标准时，借鉴很容易变成表面模仿；拥有清晰的文化基础时，外来形式才可能被重新组织，成为本土创造的一部分。因此，“保持传统”并不等于拒绝外来文化，“面向世界”也不等于照搬现成形式。两者都要求主体具有选择、消化和重构的能力。</p>
+          <p>材料二：中国新诗在形成过程中广泛借鉴西方诗歌，这是现代文学发展的重要动力，但也产生过语言与经验脱节的问题。有些作品采用了新的形式，却没有建立形式与本土生活之间的联系；读者看到了陌生的结构，却难以在其中辨认自己的经验。问题不在于使用了外来形式，而在于形式没有经过充分转化。</p>
+          <p>当代生活已经发生巨大变化，新诗当然不能简单恢复古典诗歌的格律和表达方式。它需要寻找能够容纳现代感受的语言、结构和节奏，同时重新理解古典诗歌在意象组织、情感节制和语言凝练方面的经验。创新由此不是在传统与现代之间二选一，而是在当代问题中重新激活传统，并把外来资源转化为自己的表达能力。</p>
+          <p class="article-source">依据2022年新高考Ⅰ卷现代文阅读Ⅰ相关材料压缩改写。</p>`,
+        questions: [
+          ['两则材料共同反对的观点是', ['传统与现代只能选择其一。', '文化创新需要回应当代生活。', '外来形式需要经过本土转化。', '文学语言会随社会经验变化。'], 'A'],
+          ['材料一认为，稳固的文化传统有助于吸收外来文化，主要因为它能够', ['阻止任何外来形式进入本土文化。', '提供选择、判断和重构外来资源的基础。', '保证传统内容始终保持原样。', '让所有读者形成完全一致的审美。'], 'B'],
+          ['材料二所说“语言与经验脱节”，最准确的含义是', ['诗歌完全没有使用现实生活中的词语。', '作品形式虽然新颖，却未与本土生活经验建立有效联系。', '读者不了解西方诗歌的发展历史。', '现代诗歌不再表达个人情感。'], 'B'],
+          ['下列做法最符合两则材料主张的是', ['直接恢复古典格律，以排除现代语言。', '完整复制国外诗歌结构，以保证形式先进。', '根据当代经验重新运用传统资源，并转化外来形式。', '放弃所有既有资源，只追求前所未有的表达。'], 'C'],
+          ['两则材料在论证关系上的作用，概括最恰当的是', ['材料一提出一般性的文化转化原则，材料二用新诗问题加以具体说明。', '材料一介绍历史事实，材料二完全否定材料一。', '材料一讨论读者趣味，材料二只讨论翻译方法。', '两则材料观点相反，分别支持传统和外来文化。'], 'A'],
+          ['根据材料可以推出，新诗创新是否成功，关键不在于形式来源，而在于', ['作品是否采用古典诗歌的固定篇幅。', '诗人是否拒绝向其他文化学习。', '形式能否经过转化并有效组织当代经验。', '读者是否熟悉作品引用的全部典故。'], 'C']
+        ]
+      },
+      {
+        title: '一粒藜麦与“竞争性真相”', exam: '依据 2023 年新课标Ⅰ卷现代文阅读Ⅰ改写', type: '信息类文本｜事实核查', theme: '媒介报道、证据评价与批判性阅读',
+        source: 'https://www.5068.com/gaokao/a757962.html',
+        article: `<h4>一粒藜麦与“竞争性真相”</h4>
+          <p>材料一：藜麦在国际市场走红后，一些媒体提出了一个引人注目的故事：富裕国家的消费推高了价格，使原产地居民吃不起自己的传统主食，出口繁荣反而伤害了种植者。这个叙述包含真实片段——价格确实上涨，部分家庭的饮食结构也发生变化——但真实片段并不自动构成可靠结论。</p>
+          <p>研究者比较了不同地区和年份的数据，发现藜麦价格上涨期间，种植区家庭的收入总体上升；种植藜麦的家庭获益尤其明显，未种植藜麦的家庭也可能通过工资和地区经济活动间接受益。儿童营养状况并没有出现报道所声称的持续恶化。当地居民减少藜麦消费，还可能与面食、大米等食品更容易获得以及消费偏好变化有关，不能只归因于“买不起”。</p>
+          <p>这并不意味着出口增长没有问题。收益可能分配不均，土地利用和生态压力也值得持续观察。研究所否定的不是所有担忧，而是用少数现象迅速建立单一因果链：价格上涨—本地人买不起—营养恶化—国际消费有害。一个有吸引力的故事，可以同时包含若干事实，却通过省略比较对象、时间变化和替代解释而产生误导。</p>
+          <p>材料二：所谓“竞争性真相”，常表现为面对反证时不断缩小或移动原先的主张。最初的断言若被数据否定，论者便改称“至少某些人受损”；若这一点仍缺乏证据，又转而强调“这个故事提醒我们关注不平等”。后一个命题或许值得讨论，却不能反过来证明最初的事实判断正确。批判性阅读因此不仅要问一句话是否含有事实，还要检查证据能否支持结论、因果链是否排除了其他解释，以及主张是否在讨论中悄然改变。</p>
+          <p class="article-source">依据2023年新课标Ⅰ卷现代文阅读Ⅰ相关材料压缩改写。</p>`,
+        questions: [
+          ['早期媒体叙述的核心因果链是', ['出口增加使藜麦价格下降并改善生态。', '国际需求推高价格，进而损害原产地居民生活。', '当地偏好变化直接促进国际消费。', '种植者收入提高导致儿童营养下降。'], 'B'],
+          ['研究数据对早期报道构成反驳，最关键的依据是', ['藜麦从未在国际市场流行。', '价格上涨期间，种植区收入和营养状况并未按报道所述恶化。', '所有家庭都开始只食用藜麦。', '媒体没有采访任何当地居民。'], 'B'],
+          ['文中承认土地利用和收益分配问题，主要是为了说明', ['反驳单一因果链不等于否认所有潜在风险。', '早期媒体报道的所有结论都正确。', '经济数据不能用于评价社会问题。', '生态问题必然比营养问题更严重。'], 'A'],
+          ['下列最能体现“竞争性真相”的做法是', ['获得新证据后明确修正原有结论。', '区分事实判断与价值判断。', '原主张被反驳后不断更换说法，并把新说法当作原主张成立的证明。', '同时比较多个地区和多个年份的数据。'], 'C'],
+          ['两则材料共同强调，评价一项公共叙述时应重点考察', ['故事是否足够感人。', '结论是否符合读者原有立场。', '证据与结论是否匹配，并考虑替代解释。', '报道是否使用了具体人物案例。'], 'C'],
+          ['若要进一步检验“国际消费伤害当地居民”的命题，最有价值的新证据是', ['某位消费者喜欢藜麦的个人原因。', '不同地区家庭收入、消费、营养及土地变化的长期对照数据。', '报道标题在社交媒体上的转发数量。', '藜麦菜谱在不同国家的数量。'], 'B']
+        ]
+      },
+      {
+        title: '从登月到月背', exam: '依据 2024 年新课标Ⅱ卷现代文阅读Ⅰ改写', type: '信息类文本｜多材料科技阅读', theme: '航天探索、信息来源与科学传播',
+        source: 'https://img20.5n6.cn/orange/file/2024/06/12/1718163370448066.pdf',
+        article: `<h4>从登月到月背</h4>
+          <p>材料一：阿波罗登月舱接近月面时，预定着陆区已经从舷窗下掠过，前方地形又十分崎岖。宇航员必须在燃料有限的情况下继续寻找平坦区域。登月舱下降、减速，最终在新的地点平稳着陆。地面控制中心一直通过通信了解情况，却无法替宇航员完成现场判断。这个过程显示，复杂探索既依赖事先规划，也依赖面对意外时的即时决策。</p>
+          <p>材料二：月球的自转周期与其绕地球公转的周期相同，因此它总以近乎同一面朝向地球。从地球直接发出的无线电信号难以覆盖月球背面，月背任务需要中继卫星转发探测器与地面的数据。“嫦娥四号”任务为此先建立通信条件，再实施着陆和巡视探测。工程目标不仅是抵达月背，还包括验证深空通信、着陆控制及长期运行等技术。</p>
+          <p>材料三：“嫦娥四号”和“玉兔二号”完成月背软着陆与巡视探测后，获得了撞击坑地下结构、月表环境和低温状况等数据。这些成果的价值不只在于“首次”，还在于月背与人类过去频繁探测的月球正面存在不同地质条件，新的观测能够补充对月球形成和演化的认识。与此同时，任务邀请其他国家的科学载荷和研究团队参与，说明重大工程可以具有明确的国家组织能力，也可以形成开放的科学合作。</p>
+          <p>三则材料采用了不同的叙述方式。第一则以连续动作营造临场感，突出人在突发情境中的判断；第二则解释任务条件和技术链条；第三则从成果、意义与合作角度评价探索。把这些信息联系起来，可以看到科学探索不是一个孤立的“成功时刻”，而是由问题提出、工程准备、现场控制、数据获取和后续解释共同构成的过程。</p>
+          <p class="article-source">依据2024年新课标Ⅱ卷现代文阅读Ⅰ相关材料压缩改写。</p>`,
+        questions: [
+          ['阿波罗登月事例主要说明，复杂探索活动需要', ['完全放弃事先规划。', '只依靠地面人员远程操作。', '把预先方案与现场即时判断结合起来。', '在燃料耗尽后再寻找着陆地点。'], 'C'],
+          ['月背任务需要中继卫星，直接原因是', ['月背没有适合着陆的平坦区域。', '月球阻挡了探测器与地球之间的直接无线电通信。', '巡视器不能在低温环境中工作。', '地球上的控制中心无法处理科学数据。'], 'B'],
+          ['材料三认为月背探测的科学价值不只在于“首次”，是因为它', ['能够取代所有月球正面探测。', '证明月球各区域的地质条件完全相同。', '提供不同地质环境的数据，补充对月球演化的认识。', '主要用于展示巡视器的行驶速度。'], 'C'],
+          ['三则材料的功能关系，概括最恰当的是', ['依次呈现现场决策、工程条件和成果意义。', '分别证明载人航天必然优于无人探测。', '都以故事叙述为主，内容彼此重复。', '依次讨论文学想象、商业竞争和环境保护。'], 'A'],
+          ['下列说法最符合材料对国际合作的理解的是', ['国家组织与国际合作必然相互排斥。', '只有共享全部技术，科学合作才有意义。', '国家主导的重大工程也可以吸纳国际科学力量参与。', '国际合作意味着任务不再具有国家目标。'], 'C'],
+          ['依据三则材料，科学探索被理解为一个“过程”，主要因为', ['成功只取决于最后一次操作。', '规划、通信、控制、观测和解释等环节相互衔接。', '任何工程都必须使用完全相同的设备。', '科学结论可以在获得数据之前确定。'], 'B']
+        ]
+      }
+    ];
+
     function buildDefaultConfig() {
       const latinOrders = [
-        ['app', 'tissue', 'cup', 'both'],
-        ['tissue', 'cup', 'both', 'app'],
-        ['cup', 'both', 'app', 'tissue'],
-        ['both', 'app', 'tissue', 'cup']
+        ['app', 'fixed', 'arbitrary'],
+        ['fixed', 'arbitrary', 'app'],
+        ['arbitrary', 'app', 'fixed']
       ];
       const assignments = {};
-      for (let participant = 1; participant <= 24; participant++) assignments[participant] = latinOrders[(participant - 1) % latinOrders.length];
-      return { materialOrder: [0, 1, 2, 3], conditionBindings: { app: 0, tissue: 1, cup: 2, both: 3 }, latinOrders, assignments };
+      for (let participant = 1; participant <= PARTICIPANT_COUNT; participant++) assignments[participant] = [...latinOrders[(participant - 1) % latinOrders.length]];
+      return { schemaVersion: 2, materialOrder: [0, 1, 2], conditionBindings: { app: 0, fixed: 1, arbitrary: 2 }, latinOrders, assignments };
+    }
+    function isCurrentConfig(candidate) {
+      return candidate?.schemaVersion === 2
+        && Array.isArray(candidate.latinOrders)
+        && candidate.latinOrders.length === STAGE_COUNT
+        && candidate.latinOrders.every(order => Array.isArray(order) && order.length === STAGE_COUNT && order.every(condition => conditions.includes(condition)));
     }
     function readConfig() {
       try {
         const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || 'null');
-        if (!saved || !saved.assignments || !saved.latinOrders) return buildDefaultConfig();
-        return { ...buildDefaultConfig(), ...saved, materialOrder: Array.isArray(saved.materialOrder) ? saved.materialOrder : [0, 1, 2, 3] };
+        if (!isCurrentConfig(saved) || !saved.assignments) return buildDefaultConfig();
+        return { ...buildDefaultConfig(), ...saved, materialOrder: Array.isArray(saved.materialOrder) ? saved.materialOrder.slice(0, STAGE_COUNT) : [0, 1, 2] };
       } catch (_) { return buildDefaultConfig(); }
     }
     let config = readConfig();
-    // GitHub Pages/EdgeOne 等线上地址一律以云端为唯一数据源。
-    // 不依赖接口脚本的加载时序，避免初始化稍慢时误读旧 localStorage 进度。
-    const cloudMode = window.location.protocol !== 'file:';
+    const cloudMode = window.location.protocol !== 'file:' && Boolean(window.ExperimentAPI?.usingAppsScript);
     const state = cloudMode ? {} : JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let participantId = Number.isInteger(state.participantId) ? state.participantId : null;
     let current = Number.isInteger(state.currentStage) ? state.currentStage : 0;
@@ -655,18 +704,18 @@
     }
     function save() {
       const payload = getStatePayload();
-      if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
-        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，请检查网络后重试'));
+        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
       }
     }
     async function hydrateRemoteParticipant() {
       if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return;
       try {
         const remote = await window.ExperimentAPI.getParticipant(participantId);
-        if (remote?.config) config = remote.config;
+        if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
         if (remote?.state) applyRemoteState(remote.state);
-        if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
         if (!$('#experimentApp').hidden) render();
       } catch (_) {
         // 正式部署时不回退到本机缓存，避免不同设备看到不同数据。
@@ -707,7 +756,7 @@
       return Boolean(records[`p${participantId}-s${stage}`]) && stageQuestionnaireTypes.every(type => questionnaires[getQuestionnaireKey(type, stage)]);
     }
     function getFirstIncompleteStage() {
-      return [0, 1, 2, 3].find(stage => !isStageComplete(stage));
+      return Array.from({ length: STAGE_COUNT }, (_, stage) => stage).find(stage => !isStageComplete(stage));
     }
     function getFirstIncompleteQuestionnaire(stage = current) {
       return stageQuestionnaireTypes.find(type => !questionnaires[getQuestionnaireKey(type, stage)]) || 'FSS';
@@ -758,7 +807,7 @@
       const materialIndex = getCurrentMaterialIndex();
       const m = materials[materialIndex];
       const condition = getCurrentCondition();
-      $('#questionHeading').textContent = `${conditionLabels[condition]}｜8 道题`;
+      $('#questionHeading').textContent = `${conditionLabels[condition]}｜${m.questions.length} 道题`;
       const prefix = getAnswerPrefix();
       const record = records[getRecordKey()];
       const answeredCount = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
@@ -797,7 +846,7 @@
       const m = materials[getCurrentMaterialIndex()];
       const prefix = getAnswerPrefix();
       const count = m.questions.filter((_, i) => answers[`${prefix}${i}`]).length;
-      $('#progressText').textContent = `${count} / 8`;
+      $('#progressText').textContent = `${count} / ${m.questions.length}`;
     }
     function flattenQuestionnaireItems(type) {
       const definition = questionnaireDefinitions[type];
@@ -806,7 +855,7 @@
     }
     function questionnaireOptions(definition, selected, type, index) {
       if (definition.choiceCount && index < definition.choiceCount) {
-        const options = ['移动端图形用户界面组（GUI 组）', '长方体实体交互组（抽纸盒组）', '圆柱体实体交互组（水杯组）', '双物体协同实体交互组（抽纸盒＋水杯组）'];
+        const options = conditions.map(condition => conditionLabels[condition]);
         return `<select data-questionnaire="${type}" data-index="${index}"><option value="" ${selected === undefined ? 'selected' : ''}>请选择</option>${options.map((option, optionIndex) => `<option value="${optionIndex + 1}" ${String(selected) === String(optionIndex + 1) ? 'selected' : ''}>${option}</option>`).join('')}</select>`;
       }
       if (definition.scale === 'likert7') return `<div class="likert-scale" role="radiogroup" aria-label="第 ${index + 1} 题 1 到 7 分">${Array.from({ length: 7 }, (_, itemIndex) => { const value = itemIndex + 1; return `<label class="likert-point"><input type="radio" name="${type}-${index}" data-questionnaire="${type}" data-index="${index}" value="${value}" ${String(selected) === String(value) ? 'checked' : ''}><span>${value}</span></label>`; }).join('')}</div>`;
@@ -872,9 +921,9 @@
       $('#experimentApp').hidden = true;
       $('#questionnaireScreen').classList.remove('hidden');
       if (mode === 'overall') {
-        $('#questionnaireMeta').textContent = '四阶段完成后问卷';
+        $('#questionnaireMeta').textContent = '三阶段完成后问卷';
         $('#questionnaireTitle').textContent = '请填写最终总体体验问卷';
-        $('#questionnaireIntro').textContent = '请综合考虑刚才完成的四个实验阶段，填写最终总体体验评价。';
+        $('#questionnaireIntro').textContent = '请综合考虑刚才完成的三个实验阶段，填写最终总体体验评价。';
       } else {
         const condition = getCurrentCondition();
         $('#questionnaireMeta').textContent = `第 ${current + 1} 阶段 · ${conditionLabels[condition]}`;
@@ -919,14 +968,14 @@
       if (questionnaireMode === 'stage' && activeQuestionnaireType !== stageQuestionnaireTypes[stageQuestionnaireTypes.length - 1]) {
         const nextType = stageQuestionnaireTypes[stageQuestionnaireTypes.indexOf(activeQuestionnaireType) + 1];
         showQuestionnaire('stage', nextType);
-      } else if (current < 3) {
+      } else if (current < STAGE_COUNT - 1) {
         current += 1;
         questionnaireMode = 'stage';
         activeQuestionnaireType = 'FSS';
         save();
         showTaskIntro();
       } else {
-        current = 4;
+        current = STAGE_COUNT;
         showQuestionnaire('overall');
       }
     }
@@ -968,8 +1017,8 @@
     }
     function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     function showTaskIntro() {
-      config = readConfig();
-      if (current >= 4) {
+      if (!cloudMode) config = readConfig();
+      if (current >= STAGE_COUNT) {
         $('#setupScreen').classList.add('hidden');
         $('#consentScreen').classList.add('hidden');
         $('#taskIntroScreen').classList.add('hidden');
@@ -1043,7 +1092,7 @@
     function continueAfterParticipantEntry() {
       const firstIncomplete = getFirstIncompleteStage();
       if (firstIncomplete === undefined) {
-        current = 4;
+        current = STAGE_COUNT;
         if (questionnaires[getQuestionnaireKey('OVERALL')]) {
           $('#setupScreen').classList.add('hidden');
           $('#completionScreen').classList.remove('hidden');
@@ -1058,74 +1107,45 @@
       if (records[`p${participantId}-s${current}`]) showQuestionnaire('stage', getFirstIncompleteQuestionnaire(current));
       else showTaskIntro();
     }
-    let startExperimentInFlight = false;
     async function startExperiment() {
-      if (startExperimentInFlight) return;
       const value = Number($('#participantInput').value);
-      if (!Number.isInteger(value) || value < 1 || value > 24) {
-        showToast('请输入 1—24 之间的被试编号');
+      if (!Number.isInteger(value) || value < 1 || value > PARTICIPANT_COUNT) {
+        showToast(`请输入 1—${PARTICIPANT_COUNT} 之间的被试编号`);
         return;
       }
-      const startButton = $('#startExperimentButton');
-      startExperimentInFlight = true;
-      startButton.disabled = true;
-      startButton.textContent = '正在读取云端数据…';
       participantId = value;
-      // 正式部署只使用云端状态；旧设备遗留的本机进度不能决定入口页面。
-      if (cloudMode) {
-        replaceObject(answers, {}); replaceObject(records, {}); replaceObject(starts, {});
-        replaceObject(questionnaires, {}); replaceObject(questionnaireDrafts, {}); replaceObject(consents, {});
-      }
-      try {
-        let remoteLoaded = false;
-        if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
+      let remoteLoaded = false;
+      if (window.location.protocol !== 'file:' && window.ExperimentAPI) {
+        try {
           const remote = await window.ExperimentAPI.getParticipant(participantId);
-          if (remote?.config) config = remote.config;
-          if (remote && remote.state && typeof remote.state === 'object') {
-            applyRemoteState(remote.state);
-            remoteLoaded = true;
-          }
+          if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
+          applyRemoteState(remote?.state || {});
+          remoteLoaded = true;
+        } catch (_) {
+          showToast('云端数据读取失败，无法使用本机缓存代替');
+          return;
         }
-        if (!remoteLoaded && cloudMode) throw new Error('未读取到云端被试数据，请稍后重试');
-        if (!remoteLoaded) config = readConfig();
-        save();
-        if (!consents[participantId]?.profile) showConsent();
-        else continueAfterParticipantEntry();
-      } catch (error) {
-        showToast(error.message || '云端数据读取失败，无法使用本机缓存代替');
-      } finally {
-        startExperimentInFlight = false;
-        startButton.disabled = false;
-        startButton.textContent = '开始实验';
       }
+      if (!remoteLoaded && cloudMode) {
+        showToast('未读取到云端被试数据，请稍后重试');
+        return;
+      }
+      if (!remoteLoaded) config = readConfig();
+      save();
+      if (!consents[participantId]?.profile) showConsent();
+      else continueAfterParticipantEntry();
     }
     $('#startExperimentButton').addEventListener('click', startExperiment);
     $('#beginTaskButton').addEventListener('click', beginTask);
     $('#consentAgree').addEventListener('change', updateConsentButton);
     document.querySelectorAll('#consentScreen input, #consentScreen select').forEach(input => input.addEventListener('input', updateConsentButton));
     document.querySelectorAll('#consentScreen input[type="radio"], #consentScreen input[type="checkbox"]').forEach(input => input.addEventListener('change', updateConsentButton));
-    let consentSubmitting = false;
     $('#consentConfirmButton').addEventListener('click', () => {
-      if (consentSubmitting) return;
       const profile = collectConsentProfile();
-      if (!$('#consentAgree').checked || !profile) {
-        showToast('请填写全部基本信息并勾选知情同意');
-        return;
-      }
-      consentSubmitting = true;
-      const button = $('#consentConfirmButton');
-      button.disabled = true;
-      button.textContent = '正在进入实验…';
+      if (!$('#consentAgree').checked || !profile) return;
       consents[participantId] = { participantId, version: 'v2', agreedAt: Date.now(), profile };
-      try {
-        // 页面先进入下一步；云端写入由 save() 在后台队列中完成。
-        continueAfterParticipantEntry();
-      } catch (error) {
-        consentSubmitting = false;
-        button.disabled = false;
-        button.textContent = '确认并进入实验';
-        showToast(`进入实验失败：${error.message}`);
-      }
+      save();
+      continueAfterParticipantEntry();
     });
     $('#participantInput').addEventListener('keydown', event => { if (event.key === 'Enter') startExperiment(); });
     if (participantId) $('#participantInput').value = participantId;
