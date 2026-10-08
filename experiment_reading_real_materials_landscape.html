@@ -813,10 +813,11 @@
       if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return;
       try {
         const remote = await window.ExperimentAPI.getParticipant(participantId);
-        const resetByAdmin = (remote?.state?.clearedAt || 0) > clearedAt;
+        const remoteClear = Math.max(remote?.state?.clearedAt || 0, remote?.config?.clearedAt || 0);
+        const resetByAdmin = remoteClear > clearedAt;
         if (resetOnly && !resetByAdmin) return;
         if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
-        if (remote?.state) applyRemoteState(remote.state);
+        applyRemoteState({ ...(remote?.state || {}), clearedAt: remoteClear });
         localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
         if (resetByAdmin) {
           localStorage.setItem(`${STORAGE_KEY}-p${participantId}`, JSON.stringify(getStatePayload()));
@@ -1307,7 +1308,8 @@
           if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
           let localCache = null;
           try { localCache = JSON.parse(localStorage.getItem(`${STORAGE_KEY}-p${participantId}`) || localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) {}
-          const merged = window.ExperimentSync.mergeParticipantStates(localCache, remote?.state || {}, participantId);
+          const cloudState = { ...(remote?.state || {}), clearedAt: Math.max(remote?.state?.clearedAt || 0, remote?.config?.clearedAt || 0) };
+          const merged = window.ExperimentSync.mergeParticipantStates(localCache, cloudState, participantId);
           applyRemoteState(merged.state);
           const addedCount = Object.values(merged.added).reduce((sum, count) => sum + count, 0);
           if (merged.conflicts.length) {

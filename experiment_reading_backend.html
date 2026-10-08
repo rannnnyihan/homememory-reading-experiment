@@ -156,8 +156,8 @@
     }
     function render() { config = getConfig(); renderSchedule(); renderConsentRecords(); renderReadingRecords(); renderQuestionnaireRecords(); }
     function collectConfig() { const assignments = {}; for (let participant = 1; participant <= PARTICIPANT_COUNT; participant++) { assignments[participant] = Array.from({ length: STAGE_COUNT }, (_, stage) => document.querySelector(`[data-participant="${participant}"][data-stage="${stage}"]`).value); if (new Set(assignments[participant]).size !== STAGE_COUNT) throw new Error(`被试 ${participant} 的三个阶段不能重复`); } return { schemaVersion: 2, materialOrder: config.materialOrder || [0, 1, 2], conditionBindings: config.conditionBindings || { app: 0, fixed: 1, arbitrary: 2 }, latinOrders: config.latinOrders, assignments }; }
-    async function saveConfig() { try { config = collectConfig(); localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); remoteConfig = config; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.saveConfig(config); render(); showToast('实验设置已保存'); } catch (error) { showToast(error.message); } }
-    async function resetLatin() { config = buildDefaultConfig(); remoteConfig = config; localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.saveConfig(config); render(); showToast('已恢复默认拉丁方顺序'); }
+    async function saveConfig() { try { config = { ...collectConfig(), clearedAt: remoteConfig?.clearedAt || 0 }; localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); remoteConfig = config; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.saveConfig(config); render(); showToast('实验设置已保存'); } catch (error) { showToast(error.message); } }
+    async function resetLatin() { config = { ...buildDefaultConfig(), clearedAt: remoteConfig?.clearedAt || 0 }; remoteConfig = config; localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.saveConfig(config); render(); showToast('已恢复默认拉丁方顺序'); }
     function csvCell(value) { return `"${String(value ?? '').replaceAll('"', '""')}"`; }
     function downloadCsv(filename, rows) { const csv = '\ufeff' + rows.map(row => row.map(csvCell).join(',')).join('\n'); const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); const link = document.createElement('a'); link.href = url; link.download = filename; link.click(); URL.revokeObjectURL(url); showToast(`${filename} 已导出`); }
     function exportReading() { const rows = [['顺序编号', '实验顺序', '被试', '阶段', '实验方式', '文章', '开始时间', '提交时间', '完成用时', '答对题数', '题目数', '正确率']]; getReadingRows().forEach(record => { const fallback = getSequence(record.participantId); const sequence = { index: record.sequenceIndex ?? fallback.index, labels: record.sequence ?? fallback.labels }; rows.push([sequence.index, sequence.labels, record.participantId, record.stage, conditionLabels[record.condition] || record.condition, materials[record.materialIndex] || record.title, formatTime(record.startedAt), formatTime(record.submittedAt), formatDuration(record.durationMs), record.correctCount, record.total, `${record.accuracy}%`]); }); downloadCsv('阅读答题记录_含实验顺序.csv', rows); }
@@ -166,7 +166,42 @@
     function exportConsent() { const rows = [['被试', '知情同意', '确认时间', '性别', '年龄', '学院', '专业', '学号', '是否使用智能家居', '使用场景', 'App 熟悉程度（1—7）', '自动化熟悉程度（1—7）', '常用控制方式', '日常物体控制自然性（1—7）', '日常物体参与控制意愿（1—7）', '电子签名']]; getConsentEntries().forEach(({ participantId, consent }) => { const profile = consent?.profile || {}; rows.push([participantId, consent ? '已填写' : '未填写', formatTime(consent?.agreedAt), profile.gender || '', profile.age || '', profile.college || '', profile.major || '', profile.studentId || '', profile.smartHomeUse || '', formatList(profile.smartHomeScenes), profile.appFamiliarity || '', profile.automationFamiliarity || '', formatList(profile.controlMethods), profile.objectNaturalness || '', profile.objectAcceptance || '', profile.signatureDataUrl ? '已签名（详见后台知情信息页）' : '']); }); downloadCsv('知情同意与参与者信息.csv', rows); }
     async function clearReading() { if (!confirm('确定清空全部阅读答题记录吗？问卷原始数据不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('reading'); const state = readExperimentState(); delete state.records; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('阅读答题记录已清空'); }
     async function clearQuestionnaires() { if (!confirm('确定清空全部问卷原始数据吗？阅读答题记录不会被清空。')) return; if (window.location.protocol !== 'file:' && window.ExperimentAPI) await window.ExperimentAPI.clear('questionnaires'); const state = readExperimentState(); delete state.questionnaires; delete state.questionnaireDrafts; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); remoteExperimentState = state; render(); showToast('问卷原始数据已清空'); }
-    async function clearAllRecords() { const password = window.prompt('请输入清空数据密码：'); if (password === null) return; if (password !== '863240779') { showToast('密码错误，未清空任何数据'); return; } if (!confirm('确定清空全部阅读记录、所有问卷记录和知情同意吗？此操作会同时清空 Google Sheets 云端数据，且无法恢复。')) return; const button = $('#clearAllButton'); button.disabled = true; try { if (window.location.protocol === 'file:' || !window.ExperimentAPI) throw new Error('当前页面未连接云端，不能清空'); const clearedAt = Date.now(); for (let participant = 1; participant <= PARTICIPANT_COUNT; participant++) { button.textContent = `正在删除 ${participant}/${PARTICIPANT_COUNT}…`; await window.ExperimentAPI.saveParticipant(participant, { participantId: participant, currentStage: 0, questionnaireMode: 'stage', activeQuestionnaireType: 'FSS', clearedAt, answers: {}, records: {}, starts: {}, questionnaires: {}, questionnaireDrafts: {}, consents: {} }); } const remote = await window.ExperimentAPI.getAll(); const remaining = Object.values(remote.states || {}).some(state => ['records', 'questionnaires', 'consents', 'answers', 'starts'].some(field => Object.keys(state?.[field] || {}).length)); if (remaining) throw new Error('云端仍有记录，清空未完成'); await refreshRemote(); showToast('云端记录已清空并核验'); } catch (error) { showToast(`清空失败：${error.message}`); } finally { button.disabled = false; button.textContent = '清空全部记录'; } }
+    async function clearAllRecords() {
+      const password = window.prompt('请输入清空数据密码：');
+      if (password === null) return;
+      if (password !== '863240779') { showToast('密码错误，未清空任何数据'); return; }
+      if (!confirm('确定清空全部阅读记录、所有问卷记录和知情同意吗？此操作会同时清空 Google Sheets 云端数据，且无法恢复。')) return;
+      const button = $('#clearAllButton');
+      button.disabled = true;
+      try {
+        if (window.location.protocol === 'file:' || !window.ExperimentAPI) throw new Error('当前页面未连接云端，不能清空');
+        button.textContent = '正在读取云端…';
+        const before = await window.ExperimentAPI.getAll();
+        const clearedAt = Date.now();
+        button.textContent = '正在标记清空…';
+        await window.ExperimentAPI.saveConfig({ ...(isCurrentConfig(before.config) ? before.config : config), clearedAt });
+        const marked = await window.ExperimentAPI.getAll();
+        if (marked.config?.clearedAt !== clearedAt) throw new Error('云端清空标记未保存');
+        const filled = Object.entries(before.states || {}).filter(([, state]) =>
+          ['records', 'questionnaires', 'questionnaireDrafts', 'consents', 'answers', 'starts'].some(field => Object.keys(state?.[field] || {}).length));
+        for (let index = 0; index < filled.length; index++) {
+          const participant = Number(filled[index][0]);
+          button.textContent = `正在删除 ${index + 1}/${filled.length}…`;
+          await window.ExperimentAPI.saveParticipant(participant, {
+            participantId: participant, currentStage: 0, questionnaireMode: 'stage', activeQuestionnaireType: 'FSS',
+            clearedAt, answers: {}, records: {}, starts: {}, questionnaires: {}, questionnaireDrafts: {}, consents: {}
+          });
+        }
+        button.textContent = '正在核验…';
+        const remote = await window.ExperimentAPI.getAll();
+        const remaining = Object.values(remote.states || {}).some(state =>
+          ['records', 'questionnaires', 'questionnaireDrafts', 'consents', 'answers', 'starts'].some(field => Object.keys(state?.[field] || {}).length));
+        if (remaining) throw new Error('云端仍有记录，清空未完成');
+        await refreshRemote();
+        showToast('云端记录已清空并核验');
+      } catch (error) { showToast(`清空失败：${error.message}`); }
+      finally { button.disabled = false; button.textContent = '清空全部记录'; }
+    }
     function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     $('#saveButton').addEventListener('click', saveConfig); $('#clearAllButton').addEventListener('click', clearAllRecords); $('#resetLatinButton').addEventListener('click', resetLatin); $('#refreshButton').addEventListener('click', refreshRemote); $('#exportReadingButton').addEventListener('click', exportReading); $('#exportConsentButton').addEventListener('click', exportConsent); $('#exportQuestionnaireButton').addEventListener('click', () => exportQuestionnaires(activeQuestionnaireType)); $('#exportAllQuestionnaireButton').addEventListener('click', exportAllQuestionnaires);
     document.querySelectorAll('.backend-tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.backend-tab').forEach(item => item.classList.toggle('active', item === tab)); document.querySelectorAll('#participantPanel, #consentPanel, #readingPanel, #questionnairePanel').forEach(panel => panel.classList.toggle('hidden', panel.id !== tab.dataset.panel)); render(); }));

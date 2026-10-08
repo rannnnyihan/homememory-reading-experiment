@@ -200,7 +200,7 @@
         if (useAppsScript) {
           return appsScriptGet({ scope: 'participant', participantId, experimentVersion: EXPERIMENT_VERSION })
             .then((remote) => {
-              if ((remote?.state?.clearedAt || 0) > (snapshot.clearedAt || 0)) {
+              if (Math.max(remote?.state?.clearedAt || 0, remote?.config?.clearedAt || 0) > (snapshot.clearedAt || 0)) {
                 throw new Error('云端记录已清空，本页面的旧记录不会再上传；请刷新页面');
               }
               return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot });
