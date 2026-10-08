@@ -97,13 +97,57 @@
     if (token) {
       body.adminToken = token.trim();
     }
-    const formBody = new URLSearchParams(body);
-    return fetch(appsScriptUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      keepalive: true,
-      body: formBody
-    }).then(() => ({ submitted: true }));
+    // Use a native form target rather than cross-origin fetch. Fetch can reject
+    // with "Failed to fetch" in Safari/iOS and on some network transitions,
+    // while a form POST is handled consistently by the Apps Script web app.
+    return new Promise((resolve, reject) => {
+      const requestId = `hm_apps_script_post_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const iframe = document.createElement('iframe');
+      const form = document.createElement('form');
+      let submitted = false;
+      let settled = false;
+      const cleanup = () => {
+        form.remove();
+        iframe.remove();
+      };
+      const finish = (error) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        cleanup();
+        if (error) reject(error);
+        else resolve({ submitted: true });
+      };
+      iframe.name = requestId;
+      iframe.src = 'about:blank';
+      iframe.hidden = true;
+      iframe.addEventListener('load', () => {
+        if (submitted) {
+          finish();
+          return;
+        }
+        document.body.appendChild(form);
+        submitted = true;
+        try {
+          form.submit();
+        } catch (error) {
+          finish(error);
+        }
+      });
+      form.method = 'POST';
+      form.action = appsScriptUrl;
+      form.target = requestId;
+      form.hidden = true;
+      Object.entries(body).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      });
+      const timer = window.setTimeout(() => finish(new Error('Google Sheets 数据写入超时')), 30000);
+      document.body.appendChild(iframe);
+    });
   }
 
   function stableSerialize(value) {
