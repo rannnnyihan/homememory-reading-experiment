@@ -411,6 +411,7 @@
   </main>
   <div class="toast" id="toast" role="status"></div>
   <script src="./experiment-deployment-config.js"></script>
+  <script src="./experiment-sync.js"></script>
   <script src="./experiment-api.v6.js"></script>
   <script>
     const STORAGE_KEY = 'homememory-reading-experiment-v3-reading6';
@@ -1280,7 +1281,28 @@
         try {
           const remote = await window.ExperimentAPI.getParticipant(participantId);
           if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
-          applyRemoteState(remote?.state || {});
+          let localCache = null;
+          try { localCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) {}
+          const merged = window.ExperimentSync.mergeParticipantStates(localCache, remote?.state || {}, participantId);
+          applyRemoteState(merged.state);
+          const addedCount = Object.values(merged.added).reduce((sum, count) => sum + count, 0);
+          if (merged.conflicts.length) {
+            localStorage.setItem(`${STORAGE_KEY}-sync-conflicts`, JSON.stringify({
+              participantId,
+              detectedAt: Date.now(),
+              entries: merged.conflicts.map(({ field, key }) => ({ field, key, local: localCache?.[field]?.[key], cloud: remote?.state?.[field]?.[key] }))
+            }));
+          }
+          if (addedCount > 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
+            showToast(`发现 ${addedCount} 项本机未同步数据，正在自动补齐云端`);
+            window.ExperimentAPI.saveParticipant(participantId, getStatePayload())
+              .then(() => showToast('本机未同步数据已自动补齐到云端'))
+              .catch((error) => showToast(`自动补齐未确认：${error?.message || '请保持页面打开并稍后重试'}`));
+          }
+          if (merged.conflicts.length) {
+            showToast(`发现 ${merged.conflicts.length} 项本机与云端内容不同，已保留云端版本并暂存冲突`);
+          }
           remoteLoaded = true;
         } catch (_) {
           showToast('云端数据读取失败，无法使用本机缓存代替');
