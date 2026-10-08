@@ -806,6 +806,7 @@
       return Promise.resolve(false);
     }
     let remoteHydrationInFlight = false;
+    let lastCloudReadWarningAt = 0;
     async function hydrateRemoteParticipant() {
       if (!participantId || document.hidden || window.location.protocol === 'file:' || !window.ExperimentAPI || remoteHydrationInFlight) return;
       remoteHydrationInFlight = true;
@@ -814,27 +815,21 @@
         const remote = await window.ExperimentAPI.getParticipant(participantId);
         const remoteClear = Math.max(remote?.state?.clearedAt || 0, remote?.config?.clearedAt || 0);
         const resetByAdmin = remoteClear > clearedAt;
-        const remoteState = { ...(remote?.state || {}), clearedAt: remoteClear };
-        const changed = resetByAdmin || ['records', 'questionnaires', 'consents', 'answers', 'starts'].some(field =>
-          JSON.stringify(remoteState[field] || {}) !== JSON.stringify(getStatePayload()[field] || {}));
-        if (!changed) return;
         if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
-        applyRemoteState(remoteState);
-        if (changed) {
+        // 轮询只检查管理员的清空标记。普通的远端版本差异可能来自写入延迟或另一设备，
+        // 不得覆盖正在进行的本页实验；跨设备续做仅在输入被试编号时从云端加载。
+        if (resetByAdmin) {
+          applyRemoteState({ ...(remote?.state || {}), clearedAt: remoteClear });
           $('#experimentApp').hidden = true;
           ['consentScreen', 'taskIntroScreen', 'questionnaireScreen', 'completionScreen'].forEach(id => $(`#${id}`).classList.add('hidden'));
           $('#setupScreen').classList.remove('hidden');
-          showToast(resetByAdmin ? '管理员已清空云端记录，本页面已同步更新' : '云端记录已更新，请重新进入当前被试');
+          showToast('管理员已清空云端记录，本页面已同步更新');
         }
       } catch (_) {
-        // 正式部署时不回退到本机缓存，避免不同设备看到不同数据。
-        if (cloudMode) {
-          replaceObject(answers, {}); replaceObject(records, {}); replaceObject(starts, {});
-          replaceObject(questionnaires, {}); replaceObject(questionnaireDrafts, {}); replaceObject(consents, {});
-          $('#experimentApp').hidden = true;
-          ['consentScreen', 'taskIntroScreen', 'questionnaireScreen', 'completionScreen'].forEach(id => $(`#${id}`).classList.add('hidden'));
-          $('#setupScreen').classList.remove('hidden');
-          showToast('云端数据读取失败，请检查网络后重试');
+        // 读取暂时失败时，保留当前内存状态与页面，绝不清空或跳回入口。
+        if (Date.now() - lastCloudReadWarningAt > 30000) {
+          lastCloudReadWarningAt = Date.now();
+          showToast('云端连接暂时失败，当前实验不会被中断');
         }
       } finally {
         remoteHydrationInFlight = false;
