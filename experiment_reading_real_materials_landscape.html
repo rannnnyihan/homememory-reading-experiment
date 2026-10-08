@@ -7,7 +7,8 @@
       window.location.replace(`https://rannnnyihan.github.io/homememory-reading-experiment/${window.location.search}${window.location.hash}`);
     } else if (window.location.pathname.endsWith('/experiment_reading_real_materials_landscape.html')) {
       const basePath = window.location.pathname.slice(0, -'/experiment_reading_real_materials_landscape.html'.length) || '/';
-      window.history.replaceState({}, document.title, `${basePath}${window.location.search}${window.location.hash}`);
+      const normalizedBasePath = basePath.endsWith('/') ? basePath : `${basePath}/`;
+      window.history.replaceState({}, document.title, `${normalizedBasePath}${window.location.search}${window.location.hash}`);
     }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
