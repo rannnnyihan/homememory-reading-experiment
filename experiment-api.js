@@ -8,7 +8,7 @@
 (function () {
   const API_PATH = '/api/experiment';
   const ADMIN_TOKEN_KEY = 'homememory-experiment-admin-token';
-  const EXPERIMENT_VERSION = 'three-condition-reading6-v3';
+  const EXPERIMENT_VERSION = 'two-condition-reading6-sus-v1';
   const appsScriptUrl = String(window.EXPERIMENT_APPS_SCRIPT_URL || '').trim().replace(/\/$/, '');
   const useAppsScript = Boolean(appsScriptUrl);
   let participantWriteQueue = Promise.resolve();
