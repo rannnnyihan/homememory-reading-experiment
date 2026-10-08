@@ -802,20 +802,29 @@
         return window.ExperimentAPI.saveParticipant(participantId, payload)
           .then(() => true)
           .catch((error) => {
+            if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
             showToast(error?.message || '云端保存未确认，请稍后重试');
             return false;
           });
       }
       return Promise.resolve(false);
     }
-    async function hydrateRemoteParticipant() {
+    async function hydrateRemoteParticipant({ resetOnly = false } = {}) {
       if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return;
       try {
         const remote = await window.ExperimentAPI.getParticipant(participantId);
+        const resetByAdmin = (remote?.state?.clearedAt || 0) > clearedAt;
+        if (resetOnly && !resetByAdmin) return;
         if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
         if (remote?.state) applyRemoteState(remote.state);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(getStatePayload()));
-        if (!$('#experimentApp').hidden) render();
+        if (resetByAdmin) {
+          localStorage.setItem(`${STORAGE_KEY}-p${participantId}`, JSON.stringify(getStatePayload()));
+          $('#experimentApp').hidden = true;
+          ['consentScreen', 'taskIntroScreen', 'questionnaireScreen', 'completionScreen'].forEach(id => $(`#${id}`).classList.add('hidden'));
+          $('#setupScreen').classList.remove('hidden');
+          showToast('管理员已清空云端记录，本页面已同步更新');
+        } else if (!$('#experimentApp').hidden) render();
       } catch (_) {
         // 正式部署时不回退到本机缓存，避免不同设备看到不同数据。
         if (cloudMode) {
@@ -1348,6 +1357,12 @@
     $('#participantInput').addEventListener('keydown', event => { if (event.key === 'Enter') startExperiment(); });
     if (participantId) $('#participantInput').value = participantId;
     hydrateRemoteParticipant();
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && participantId) hydrateRemoteParticipant({ resetOnly: true });
+    });
+    window.addEventListener('focus', () => {
+      if (participantId) hydrateRemoteParticipant({ resetOnly: true });
+    });
   </script>
 </body>
 </html>

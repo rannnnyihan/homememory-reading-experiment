@@ -198,7 +198,13 @@
       const snapshot = JSON.parse(JSON.stringify(state));
       participantWriteQueue = participantWriteQueue.catch(() => {}).then(() => {
         if (useAppsScript) {
-          return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot })
+          return appsScriptGet({ scope: 'participant', participantId, experimentVersion: EXPERIMENT_VERSION })
+            .then((remote) => {
+              if ((remote?.state?.clearedAt || 0) > (snapshot.clearedAt || 0)) {
+                throw new Error('云端记录已清空，本页面的旧记录不会再上传；请刷新页面');
+              }
+              return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot });
+            })
             .then(() => verifyParticipantWrite(participantId, snapshot));
         }
         return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot }) });
