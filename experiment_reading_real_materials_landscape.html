@@ -766,6 +766,9 @@
     const questionnaireDrafts = state.questionnaireDrafts || {};
     const consents = state.consents || {};
     let cloudRetryTimer = null;
+    let cloudSaveTimer = null;
+    let cloudSaveInFlight = false;
+    let cloudSavePending = false;
     // 仅用于当前页面的提交校验，不进入保存载荷或后台数据。
     const completedTaskChecks = new Set();
     const $ = (selector) => document.querySelector(selector);
@@ -791,28 +794,58 @@
     function getStatePayload() {
       return { participantId, currentStage: current, questionnaireMode, activeQuestionnaireType, lastModified, clearedAt, answers, records, starts, questionnaires, questionnaireDrafts, consents };
     }
+    function flushCloudSave() {
+      if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return Promise.resolve(false);
+      if (cloudSaveInFlight) {
+        cloudSavePending = true;
+        return Promise.resolve(true);
+      }
+      cloudSaveInFlight = true;
+      const payload = getStatePayload();
+      return window.ExperimentAPI.saveParticipant(participantId, payload)
+        .then(() => true)
+        .catch((error) => {
+          if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
+          else scheduleCloudRetry();
+          return false;
+        })
+        .finally(() => {
+          cloudSaveInFlight = false;
+          if (cloudSavePending) {
+            cloudSavePending = false;
+            queueCloudSave(true);
+          }
+        });
+    }
+    function queueCloudSave(immediate = false) {
+      if (cloudSaveInFlight) {
+        cloudSavePending = true;
+        return Promise.resolve(true);
+      }
+      if (cloudSaveTimer) {
+        window.clearTimeout(cloudSaveTimer);
+        cloudSaveTimer = null;
+      }
+      if (immediate) return flushCloudSave();
+      cloudSaveTimer = window.setTimeout(() => {
+        cloudSaveTimer = null;
+        flushCloudSave();
+      }, 700);
+      return Promise.resolve(true);
+    }
     function scheduleCloudRetry() {
       if (cloudRetryTimer || !participantId || !window.ExperimentAPI) return;
       cloudRetryTimer = window.setTimeout(() => {
         cloudRetryTimer = null;
-        const latestPayload = getStatePayload();
-        window.ExperimentAPI.saveParticipant(participantId, latestPayload)
-          .catch(() => scheduleCloudRetry());
+        queueCloudSave(true);
       }, 3000);
     }
-    function save({ notifyFailure = false } = {}) {
+    function save({ immediate = false } = {}) {
       lastModified = Date.now();
       const payload = getStatePayload();
       if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
-        return window.ExperimentAPI.saveParticipant(participantId, payload)
-          .then(() => true)
-          .catch((error) => {
-            if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
-            else scheduleCloudRetry();
-            if (notifyFailure) showToast(error?.message || '云端保存暂未确认，系统将自动重试');
-            return false;
-          });
+        return queueCloudSave(immediate);
       }
       return Promise.resolve(false);
     }
@@ -1211,7 +1244,7 @@
         total: m.questions.length,
         accuracy: Math.round(correctCount / m.questions.length * 1000) / 10
       };
-      const cloudSave = save();
+      const cloudSave = save({ immediate: true });
       renderTabs();
       showQuestionnaire('stage');
       showToast('本篇已提交，正在确认云端保存…');

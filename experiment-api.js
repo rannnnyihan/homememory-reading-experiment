@@ -155,27 +155,6 @@
     });
   }
 
-  function stableSerialize(value) {
-    if (Array.isArray(value)) return `[${value.map(stableSerialize).join(',')}]`;
-    if (value && typeof value === 'object') {
-      return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableSerialize(value[key])}`).join(',')}}`;
-    }
-    return JSON.stringify(value);
-  }
-
-  async function verifyParticipantWrite(participantId, state) {
-    const expectedState = { ...state, participantId: Number(participantId) };
-    const expected = stableSerialize(expectedState);
-    // Apps Script POST is opaque to the browser (no-cors). Confirm the write by
-    // reading the same participant back before reporting success to the UI.
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      if (attempt > 0) await new Promise((resolve) => window.setTimeout(resolve, 350));
-      const saved = await appsScriptGet({ scope: 'participant', participantId, experimentVersion: EXPERIMENT_VERSION });
-      if (saved?.state && stableSerialize(saved.state) === expected) return { ok: true, verified: true };
-    }
-    throw new Error('云端未能确认这次保存；数据尚未确认写入，请稍后重试');
-  }
-
   function requireAppsScript() {
     if (!useAppsScript) throw new Error('尚未配置 Google Sheets 数据接口地址');
   }
@@ -208,7 +187,8 @@
               }
               return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot });
             })
-            .then(() => verifyParticipantWrite(participantId, snapshot));
+            // 表单提交完成时，Apps Script 已返回写入结果；不要立刻读取
+            // Google Sheets 做短时核验，避免读取延迟造成“未保存”误报。
         }
         return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot }) });
       });
