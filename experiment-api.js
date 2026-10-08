@@ -84,7 +84,10 @@
     return fetch(requestUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' })
       .then((response) => {
         if (!response.ok) throw new Error(`Google Sheets 数据读取失败（${response.status}）`);
-        return response.json();
+        return response.json().then((data) => {
+          if (data?.error) throw new Error(data.error);
+          return data;
+        });
       })
       .catch((fetchError) => jsonp(query).catch((jsonpError) => {
         throw new Error(`${fetchError.message}；备用读取也失败：${jsonpError.message}`);
@@ -207,7 +210,14 @@
       return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveConfig', experimentVersion: EXPERIMENT_VERSION, config }) }, true);
     },
     async clear(scope) {
-      if (useAppsScript) return appsScriptPost({ action: 'clear', experimentVersion: EXPERIMENT_VERSION, scope }, true);
+      if (useAppsScript) {
+        await appsScriptPost({ action: 'clear', experimentVersion: EXPERIMENT_VERSION, scope }, true);
+        const remote = await this.getAll();
+        const fields = scope === 'reading' ? ['records'] : scope === 'questionnaires' ? ['questionnaires', 'questionnaireDrafts'] : ['records', 'questionnaires', 'questionnaireDrafts', 'consents', 'answers', 'starts'];
+        const remaining = Object.values(remote.states || {}).some((state) => fields.some((field) => Object.keys(state?.[field] || {}).length));
+        if (remaining) throw new Error('云端仍有记录，清空未完成；请稍后重试');
+        return { ok: true, verified: true };
+      }
       return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'clear', experimentVersion: EXPERIMENT_VERSION, scope }) }, true);
     }
   };

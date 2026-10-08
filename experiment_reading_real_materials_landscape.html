@@ -3,6 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <script>
+    if (window.location.protocol === 'https:' && window.name.startsWith('hm-reading-transfer:')) {
+      try {
+        const transferred = JSON.parse(window.name.slice('hm-reading-transfer:'.length));
+        if (Number.isInteger(transferred.participantId) && transferred.participantId >= 1 && transferred.participantId <= 33) {
+          window.localStorage.setItem(`homememory-reading-experiment-v3-reading6-p${transferred.participantId}`, JSON.stringify(transferred));
+        }
+      } catch (_) {}
+      window.name = '';
+    }
     if (window.location.protocol === 'file:') {
       window.location.replace(`https://rannnnyihan.github.io/homememory-reading-experiment/${window.location.search}${window.location.hash}`);
     } else if (window.location.pathname.endsWith('/experiment_reading_real_materials_landscape.html')) {
@@ -783,6 +792,7 @@
     function save() {
       const payload = getStatePayload();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      if (participantId) localStorage.setItem(`${STORAGE_KEY}-p${participantId}`, JSON.stringify(payload));
       if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
         return window.ExperimentAPI.saveParticipant(participantId, payload)
           .then(() => true)
@@ -1282,7 +1292,7 @@
           const remote = await window.ExperimentAPI.getParticipant(participantId);
           if (isCurrentConfig(remote?.config)) config = { ...buildDefaultConfig(), ...remote.config };
           let localCache = null;
-          try { localCache = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) {}
+          try { localCache = JSON.parse(localStorage.getItem(`${STORAGE_KEY}-p${participantId}`) || localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) {}
           const merged = window.ExperimentSync.mergeParticipantStates(localCache, remote?.state || {}, participantId);
           applyRemoteState(merged.state);
           const addedCount = Object.values(merged.added).reduce((sum, count) => sum + count, 0);
