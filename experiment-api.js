@@ -180,6 +180,7 @@
 
   window.ExperimentAPI = {
     usingAppsScript: useAppsScript,
+    async whenIdle() { await participantWriteQueue.catch(() => {}); },
     async getParticipant(participantId) {
       if (useAppsScript) {
         requireAppsScript();
