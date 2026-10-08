@@ -760,6 +760,8 @@
     let current = Number.isInteger(state.currentStage) ? state.currentStage : 0;
     let questionnaireMode = state.questionnaireMode || 'stage';
     let activeQuestionnaireType = state.activeQuestionnaireType || 'FSS';
+    let lastModified = state.lastModified || 0;
+    let clearedAt = state.clearedAt || 0;
     const answers = state.answers || {};
     const records = state.records || {};
     const starts = state.starts || {};
@@ -779,6 +781,8 @@
       current = Number.isInteger(remote.currentStage) ? remote.currentStage : 0;
       questionnaireMode = remote.questionnaireMode || 'stage';
       activeQuestionnaireType = remote.activeQuestionnaireType || 'FSS';
+      lastModified = remote.lastModified || 0;
+      clearedAt = remote.clearedAt || 0;
       replaceObject(answers, remote.answers);
       replaceObject(records, remote.records);
       replaceObject(starts, remote.starts);
@@ -787,9 +791,10 @@
       replaceObject(consents, remote.consents);
     }
     function getStatePayload() {
-      return { participantId, currentStage: current, questionnaireMode, activeQuestionnaireType, answers, records, starts, questionnaires, questionnaireDrafts, consents };
+      return { participantId, currentStage: current, questionnaireMode, activeQuestionnaireType, lastModified, clearedAt, answers, records, starts, questionnaires, questionnaireDrafts, consents };
     }
     function save() {
+      lastModified = Date.now();
       const payload = getStatePayload();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       if (participantId) localStorage.setItem(`${STORAGE_KEY}-p${participantId}`, JSON.stringify(payload));

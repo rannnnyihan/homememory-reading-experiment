@@ -15,7 +15,9 @@
   }
 
   function mergeParticipantStates(localState, cloudState, participantId) {
-    const local = localState?.participantId === Number(participantId) ? localState : {};
+    const local = localState?.participantId === Number(participantId)
+      && !(cloudState?.clearedAt && (!localState.lastModified || localState.lastModified <= cloudState.clearedAt))
+      ? localState : {};
     const cloud = cloudState || {};
     const merged = { ...clone(cloud), participantId: Number(participantId) };
     const added = {};
