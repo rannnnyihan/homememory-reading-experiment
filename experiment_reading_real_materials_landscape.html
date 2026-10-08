@@ -231,8 +231,10 @@
     .combination-card h3 { margin: 0 0 8px; color: var(--accent-dark); font-size: 15px; }
     .combination-card p { margin: 0 0 10px; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .combination-item { display: grid; grid-template-columns: minmax(220px, 1fr) auto; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid #eef0f1; font-size: 13px; line-height: 1.45; }
-    .combination-choice { display: flex; flex-wrap: wrap; gap: 9px 15px; padding-top: 8px; }
-    .combination-choice label { display: flex; align-items: center; gap: 5px; font-size: 13px; }
+    .combination-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 9px; padding-top: 8px; }
+    .combination-choice label { display: flex; align-items: center; gap: 10px; min-height: 48px; margin: 0; padding: 10px 12px; border: 1px solid #dfe3e6; border-radius: 8px; background: #fafbfc; color: #454b50; font-size: 13px; font-weight: 500; line-height: 1.45; cursor: pointer; }
+    .combination-choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+    .combination-choice input { flex: 0 0 auto; width: 18px !important; height: 18px !important; margin: 0 !important; padding: 0 !important; accent-color: var(--accent); }
     .combination-text { width: 100%; min-height: 68px; margin-top: 9px; padding: 9px; border: 1px solid var(--line); border-radius: 4px; font: inherit; resize: vertical; }
     @media (max-width: 660px) { .questionnaire-item { grid-template-columns: 1fr; gap: 6px; } .questionnaire-actions { align-items: flex-start; flex-direction: column; } }
     @media (max-width: 1180px) {
@@ -941,7 +943,7 @@
         const orderedOptions = getOptionOrder(materialIndex, qi, q).map(index => q[1][index]);
         const prompt = qi < 6 && qi % 2 === 0 ? taskPrompt(qi / 2) : '';
         return `${prompt}<section class="question"><div class="question-title">${qi + 1}. ${q[0]}：</div><div class="options">${orderedOptions.map((text, oi) => { const letter = String.fromCharCode(65 + oi); return `<label class="option"><input type="radio" name="q${current}-${qi}" value="${letter}" ${selected === letter ? 'checked' : ''} ${record ? 'disabled' : ''}><span><b>${letter}.</b> ${text}</span></label>`; }).join('')}</div><div class="choice-status ${selected ? 'done' : ''}">${selected ? `已选择：${selected}` : '尚未选择'}</div></section>`;
-      }).join('')}${taskPrompt(3)}</div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action" id="clearButton" ${record ? 'disabled' : ''}>清空当前材料</button><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length || !allTasksConfirmed ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
+      }).join('')}${taskPrompt(3)}</div><div class="actions"><span class="submit-hint">${submitHint}</span><div class="action-row"><button class="action submit" id="submitButton" ${record || answeredCount !== m.questions.length || !allTasksConfirmed ? 'disabled' : ''}>${submitLabel}</button></div></div>`;
       document.querySelectorAll('[data-task-confirm]').forEach(input => input.addEventListener('change', event => {
         const key = taskCheckKey(Number(event.target.dataset.taskConfirm));
         if (event.target.checked) completedTaskChecks.add(key);
@@ -953,11 +955,6 @@
         answers[prefix + questionIndex] = event.target.value;
         save(); renderQuestions(); updateProgress();
       }));
-      $('#clearButton').addEventListener('click', () => {
-        for (let i = 0; i < m.questions.length; i++) delete answers[prefix + i];
-        for (let taskIndex = 0; taskIndex < 4; taskIndex++) completedTaskChecks.delete(taskCheckKey(taskIndex));
-        save(); renderQuestions(); updateProgress(); showToast('当前材料的作答已清空');
-      });
       $('#submitButton').addEventListener('click', submitCurrent);
     }
     function updateProgress() {
@@ -1025,7 +1022,7 @@
       const leastReasons = ['控制关系不够直观', '操作规则较难学习和记忆', '不同形态的操作方式容易混淆', '统一操作规则不符合部分物体的形态特点', '一个物体控制多个设备容易混淆目标', '一个物体只能控制固定设备，灵活性不足', '操作过程较为繁琐'];
       const scale = (field) => `<div class="likert-scale">${Array.from({ length: 7 }, (_, i) => { const value = i + 1; return `<label class="likert-point"><input type="radio" name="${field}" data-combination="${field}" value="${value}" ${String(draft[field]) === String(value) ? 'checked' : ''}><span>${value}</span></label>`; }).join('')}</div>`;
       const checks = (field, values, max) => `<div class="combination-choice">${values.map(value => `<label><input type="checkbox" data-combination-check="${field}" value="${value}" ${(draft[field] || []).includes(value) ? 'checked' : ''}>${value}</label>`).join('')}<label><input type="checkbox" data-combination-check="${field}" value="其他" ${(draft[field] || []).includes('其他') ? 'checked' : ''}>其他</label></div><textarea class="combination-text" data-combination-text="${field}" placeholder="如选择“其他”，请说明（可选）">${draft[`${field}Other`] || ''}</textarea>`;
-      $('#questionnaireBody').innerHTML = `<img class="combination-figure" src="./assets/interaction-combinations/four-interaction-combinations.png" alt="四种交互方案组合图">${Object.entries(schemes).map(([code, title]) => `<section class="combination-card"><h3>方案 ${code}｜${title}</h3><p>请对该方案的 Q1–Q5 分别评分。</p>${items.map((item, index) => `<div class="combination-item"><span>Q${index + 1}. ${item}</span>${scale(`scheme${code}q${index + 1}`)}</div>`).join('')}</section>`).join('')}<section class="combination-card"><h3>Q6. 方案总体排序</h3><p>请从最愿意使用到最不愿意使用，为四种方案分别选择一个名次，不可重复。</p>${[1, 2, 3, 4].map(rank => `<div class="combination-item"><span>第 ${rank} 名</span><select data-combination="rank${rank}"><option value="">请选择</option>${Object.entries(schemes).map(([code, title]) => `<option value="${code}" ${draft[`rank${rank}`] === code ? 'selected' : ''}>${code}：${title}</option>`).join('')}</select></div>`).join('')}</section><section class="combination-card"><h3>Q7. 偏好第一方案的主要原因</h3><p>可多选，最多选 3 项。</p>${checks('preferredReasons', reasons, 3)}</section><section class="combination-card"><h3>Q8. 排名最后方案的主要不足</h3><p>可多选。</p>${checks('leastReasons', leastReasons)}</section>`;
+      $('#questionnaireBody').innerHTML = `<img class="combination-figure" src="./assets/interaction-combinations/four-interaction-combinations.png?v=1" alt="四种交互方案组合图">${Object.entries(schemes).map(([code, title]) => `<section class="combination-card"><h3>方案 ${code}｜${title}</h3><p>请对该方案的 Q1–Q5 分别评分。</p>${items.map((item, index) => `<div class="combination-item"><span>Q${index + 1}. ${item}</span>${scale(`scheme${code}q${index + 1}`)}</div>`).join('')}</section>`).join('')}<section class="combination-card"><h3>Q6. 方案总体排序</h3><p>请从最愿意使用到最不愿意使用，为四种方案分别选择一个名次，不可重复。</p>${[1, 2, 3, 4].map(rank => `<div class="combination-item"><span>第 ${rank} 名</span><select data-combination="rank${rank}"><option value="">请选择</option>${Object.entries(schemes).map(([code, title]) => `<option value="${code}" ${draft[`rank${rank}`] === code ? 'selected' : ''}>${code}：${title}</option>`).join('')}</select></div>`).join('')}</section><section class="combination-card"><h3>Q7. 偏好第一方案的主要原因</h3><p>可多选，最多选 3 项。</p>${checks('preferredReasons', reasons, 3)}</section><section class="combination-card"><h3>Q8. 排名最后方案的主要不足</h3><p>可多选。</p>${checks('leastReasons', leastReasons)}</section>`;
       const update = () => { save(); updateQuestionnaireState(); };
       document.querySelectorAll('[data-combination]').forEach(input => input.addEventListener('change', event => { draft[event.target.dataset.combination] = event.target.value; update(); }));
       document.querySelectorAll('[data-combination-check]').forEach(input => input.addEventListener('change', event => { const field = event.target.dataset.combinationCheck; const values = new Set(draft[field] || []); if (event.target.checked) values.add(event.target.value); else values.delete(event.target.value); if (field === 'preferredReasons' && values.size > 3) { event.target.checked = false; values.delete(event.target.value); showToast('最多选择 3 项'); } draft[field] = [...values]; update(); }));

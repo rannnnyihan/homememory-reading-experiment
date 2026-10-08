@@ -28,6 +28,8 @@ jobs:
           cp index.html experiment_reading_real_materials_landscape.html experiment_reading_backend.html experiment-api.js experiment-sync.js experiment-deployment-config.js _site/
           mkdir -p _site/assets/experiment-groups
           cp assets/experiment-groups/*.png _site/assets/experiment-groups/
+          mkdir -p _site/assets/interaction-combinations
+          cp assets/interaction-combinations/*.png _site/assets/interaction-combinations/
           cp experiment-api.js _site/experiment-api.v2.js
           cp experiment-api.js _site/experiment-api.v3.js
           cp experiment-api.js _site/experiment-api.v4.js
