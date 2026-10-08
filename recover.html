@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>实验数据恢复</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: #263746; background: #f4f6f8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px 16px; }
+    main { max-width: 720px; margin: 0 auto; padding: 28px; background: #fff; border: 1px solid #dce2e7; border-radius: 12px; }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { color: #5a6873; line-height: 1.65; }
+    .notice { margin: 20px 0; padding: 14px 16px; background: #fff8e5; border-left: 4px solid #e7a900; line-height: 1.6; }
+    dl { display: grid; grid-template-columns: 150px 1fr; gap: 12px; margin: 22px 0; }
+    dt { color: #687680; } dd { margin: 0; overflow-wrap: anywhere; }
+    button { min-height: 46px; padding: 0 20px; border: 0; border-radius: 6px; background: #0a6ed1; color: #fff; font-size: 16px; cursor: pointer; }
+    button:disabled { background: #9aa8b4; cursor: not-allowed; }
+    #status { min-height: 28px; margin-top: 16px; font-weight: 600; }
+    .error { color: #b42318; } .success { color: #107e3e; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>实验数据恢复</h1>
+    <p>此页面只检查当前浏览器中保存的实验缓存，不会自动上传。请在之前填写实验的同一台设备、同一浏览器和同一浏览器配置文件中打开。</p>
+    <div class="notice">先读取并比较本机缓存与云端记录。仅当云端该被试记录为空时，才允许你手动确认补传；如果云端已有记录，本页不会覆盖。</div>
+    <dl>
+      <dt>本机缓存</dt><dd id="localSummary">正在检查…</dd>
+      <dt>云端记录</dt><dd id="cloudSummary">正在读取…</dd>
+    </dl>
+    <button id="recoverButton" disabled>检查中…</button>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="./experiment-deployment-config.js"></script>
+  <script src="./experiment-api.js"></script>
+  <script>
+    const STORAGE_KEY = 'homememory-reading-experiment-v3-reading6';
+    const $ = (id) => document.getElementById(id);
+    const button = $('recoverButton');
+    let cachedState = null;
+    let participantId = null;
+    let cloudIsEmpty = false;
+    const count = (value) => value && typeof value === 'object' ? Object.keys(value).length : 0;
+    const summarize = (state) => {
+      const profile = state?.consents?.[state?.participantId]?.profile;
+      return `被试 ${String(state?.participantId || '未知')}；知情信息：${profile ? '有' : '无'}；阅读记录 ${count(state?.records)} 条；问卷 ${count(state?.questionnaires)} 份；作答项 ${count(state?.answers)} 项`;
+    };
+    const hasCloudData = (state) => Boolean(state && (
+      count(state.records) || count(state.answers) || count(state.questionnaires) ||
+      count(state.questionnaireDrafts) || count(state.consents) || count(state.starts)
+    ));
+    function setStatus(message, kind = '') {
+      $('status').textContent = message;
+      $('status').className = kind;
+    }
+    async function inspect() {
+      try {
+        cachedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        participantId = Number(cachedState?.participantId);
+        if (!cachedState || !Number.isInteger(participantId) || participantId < 1 || participantId > 33) {
+          $('localSummary').textContent = '未找到有效缓存';
+          $('cloudSummary').textContent = '无法检查（本机缓存没有被试编号）';
+          button.textContent = '没有可恢复的数据';
+          button.disabled = true;
+          return;
+        }
+        $('localSummary').textContent = summarize(cachedState);
+        const remote = await window.ExperimentAPI.getParticipant(participantId);
+        const remoteState = remote?.state || {};
+        cloudIsEmpty = !hasCloudData(remoteState);
+        $('cloudSummary').textContent = cloudIsEmpty ? '该被试云端记录为空' : summarize(remoteState);
+        if (cloudIsEmpty) {
+          button.textContent = '确认将本机缓存补传到云端';
+          button.disabled = false;
+        } else {
+          button.textContent = '云端已有记录，停止以免覆盖';
+          button.disabled = true;
+          setStatus('为避免覆盖已有云端数据，恢复已暂停。请先导出或人工核对两份记录。', 'error');
+        }
+      } catch (error) {
+        $('cloudSummary').textContent = '读取失败';
+        button.textContent = '暂时无法恢复';
+        button.disabled = true;
+        setStatus(error?.message || '检查失败，请确认网络后重新打开本页。', 'error');
+      }
+    }
+    button.addEventListener('click', async () => {
+      if (!cachedState || !cloudIsEmpty || button.disabled) return;
+      button.disabled = true;
+      button.textContent = '正在补传并核对…';
+      setStatus('正在后台写入并从云端读回核对；请保持页面打开。');
+      try {
+        await window.ExperimentAPI.saveParticipant(participantId, cachedState);
+        $('cloudSummary').textContent = summarize(cachedState);
+        button.textContent = '云端已确认恢复';
+        setStatus('恢复成功：云端已读回并核对本机缓存。', 'success');
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = '重试补传';
+        setStatus(error?.message || '云端未确认写入；本机缓存仍保留。', 'error');
+      }
+    });
+    inspect();
+  </script>
+</body>
+</html>
