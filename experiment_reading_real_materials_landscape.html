@@ -765,6 +765,7 @@
     const questionnaires = state.questionnaires || {};
     const questionnaireDrafts = state.questionnaireDrafts || {};
     const consents = state.consents || {};
+    let cloudRetryTimer = null;
     // 仅用于当前页面的提交校验，不进入保存载荷或后台数据。
     const completedTaskChecks = new Set();
     const $ = (selector) => document.querySelector(selector);
@@ -790,7 +791,16 @@
     function getStatePayload() {
       return { participantId, currentStage: current, questionnaireMode, activeQuestionnaireType, lastModified, clearedAt, answers, records, starts, questionnaires, questionnaireDrafts, consents };
     }
-    function save() {
+    function scheduleCloudRetry() {
+      if (cloudRetryTimer || !participantId || !window.ExperimentAPI) return;
+      cloudRetryTimer = window.setTimeout(() => {
+        cloudRetryTimer = null;
+        const latestPayload = getStatePayload();
+        window.ExperimentAPI.saveParticipant(participantId, latestPayload)
+          .catch(() => scheduleCloudRetry());
+      }, 3000);
+    }
+    function save({ notifyFailure = false } = {}) {
       lastModified = Date.now();
       const payload = getStatePayload();
       if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -799,7 +809,8 @@
           .then(() => true)
           .catch((error) => {
             if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
-            showToast(error?.message || '云端保存未确认，请稍后重试');
+            else scheduleCloudRetry();
+            if (notifyFailure) showToast(error?.message || '云端保存暂未确认，系统将自动重试');
             return false;
           });
       }

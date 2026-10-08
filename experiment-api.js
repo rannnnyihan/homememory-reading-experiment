@@ -73,7 +73,9 @@
   }
 
   function appsScriptGet(params, requiresAdmin = false) {
-    const query = { ...params };
+    // Apps Script 与中间重定向层偶尔会返回刚才的读取结果；每次读取加入唯一值，
+    // 使写入核验始终读取最新状态而非缓存响应。
+    const query = { ...params, requestNonce: `${Date.now()}-${Math.random().toString(36).slice(2)}` };
     const token = requiresAdmin ? adminToken() : '';
     if (token) {
       query.adminToken = token.trim();
