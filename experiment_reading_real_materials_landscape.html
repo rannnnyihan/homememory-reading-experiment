@@ -1320,7 +1320,6 @@
         showToast('未读取到云端被试数据，请稍后重试');
         return;
       }
-      save();
       if (consents[participantId]?.version !== 'v3' || !consents[participantId]?.profile?.signatureDataUrl) showConsent();
       else continueAfterParticipantEntry();
     }
