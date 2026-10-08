@@ -781,8 +781,14 @@
       const payload = getStatePayload();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {
-        window.ExperimentAPI.saveParticipant(participantId, payload).catch(() => showToast('云端保存失败，已暂存本机'));
+        return window.ExperimentAPI.saveParticipant(participantId, payload)
+          .then(() => true)
+          .catch((error) => {
+            showToast(error?.message || '云端保存未确认，请稍后重试');
+            return false;
+          });
       }
+      return Promise.resolve(false);
     }
     async function hydrateRemoteParticipant() {
       if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return;
@@ -1085,10 +1091,13 @@
         total: m.questions.length,
         accuracy: Math.round(correctCount / m.questions.length * 1000) / 10
       };
-      save();
+      const cloudSave = save();
       renderTabs();
       showQuestionnaire('stage');
-      showToast('本篇已提交，记录已保存');
+      showToast('本篇已提交，正在确认云端保存…');
+      cloudSave.then((confirmed) => {
+        if (confirmed) showToast('本篇已提交，云端已确认保存');
+      });
     }
     function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
     function showTaskIntro() {
