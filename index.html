@@ -2,13 +2,17 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=experiment_reading_real_materials_landscape.html">
+    <meta http-equiv="refresh" content="0;url=experiment_reading_real_materials_landscape.html?build=771e3ce">
     <title>阅读理解实验</title>
   </head>
   <body>
     <p>正在进入实验前台……</p>
     <script>
-      location.replace('experiment_reading_real_materials_landscape.html' + location.search);
+      const basePath = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
+      const target = new URL(`${basePath}experiment_reading_real_materials_landscape.html`, location.origin);
+      new URLSearchParams(location.search).forEach((value, key) => target.searchParams.set(key, value));
+      target.searchParams.set('build', '771e3ce');
+      location.replace(target.href);
     </script>
   </body>
 </html>
