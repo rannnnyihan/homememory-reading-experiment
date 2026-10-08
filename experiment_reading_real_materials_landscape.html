@@ -172,6 +172,9 @@
     .consent-choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
     .consent-choice input { flex: 0 0 auto; width: 20px; height: 20px; margin: 0; padding: 0; accent-color: var(--accent); }
     .consent-choice input[type="text"] { grid-column: 1 / -1; width: 100%; height: 42px; margin-top: 2px; padding: 0 12px; }
+    .signature-pad { display: block; width: 100%; height: 150px; margin-top: 10px; border: 1px dashed #aeb8c0; border-radius: 8px; background: #fff; touch-action: none; cursor: crosshair; }
+    .signature-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; color: var(--muted); font-size: 12px; font-weight: 400; }
+    .signature-clear { padding: 5px 9px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: #4a4f52; cursor: pointer; font-size: 12px; }
     .consent-scale { display: grid; grid-template-columns: repeat(7, minmax(42px, 1fr)); gap: 8px; width: 100%; margin-top: 14px; }
     .consent-scale label { position: relative; display: grid; place-items: center; min-height: 44px; margin: 0; padding: 0; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; }
     .consent-scale input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
@@ -246,43 +249,95 @@
       <div class="setup-kicker">INFORMED CONSENT</div>
       <h2>知情同意书</h2>
       <div class="consent-copy">
-        <p>感谢你参加本次阅读与智能家居交互实验。请在决定是否参加前，仔细阅读以下说明；如有疑问，可以向研究人员询问。</p>
-        <h3>一、研究目的</h3>
-        <p>本研究比较 App-GUI、固定有形实体界面和任意有形实体界面三种跨设备控制方式，在阅读任务中的使用体验和任务表现差异。</p>
-        <h3>二、你需要做什么</h3>
-        <p>你将完成 3 个阅读理解任务。每个任务包含一篇文章、6 道选择题以及一组关于任务体验的问卷；全部任务结束后还需完成一份整体体验问卷。预计总时长约 45—60 分钟，可根据实际情况适当休息。系统会记录答题用时、正确率和问卷选项。</p>
-        <h3>三、可能的不适与预期收益</h3>
-        <p>任务可能带来轻微的视觉疲劳、注意力疲劳或设备操作负担。你可以在感到不适时暂停或退出。本研究不保证给你带来直接收益，但结果可能帮助研究者改进日常物体交互设计。</p>
-        <h3>四、数据与隐私</h3>
-        <p>系统使用被试编号记录数据，不要求填写姓名。数据仅用于本研究的分析和展示，研究结果将尽量以汇总形式呈现。本原型会先将数据保存在当前设备浏览器中，由研究人员导出和管理。</p>
-        <h3>五、自愿参加与退出</h3>
-        <p>参加完全自愿。你可以拒绝参加，也可以在任何阶段停止，不会因此受到惩罚或损失应有的权益。</p>
-        <h3>六、联系方式</h3>
-        <p>研究负责人及联系方式：由研究人员现场填写。</p>
+        <p>感谢您考虑参加本研究。请在决定是否参加前仔细阅读以下说明；如有疑问，请向研究人员提问并获得满意答复后再决定。</p>
+        <h3>1. 为什么进行这项研究？</h3>
+        <p>随着全屋智能和自动化场景服务的普及，系统能够根据情境联动多种设备，用户也可通过手机 App 或语音参与控制。但自动执行的结果未必完全符合用户当下的感受。</p>
+        <p>在阅读、学习等需要持续专注的场景中，用户仍可能需要快速介入并微调灯光、加湿器等环境设备。本研究以阅读场景为例，探索更适合跨设备调节的交互方式。</p>
+        <p>本研究比较三种控制方式：手机 App 控制、固定有形实体界面控制和任意有形实体界面控制。手机 App 控制是通过手机进入场景或设备页面后选择对象并调节参数。</p>
+        <p>固定有形实体界面控制是指不同日常物体形态与具体设备保持固定对应关系，参与者需选择对应物体控制相应设备。任意有形实体界面控制是指可使用任意手边物体进行控制，并通过旋转切换控制对象、通过推拉连续调节参数。</p>
+        <p>研究将比较三种方式对操作体验、任务连续性、设备选择效率、控制感和使用接受度的影响。</p>
+        <h3>2. 哪些人将被邀请参加这项研究？</h3>
+        <p>本研究邀请年满 18 周岁、能够独立完成中文阅读理解与日常手部操作的成年人参加。参与者应视力或矫正视力正常，并能够理解实验说明。</p>
+        <p>有严重手部运动障碍、无法完成基本阅读任务，或在实验过程中感到明显不适者，不建议参加；如已参加，也可随时退出。</p>
+        <h3>3. 多少人将参与这项研究？</h3>
+        <p>本研究计划招募 33 名参与者。每位参与者均完成三种控制条件，不设置独立的组间分配。</p>
+        <h3>4. 本研究包括哪些内容？会持续多久？</h3>
+        <p>实验以阅读理解为场景任务、办公环境调节为研究任务。您需在阅读过程中分别通过图形界面（GUI）与有形界面（TUI）方式完成调节，并在结束后填写主观评价量表。</p>
+        <p>您将完成三篇阅读材料，每篇包含 6 道选择题，并在阅读过程中按提示完成智能设备控制任务。</p>
+        <p>每个条件结束后，您将填写 FSS（流畅体验）、NASA-TLX（任务负荷）、UEQ-S（用户体验简版）和 ETAM（技术接受度）问卷，用于评估不同控制方式下您的沉浸程度、主观负荷、使用体验与技术接受度；全部条件完成后，再填写一份整体评价问卷。系统记录阅读用时、答题正确率、问卷选项和任务提交时间。</p>
+        <p>本研究不采集生物样本，不涉及医疗检查、诊疗或用药。本网页不采集音频；如实验现场使用视觉识别装置，其用途仅限于实时交互识别，是否保存图像由研究人员在现场另行明确说明。</p>
+        <p>正式实验开始前，您可能还需要使用移动端配置界面，完成有形控制物与目标设备、交互动作及控制功能之间的对应配置，并填写系统可用性问卷（SUS），用于评估该配置界面的可用性。</p>
+        <p>全部实验结束后，研究人员会开展一段简短的半结构化访谈，了解您对不同控制方式的使用体验、理解与偏好，以及误触发、识别失败等实际使用问题；访谈内容仅用于研究分析，您的回答不会单独披露。</p>
+        <h3>5. 我需要做什么？需要注意什么？</h3>
+        <p>您需要依次完成三轮阅读与环境调节任务。每轮开始前，研究人员会说明当前控制方式，并安排必要的练习。</p>
+        <p>正式任务中，以阅读理解为主要任务，保持正常阅读节奏；当页面出现提示时，完成相应的智能家居控制任务后继续阅读并答题。</p>
+        <p>请按自己的正常节奏操作，不必刻意追求速度。若不理解操作、感到疲劳或不适，可向研究人员说明、短暂休息或停止参与。</p>
+        <p>请勿在实验页面填写与研究无关的个人敏感信息。</p>
+        <h3>6. 这项研究会持续多久？</h3>
+        <p>单次参与预计约 45 分钟，包含实验说明、基本信息填写、三轮阅读与控制任务、问卷和必要休息。本研究不安排后续随访。</p>
+        <h3>7. 参加本项研究的风险是什么？保护措施是什么？</h3>
+        <p>本研究为低风险行为研究。连续阅读、填写问卷和操作设备可能带来轻微视觉疲劳、注意力疲劳或短暂操作负担。</p>
+        <p>个别问题或任务表现也可能带来短暂压力。您可跳过使自己不适的问题，申请休息或随时退出。</p>
+        <p>研究人员会提供清晰说明并控制单次实验时长。个人信息、实验记录和影像资料将按研究编号管理，并采取访问权限控制等措施，以降低隐私泄露风险。</p>
+        <h3>8. 参加本项研究的获益是什么？</h3>
+        <p>参加本研究可能不会给您带来直接获益，但您可了解不同智能家居控制方式的特点。</p>
+        <p>您的参与将帮助研究者改进面向阅读、学习和办公等静态专注场景的跨设备控制设计，并为相关智能家居交互研究提供参考。</p>
+        <h3>9. 是否一定要参加并完成本项研究？</h3>
+        <p>完全不是。参加本研究出于自愿；您可以拒绝参加，也可以在任何时间退出，不会因此影响您的学习、工作、医疗或应享有的服务与权益。</p>
+        <p>退出后，研究者将不再收集新的数据。已收集且无法与其他数据分离的去标识化数据，可能在保证保密的前提下用于既定分析。</p>
+        <h3>10. 是否有其他可替代的干预方式？</h3>
+        <p>本研究不提供医疗或行为干预，也不涉及治疗。您可以选择不参加，或继续使用自己日常习惯的智能家居控制方式。</p>
+        <h3>11. 是否有研究费用或补偿？</h3>
+        <p>参加本研究不需要支付任何费用。实验所需设备、材料和数据记录均由研究团队提供。</p>
+        <h3>12. 参加该项研究是否会获得报酬？</h3>
+        <p>完成实验后且确认数据完整后，您将当场获得 80 元/人的参与酬金，由研究人员通过微信或支付宝进行直接转账。</p>
+        <p>如中途退出，将不会获得实验报酬。</p>
+        <h3>13. 发生研究相关伤害的处理？</h3>
+        <p>本研究为观察性研究，无可预期的相关伤害。若发生为实现研究目的而执行研究程序造成的意外伤害，我们会提供必要的医疗措施，并根据我国相关法律规定，承担相应的医疗费用及对此提供相应的经济补偿。</p>
+        <h3>14. 我的信息资料如何使用？会保密吗？是否会被共享或二次使用？</h3>
+        <p>研究将收集被试编号、年龄、学院、专业、学号、智能家居使用信息、实验表现、问卷回答、电子签名及实验过程中的桌面与手部操作影像。</p>
+        <p>数据仅用于本研究的组织、分析、答辩和学术成果展示。学号、电子签名和影像等可识别信息仅供研究团队，以及依法依规有权查阅的学校或伦理审查人员核查。</p>
+        <p>论文、报告或公开成果不会披露可识别您身份的信息；研究结果将以汇总或去标识化形式呈现。</p>
+        <p>本研究数据不会向研究团队外的个人或机构共享，也不会用于与本研究无关的二次用途；如未来确需变更用途，将另行征得您的同意。</p>
+        <h3>15. 如有新进展或结论，是否会通知我？</h3>
+        <p>如出现可能影响您是否继续参与的重要信息，研究人员会及时告知。必要时，研究人员将与您重新确认参与意愿。</p>
+        <p>研究结果可能以毕业论文、学术论文或公开答辩等形式呈现。如需了解研究结果，可联系研究人员咨询。</p>
+        <h3>16. 如果我有问题或困难，该与谁联系？</h3>
+        <p>如对研究流程、数据或参与安排有任何问题，请联系研究者：<strong>冉艺涵，15155160835</strong>。</p>
+        <p>如有与研究参与者权益相关的问题，可联系上海交通大学涉及人的科技研究伦理审查委员会：郭老师，邮箱 <a href="mailto:IRB.HRP@sjtu.edu.cn">IRB.HRP@sjtu.edu.cn</a>。</p>
+        <h3>研究参与者声明</h3>
+        <p>我已被告知“基于有形界面的智能家居跨设备交互体验设计研究”的研究背景、目的、步骤、风险和可能获益。我有机会提问，并已获得满意答复。</p>
+        <p>我已阅读本知情同意书，同意参加本研究，并知道可在研究期间任何时候无需理由退出。</p>
       </div>
       <div class="consent-form">
         <h3>七、参与者基本信息</h3>
         <label class="consent-field">性别
-          <select id="profileGender" required><option value="">请选择</option><option>男</option><option>女</option><option>其他</option><option>不愿回答</option></select>
+          <select id="profileGender" required><option value="">请选择</option><option>男</option><option>女</option></select>
         </label>
         <label class="consent-field">年龄
           <input id="profileAge" type="number" min="18" max="100" placeholder="请输入年龄" required />
         </label>
-        <label class="consent-field">专业或所学方向
-          <input id="profileMajor" type="text" maxlength="60" placeholder="请输入专业或所学方向" required />
+        <label class="consent-field">学院
+          <input id="profileCollege" type="text" maxlength="80" placeholder="请输入所在学院" required />
+        </label>
+        <label class="consent-field">专业
+          <input id="profileMajor" type="text" maxlength="80" placeholder="请输入专业" required />
+        </label>
+        <label class="consent-field">学号
+          <input id="profileStudentId" type="text" inputmode="numeric" maxlength="32" placeholder="请输入学号" required />
         </label>
         <div class="consent-field">您是否使用过智能家居设备？
-          <div class="consent-choice"><label><input type="radio" name="smartHomeUse" value="从未使用过">从未使用过</label><label><input type="radio" name="smartHomeUse" value="偶尔使用">偶尔使用</label><label><input type="radio" name="smartHomeUse" value="经常使用">经常使用</label><label><input type="radio" name="smartHomeUse" value="几乎每天使用">几乎每天使用</label></div>
+          <div class="consent-choice"><label><input type="radio" name="smartHomeUse" value="是">是</label><label><input type="radio" name="smartHomeUse" value="否">否</label></div>
         </div>
         <div class="consent-field">您通常在哪些场景中使用智能家居设备？<span class="label">（可多选）</span>
           <div class="consent-choice"><label><input type="checkbox" name="smartHomeScenes" value="阅读或学习">阅读或学习</label><label><input type="checkbox" name="smartHomeScenes" value="居家办公">居家办公</label><label><input type="checkbox" name="smartHomeScenes" value="休息或娱乐">休息或娱乐</label><label><input type="checkbox" name="smartHomeScenes" value="睡眠">睡眠</label><label><input type="checkbox" name="smartHomeScenes" value="其他">其他</label><input id="profileSceneOther" type="text" placeholder="其他场景" /></div>
         </div>
-        <div class="consent-field">您是否愿意尝试使用身边的日常物体参与智能家居控制？
-          <div class="consent-scale"><label><input type="radio" name="objectAcceptance" value="1"><span>1</span></label><label><input type="radio" name="objectAcceptance" value="2"><span>2</span></label><label><input type="radio" name="objectAcceptance" value="3"><span>3</span></label><label><input type="radio" name="objectAcceptance" value="4"><span>4</span></label><label><input type="radio" name="objectAcceptance" value="5"><span>5</span></label><label><input type="radio" name="objectAcceptance" value="6"><span>6</span></label><label><input type="radio" name="objectAcceptance" value="7"><span>7</span></label></div>
-          <div class="scale-anchors"><span>1 · 完全不愿意</span><span>7 · 非常愿意</span></div>
-        </div>
         <div class="consent-field">您对使用手机 App 控制智能家居设备的熟悉程度是？
           <div class="consent-scale"><label><input type="radio" name="appFamiliarity" value="1"><span>1</span></label><label><input type="radio" name="appFamiliarity" value="2"><span>2</span></label><label><input type="radio" name="appFamiliarity" value="3"><span>3</span></label><label><input type="radio" name="appFamiliarity" value="4"><span>4</span></label><label><input type="radio" name="appFamiliarity" value="5"><span>5</span></label><label><input type="radio" name="appFamiliarity" value="6"><span>6</span></label><label><input type="radio" name="appFamiliarity" value="7"><span>7</span></label></div>
+          <div class="scale-anchors"><span>1 · 完全不熟悉</span><span>7 · 非常熟悉</span></div>
+        </div>
+        <div class="consent-field">您对智能家居自动化的熟悉程度是？
+          <div class="consent-scale"><label><input type="radio" name="automationFamiliarity" value="1"><span>1</span></label><label><input type="radio" name="automationFamiliarity" value="2"><span>2</span></label><label><input type="radio" name="automationFamiliarity" value="3"><span>3</span></label><label><input type="radio" name="automationFamiliarity" value="4"><span>4</span></label><label><input type="radio" name="automationFamiliarity" value="5"><span>5</span></label><label><input type="radio" name="automationFamiliarity" value="6"><span>6</span></label><label><input type="radio" name="automationFamiliarity" value="7"><span>7</span></label></div>
           <div class="scale-anchors"><span>1 · 完全不熟悉</span><span>7 · 非常熟悉</span></div>
         </div>
         <div class="consent-field">您通常通过什么方式控制智能家居设备？<span class="label">（可多选）</span>
@@ -292,9 +347,16 @@
           <div class="consent-scale"><label><input type="radio" name="objectNaturalness" value="1"><span>1</span></label><label><input type="radio" name="objectNaturalness" value="2"><span>2</span></label><label><input type="radio" name="objectNaturalness" value="3"><span>3</span></label><label><input type="radio" name="objectNaturalness" value="4"><span>4</span></label><label><input type="radio" name="objectNaturalness" value="5"><span>5</span></label><label><input type="radio" name="objectNaturalness" value="6"><span>6</span></label><label><input type="radio" name="objectNaturalness" value="7"><span>7</span></label></div>
           <div class="scale-anchors"><span>1 · 非常不同意</span><span>7 · 非常同意</span></div>
         </div>
+        <div class="consent-field">您是否愿意尝试使用身边的日常物体参与智能家居控制？
+          <div class="consent-scale"><label><input type="radio" name="objectAcceptance" value="1"><span>1</span></label><label><input type="radio" name="objectAcceptance" value="2"><span>2</span></label><label><input type="radio" name="objectAcceptance" value="3"><span>3</span></label><label><input type="radio" name="objectAcceptance" value="4"><span>4</span></label><label><input type="radio" name="objectAcceptance" value="5"><span>5</span></label><label><input type="radio" name="objectAcceptance" value="6"><span>6</span></label><label><input type="radio" name="objectAcceptance" value="7"><span>7</span></label></div>
+          <div class="scale-anchors"><span>1 · 完全不愿意</span><span>7 · 非常愿意</span></div>
+        </div>
+        <div class="consent-field">电子签名
+          <canvas id="signaturePad" class="signature-pad" aria-label="请在此处手写签名"></canvas>
+          <div class="signature-actions"><span>请使用鼠标或手指在框内签名；确认时间将由系统自动记录</span><button type="button" class="signature-clear" id="signatureClearButton">清除签名</button></div>
+        </div>
       </div>
       <label class="consent-check"><input id="consentAgree" type="checkbox" /><span>我已阅读并理解以上说明，自愿参加本次实验，并同意研究人员记录和使用本次实验数据。</span></label>
-      <p class="consent-source">本页面按研究知情同意的通用要素整理，正式实验前请结合学校伦理审批意见和实际联系方式进一步确认。参考：<a href="https://www.hhs.gov/ohrp/regulations-and-policy/guidance/faq/informed-consent/index.html" target="_blank" rel="noreferrer">HHS/OHRP Informed Consent FAQ</a></p>
       <button class="setup-button" id="consentConfirmButton" disabled>确认并进入实验</button>
     </div>
   </section>
@@ -593,8 +655,12 @@
         article: `<h4>传统如何进入新诗</h4>
           <p>材料一：讨论文化创新时，人们容易把“传统”和“现代”看成彼此排斥的两端：似乎选择传统就意味着回到过去，追求现代就必须摆脱传统。然而，文化传统并不是一套可以原样搬用的固定答案，而是由语言、经验、审美方式和价值判断构成的资源。真正的继承需要重新解释这些资源，使它们能够回应当代生活。一个传统只有在不断被选择、转化和检验时，才可能继续发挥作用。</p>
           <p>吸收外来文化同样如此。一个文化共同体对外来资源的吸收能力，往往取决于自身传统是否稳固。自身缺乏判断标准时，借鉴很容易变成表面模仿；拥有清晰的文化基础时，外来形式才可能被重新组织，成为本土创造的一部分。因此，“保持传统”并不等于拒绝外来文化，“面向世界”也不等于照搬现成形式。两者都要求主体具有选择、消化和重构的能力。</p>
+          <p>这种转化不是给旧内容换上新名称，也不是把传统符号装饰性地放进现代作品。创作者需要辨认传统中哪些经验仍能解释今天的生活，哪些表达必须重新调整。传统因此不是封闭的遗产仓库，而是一种只有经过当代实践才能被理解和更新的文化关系。</p>
           <p>材料二：中国新诗在形成过程中广泛借鉴西方诗歌，这是现代文学发展的重要动力，但也产生过语言与经验脱节的问题。有些作品采用了新的形式，却没有建立形式与本土生活之间的联系；读者看到了陌生的结构，却难以在其中辨认自己的经验。问题不在于使用了外来形式，而在于形式没有经过充分转化。</p>
+          <p>新诗早期面对的困难，既来自古典诗歌传统的强大影响，也来自现代社会经验的迅速变化。白话语言进入诗歌，并不意味着诗歌自然获得了现代性；自由诗摆脱固定格律，也不意味着它不再需要节奏、结构与语言密度。形式上的解放只是开始，诗人仍要建立新的表达秩序。</p>
+          <p>如果只把古典诗词理解为格律、典故和固定意象，就容易把继承变成仿古。古典诗歌更深层的价值，还在于它如何处理情景关系、如何通过有限文字形成含蓄意味，以及如何在个人感受与共同经验之间建立联系。这些能力可以被现代诗重新吸收，却不必复制古人的语言外观。</p>
           <p>当代生活已经发生巨大变化，新诗当然不能简单恢复古典诗歌的格律和表达方式。它需要寻找能够容纳现代感受的语言、结构和节奏，同时重新理解古典诗歌在意象组织、情感节制和语言凝练方面的经验。创新由此不是在传统与现代之间二选一，而是在当代问题中重新激活传统，并把外来资源转化为自己的表达能力。</p>
+          <p>因此，判断一种创新是否成立，不能只看它来自本土还是域外，也不能只看形式是否新奇。更重要的是，它能否准确组织当代人的生活经验，能否形成有内在逻辑的语言，并与读者建立真实联系。传统、外来资源与现代经验，最终都要在具体创作中接受检验。</p>
           <p class="article-source">依据2022年新高考Ⅰ卷现代文阅读Ⅰ相关材料压缩改写。</p>`,
         questions: [
           ['两则材料共同反对的观点是', ['传统与现代只能选择其一。', '文化创新需要回应当代生活。', '外来形式需要经过本土转化。', '文学语言会随社会经验变化。'], 'A'],
@@ -610,9 +676,13 @@
         source: 'https://www.5068.com/gaokao/a757962.html',
         article: `<h4>一粒藜麦与“竞争性真相”</h4>
           <p>材料一：藜麦在国际市场走红后，一些媒体提出了一个引人注目的故事：富裕国家的消费推高了价格，使原产地居民吃不起自己的传统主食，出口繁荣反而伤害了种植者。这个叙述包含真实片段——价格确实上涨，部分家庭的饮食结构也发生变化——但真实片段并不自动构成可靠结论。</p>
+          <p>这一故事之所以传播迅速，是因为它具有清楚的道德角色：富裕消费者获得健康食品，贫困生产者却失去日常食物。消费者因而容易产生内疚，并把停止购买理解为帮助当地人的行动。然而，叙事越符合既有期待，人们越需要追问其中的事实是否完整。</p>
           <p>研究者比较了不同地区和年份的数据，发现藜麦价格上涨期间，种植区家庭的收入总体上升；种植藜麦的家庭获益尤其明显，未种植藜麦的家庭也可能通过工资和地区经济活动间接受益。儿童营养状况并没有出现报道所声称的持续恶化。当地居民减少藜麦消费，还可能与面食、大米等食品更容易获得以及消费偏好变化有关，不能只归因于“买不起”。</p>
+          <p>这种比较比单独列举价格更有解释力。价格上涨可能增加购买者的支出，也可能提高生产者的收入；同一变化会对不同家庭产生不同影响。若不区分种植者与非种植者，不比较产区和非产区，也不观察变化持续了多久，就无法判断总体影响，更不能由个别案例推出整个地区的结论。</p>
           <p>这并不意味着出口增长没有问题。收益可能分配不均，土地利用和生态压力也值得持续观察。研究所否定的不是所有担忧，而是用少数现象迅速建立单一因果链：价格上涨—本地人买不起—营养恶化—国际消费有害。一个有吸引力的故事，可以同时包含若干事实，却通过省略比较对象、时间变化和替代解释而产生误导。</p>
+          <p>新闻报道常受篇幅与传播节奏限制，倾向于选择鲜明人物和直接因果关系。个案能够说明某种处境确实存在，却不能回答这种处境是否普遍、是否由某一因素造成。统计研究也并非天然正确，但它至少要求公开指标、样本和比较方法，使结论能够被重新检验。</p>
           <p>材料二：所谓“竞争性真相”，常表现为面对反证时不断缩小或移动原先的主张。最初的断言若被数据否定，论者便改称“至少某些人受损”；若这一点仍缺乏证据，又转而强调“这个故事提醒我们关注不平等”。后一个命题或许值得讨论，却不能反过来证明最初的事实判断正确。批判性阅读因此不仅要问一句话是否含有事实，还要检查证据能否支持结论、因果链是否排除了其他解释，以及主张是否在讨论中悄然改变。</p>
+          <p>这也意味着事实核查不能停在“真”或“假”的简单标签上。更有效的做法，是把叙述拆成若干可以验证的命题，分别检查价格、收入、消费和营养数据，再判断它们之间是否存在因果关系。当证据不足时，应保留不确定性，而不是用善意目的替代事实证明。</p>
           <p class="article-source">依据2023年新课标Ⅰ卷现代文阅读Ⅰ相关材料压缩改写。</p>`,
         questions: [
           ['早期媒体叙述的核心因果链是', ['出口增加使藜麦价格下降并改善生态。', '国际需求推高价格，进而损害原产地居民生活。', '当地偏好变化直接促进国际消费。', '种植者收入提高导致儿童营养下降。'], 'B'],
@@ -628,9 +698,14 @@
         source: 'https://img20.5n6.cn/orange/file/2024/06/12/1718163370448066.pdf',
         article: `<h4>从登月到月背</h4>
           <p>材料一：阿波罗登月舱接近月面时，预定着陆区已经从舷窗下掠过，前方地形又十分崎岖。宇航员必须在燃料有限的情况下继续寻找平坦区域。登月舱下降、减速，最终在新的地点平稳着陆。地面控制中心一直通过通信了解情况，却无法替宇航员完成现场判断。这个过程显示，复杂探索既依赖事先规划，也依赖面对意外时的即时决策。</p>
+          <p>登月任务由火箭、指令舱和登月舱协同完成。飞船抵达月球轨道后，两名宇航员进入登月舱下降，另一名留在指令舱中。各环节需按顺序衔接，偏差可能影响后续任务。</p>
+          <p>着陆成功是整个系统共同工作的结果，但最后阶段仍需要人在现场处理计划之外的情况。自动程序提供速度、高度和燃料信息，地面团队负责监测并给出建议，宇航员则根据舷窗中的真实地形作出选择。技术系统并未取消人的判断，而是为判断提供条件。</p>
           <p>材料二：月球的自转周期与其绕地球公转的周期相同，因此它总以近乎同一面朝向地球。从地球直接发出的无线电信号难以覆盖月球背面，月背任务需要中继卫星转发探测器与地面的数据。“嫦娥四号”任务为此先建立通信条件，再实施着陆和巡视探测。工程目标不仅是抵达月背，还包括验证深空通信、着陆控制及长期运行等技术。</p>
+          <p>与月球正面相比，月背的直接观测和工程经验更少。中继卫星并非附加设备，而是整项任务的信息通道；只有先解决“看得见、联得上”的问题，地面的指令与月面的数据才能往返。</p>
           <p>材料三：“嫦娥四号”和“玉兔二号”完成月背软着陆与巡视探测后，获得了撞击坑地下结构、月表环境和低温状况等数据。这些成果的价值不只在于“首次”，还在于月背与人类过去频繁探测的月球正面存在不同地质条件，新的观测能够补充对月球形成和演化的认识。与此同时，任务邀请其他国家的科学载荷和研究团队参与，说明重大工程可以具有明确的国家组织能力，也可以形成开放的科学合作。</p>
+          <p>科学数据还需要经过分析才能转化为知识。巡视器获得的雷达、影像和环境数据，要与过去的探测结果及理论模型比较。一次工程成功会回答问题，也会提出新的问题，不能只用纪录数量衡量其意义。</p>
           <p>三则材料采用了不同的叙述方式。第一则以连续动作营造临场感，突出人在突发情境中的判断；第二则解释任务条件和技术链条；第三则从成果、意义与合作角度评价探索。把这些信息联系起来，可以看到科学探索不是一个孤立的“成功时刻”，而是由问题提出、工程准备、现场控制、数据获取和后续解释共同构成的过程。</p>
+          <p>从首次载人登月到月背巡视，人类面对的目标和技术条件不断变化，但探索活动的基本逻辑保持一致：先把未知转化为可研究的问题，再通过工程系统接近目标，最后用证据修正认识。英雄时刻固然醒目，支撑它的却是连续协作、反复验证与长期积累。</p>
           <p class="article-source">依据2024年新课标Ⅱ卷现代文阅读Ⅰ相关材料压缩改写。</p>`,
         questions: [
           ['阿波罗登月事例主要说明，复杂探索活动需要', ['完全放弃事先规划。', '只依靠地面人员远程操作。', '把预先方案与现场即时判断结合起来。', '在燃料耗尽后再寻找着陆地点。'], 'C'],
@@ -1071,20 +1146,95 @@
       $('#consentAgree').checked = false;
       $('#consentConfirmButton').disabled = true;
       $('#consentScreen').classList.remove('hidden');
+      requestAnimationFrame(() => {
+        initializeSignaturePad();
+        clearSignaturePad();
+      });
+    }
+    let signaturePadInitialized = false;
+    let signatureDrawing = false;
+    let signatureHasInk = false;
+    let signatureContext = null;
+    let signaturePoint = null;
+    function clearSignaturePad() {
+      const canvas = $('#signaturePad');
+      if (!canvas || !signatureContext) return;
+      signatureContext.clearRect(0, 0, canvas.width, canvas.height);
+      signatureHasInk = false;
+      signaturePoint = null;
+      updateConsentButton();
+    }
+    function initializeSignaturePad() {
+      const canvas = $('#signaturePad');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      signatureContext = canvas.getContext('2d');
+      signatureContext.scale(ratio, ratio);
+      signatureContext.strokeStyle = '#1f2933';
+      signatureContext.lineWidth = 2.2;
+      signatureContext.lineCap = 'round';
+      signatureContext.lineJoin = 'round';
+      if (signaturePadInitialized) return;
+      const getPoint = event => {
+        const bounds = canvas.getBoundingClientRect();
+        return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+      };
+      canvas.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        canvas.setPointerCapture?.(event.pointerId);
+        signatureDrawing = true;
+        signaturePoint = getPoint(event);
+        signatureHasInk = true;
+        signatureContext.beginPath();
+        signatureContext.arc(signaturePoint.x, signaturePoint.y, 0.7, 0, Math.PI * 2);
+        signatureContext.fillStyle = signatureContext.strokeStyle;
+        signatureContext.fill();
+        updateConsentButton();
+      });
+      canvas.addEventListener('pointermove', event => {
+        if (!signatureDrawing || !signaturePoint) return;
+        const point = getPoint(event);
+        signatureContext.beginPath();
+        signatureContext.moveTo(signaturePoint.x, signaturePoint.y);
+        signatureContext.lineTo(point.x, point.y);
+        signatureContext.stroke();
+        signaturePoint = point;
+      });
+      const stopDrawing = event => {
+        if (event?.pointerId !== undefined && canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+        signatureDrawing = false;
+        signaturePoint = null;
+        updateConsentButton();
+      };
+      canvas.addEventListener('pointerup', stopDrawing);
+      canvas.addEventListener('pointercancel', stopDrawing);
+      $('#signatureClearButton').addEventListener('click', clearSignaturePad);
+      signaturePadInitialized = true;
+    }
+    function getSignatureDataUrl() {
+      return signatureHasInk && $('#signaturePad') ? $('#signaturePad').toDataURL('image/png') : '';
     }
     function collectConsentProfile() {
       const gender = $('#profileGender').value;
       const age = Number($('#profileAge').value);
+      const college = $('#profileCollege').value.trim();
       const major = $('#profileMajor').value.trim();
+      const studentId = $('#profileStudentId').value.trim();
       const smartHomeUse = document.querySelector('input[name="smartHomeUse"]:checked')?.value || '';
       const smartHomeScenes = Array.from(document.querySelectorAll('input[name="smartHomeScenes"]:checked')).map(input => input.value);
       const sceneOther = $('#profileSceneOther').value.trim();
-      const objectAcceptance = document.querySelector('input[name="objectAcceptance"]:checked')?.value || '';
       const appFamiliarity = document.querySelector('input[name="appFamiliarity"]:checked')?.value || '';
+      const automationFamiliarity = document.querySelector('input[name="automationFamiliarity"]:checked')?.value || '';
       const controlMethods = Array.from(document.querySelectorAll('input[name="controlMethods"]:checked')).map(input => input.value);
       const objectNaturalness = document.querySelector('input[name="objectNaturalness"]:checked')?.value || '';
-      if (!gender || !Number.isInteger(age) || age < 18 || !major || !smartHomeUse || !smartHomeScenes.length || !objectAcceptance || !appFamiliarity || !controlMethods.length || !objectNaturalness) return null;
-      return { gender, age, major, smartHomeUse, smartHomeScenes: sceneOther ? smartHomeScenes.map(scene => scene === '其他' ? `其他：${sceneOther}` : scene) : smartHomeScenes, objectAcceptance: Number(objectAcceptance), appFamiliarity: Number(appFamiliarity), controlMethods, objectNaturalness: Number(objectNaturalness) };
+      const objectAcceptance = document.querySelector('input[name="objectAcceptance"]:checked')?.value || '';
+      const signatureDataUrl = getSignatureDataUrl();
+      if (!gender || !Number.isInteger(age) || age < 18 || age > 100 || !college || !major || !studentId || !smartHomeUse || !smartHomeScenes.length || !appFamiliarity || !automationFamiliarity || !controlMethods.length || !objectNaturalness || !objectAcceptance || !signatureDataUrl) return null;
+      return { gender, age, college, major, studentId, smartHomeUse, smartHomeScenes: sceneOther ? smartHomeScenes.map(scene => scene === '其他' ? `其他：${sceneOther}` : scene) : smartHomeScenes, appFamiliarity: Number(appFamiliarity), automationFamiliarity: Number(automationFamiliarity), controlMethods, objectNaturalness: Number(objectNaturalness), objectAcceptance: Number(objectAcceptance), signatureDataUrl };
     }
     function updateConsentButton() {
       $('#consentConfirmButton').disabled = !($('#consentAgree').checked && collectConsentProfile());
@@ -1132,7 +1282,7 @@
       }
       if (!remoteLoaded) config = readConfig();
       save();
-      if (!consents[participantId]?.profile) showConsent();
+      if (consents[participantId]?.version !== 'v3' || !consents[participantId]?.profile?.signatureDataUrl) showConsent();
       else continueAfterParticipantEntry();
     }
     $('#startExperimentButton').addEventListener('click', startExperiment);
@@ -1143,7 +1293,7 @@
     $('#consentConfirmButton').addEventListener('click', () => {
       const profile = collectConsentProfile();
       if (!$('#consentAgree').checked || !profile) return;
-      consents[participantId] = { participantId, version: 'v2', agreedAt: Date.now(), profile };
+      consents[participantId] = { participantId, version: 'v3', agreedAt: Date.now(), profile };
       save();
       continueAfterParticipantEntry();
     });
