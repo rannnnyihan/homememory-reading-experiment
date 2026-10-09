@@ -155,6 +155,35 @@
     });
   }
 
+  function stableSerialize(value) {
+    if (Array.isArray(value)) return `[${value.map(stableSerialize).join(',')}]`;
+    if (value && typeof value === 'object') return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableSerialize(value[key])}`).join(',')}}`;
+    return JSON.stringify(value);
+  }
+
+  async function verifyParticipantWrite(participantId, snapshot) {
+    const expected = stableSerialize({ ...snapshot, participantId: Number(participantId) });
+    let lastError = null;
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      if (attempt) await new Promise(resolve => window.setTimeout(resolve, 1200));
+      let remote;
+      try {
+        remote = await appsScriptGet({ scope: 'participant', participantId, experimentVersion: EXPERIMENT_VERSION });
+      } catch (error) {
+        lastError = error;
+        continue;
+      }
+      if (stableSerialize(remote?.state || {}) === expected) return { ok: true, verified: true };
+      if (Number(remote?.state?.lastModified || 0) > Number(snapshot.lastModified || 0)) {
+        throw new Error('云端已有更新的记录，当前页面停止覆盖；请重新进入该被试。');
+      }
+      if (Math.max(remote?.state?.clearedAt || 0, remote?.config?.clearedAt || 0) > (snapshot.clearedAt || 0)) {
+        throw new Error('云端记录已清空，本页面的旧记录不会再上传；请刷新页面');
+      }
+    }
+    throw new Error(`云端尚未确认本次写入，系统将重试${lastError ? `：${lastError.message}` : ''}`);
+  }
+
   function requireAppsScript() {
     if (!useAppsScript) throw new Error('尚未配置 Google Sheets 数据接口地址');
   }
@@ -185,10 +214,9 @@
               if (Math.max(remote?.state?.clearedAt || 0, remote?.config?.clearedAt || 0) > (snapshot.clearedAt || 0)) {
                 throw new Error('云端记录已清空，本页面的旧记录不会再上传；请刷新页面');
               }
-              return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot });
+              return appsScriptPost({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, clientProtocol: 2, state: snapshot });
             })
-            // 表单提交完成时，Apps Script 已返回写入结果；不要立刻读取
-            // Google Sheets 做短时核验，避免读取延迟造成“未保存”误报。
+            .then(() => verifyParticipantWrite(participantId, snapshot));
         }
         return edgeRequest(API_PATH, { method: 'POST', body: JSON.stringify({ action: 'saveParticipant', participantId, experimentVersion: EXPERIMENT_VERSION, state: snapshot }) });
       });

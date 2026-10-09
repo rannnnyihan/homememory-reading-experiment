@@ -767,7 +767,7 @@
     const consents = state.consents || {};
     let cloudRetryTimer = null;
     let cloudSaveTimer = null;
-    let cloudSaveInFlight = false;
+    let cloudSavePromise = null;
     let cloudSavePending = false;
     // 仅用于当前页面的提交校验，不进入保存载荷或后台数据。
     const completedTaskChecks = new Set();
@@ -796,31 +796,32 @@
     }
     function flushCloudSave() {
       if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return Promise.resolve(false);
-      if (cloudSaveInFlight) {
+      if (cloudSavePromise) {
         cloudSavePending = true;
-        return Promise.resolve(true);
+        return cloudSavePromise;
       }
-      cloudSaveInFlight = true;
-      const payload = getStatePayload();
-      return window.ExperimentAPI.saveParticipant(participantId, payload)
-        .then(() => true)
-        .catch((error) => {
-          if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
-          else scheduleCloudRetry();
-          return false;
-        })
-        .finally(() => {
-          cloudSaveInFlight = false;
-          if (cloudSavePending) {
-            cloudSavePending = false;
-            queueCloudSave(true);
+      cloudSavePromise = (async () => {
+        do {
+          cloudSavePending = false;
+          try {
+            await window.ExperimentAPI.saveParticipant(participantId, getStatePayload());
+          } catch (error) {
+            if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
+            else scheduleCloudRetry();
+            return false;
           }
-        });
+        } while (cloudSavePending);
+        return true;
+      })().finally(() => {
+        cloudSavePromise = null;
+        if (cloudSavePending) queueCloudSave(true);
+      });
+      return cloudSavePromise;
     }
     function queueCloudSave(immediate = false) {
-      if (cloudSaveInFlight) {
+      if (cloudSavePromise) {
         cloudSavePending = true;
-        return Promise.resolve(true);
+        return cloudSavePromise;
       }
       if (cloudSaveTimer) {
         window.clearTimeout(cloudSaveTimer);
@@ -841,7 +842,7 @@
       }, 3000);
     }
     function save({ immediate = false } = {}) {
-      lastModified = Date.now();
+      lastModified = Math.max(Date.now(), lastModified + 1);
       const payload = getStatePayload();
       if (!cloudMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       if (participantId && window.location.protocol !== 'file:' && window.ExperimentAPI) {

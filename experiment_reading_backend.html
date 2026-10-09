@@ -200,7 +200,8 @@
           button.textContent = `正在删除 ${index + 1}/${filled.length}…`;
           await window.ExperimentAPI.saveParticipant(participant, {
             participantId: participant, currentStage: 0, questionnaireMode: 'stage', activeQuestionnaireType: 'FSS',
-            clearedAt, answers: {}, records: {}, starts: {}, questionnaires: {}, questionnaireDrafts: {}, consents: {}
+            clearedAt, lastModified: Math.max(Date.now(), Number(before.states[participant]?.lastModified || 0) + 1),
+            answers: {}, records: {}, starts: {}, questionnaires: {}, questionnaireDrafts: {}, consents: {}
           });
         }
         button.textContent = '正在核验…';
