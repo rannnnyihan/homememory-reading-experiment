@@ -141,6 +141,8 @@
     .record-note { margin-top: 16px; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); opacity: 0; pointer-events: none; background: #22313b; color: #fff; padding: 11px 16px; border-radius: 10px; font-size: 13px; transition: .2s ease; }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .sync-status { position: fixed; right: 16px; bottom: 16px; z-index: 20; padding: 7px 11px; border-radius: 8px; background: #edf3f8; color: #31516a; font-size: 12px; box-shadow: 0 2px 8px #0001; }
+    .sync-status.error { background: #fff0ed; color: #a3291c; }
     .hidden { display: none !important; }
     .setup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--paper); }
     .setup-card { width: min(470px, 100%); padding: 34px; background: #fff; border: 1px solid var(--line); }
@@ -421,8 +423,9 @@
     </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
+  <div class="sync-status" id="syncStatus" role="status" hidden></div>
   <script src="./experiment-deployment-config.js"></script>
-  <script src="./experiment-api.js?build=sync-guard-v2"></script>
+  <script src="./experiment-api.js?build=sync-guard-v3"></script>
   <script>
     const STORAGE_KEY = 'homememory-reading-experiment-v4-reading6-sus';
     const CONFIG_KEY = 'homememory-reading-experiment-config-v4-reading6-sus';
@@ -769,6 +772,7 @@
     let cloudSaveTimer = null;
     let cloudSavePromise = null;
     let cloudSavePending = false;
+    let lastCloudSaveWarningAt = 0;
     // 仅用于当前页面的提交校验，不进入保存载荷或后台数据。
     const completedTaskChecks = new Set();
     const $ = (selector) => document.querySelector(selector);
@@ -794,6 +798,12 @@
     function getStatePayload() {
       return { participantId, currentStage: current, questionnaireMode, activeQuestionnaireType, lastModified, clearedAt, answers, records, starts, questionnaires, questionnaireDrafts, consents };
     }
+    function setSyncStatus(message, error = false) {
+      const status = $('#syncStatus');
+      status.hidden = !participantId;
+      status.textContent = message;
+      status.classList.toggle('error', error);
+    }
     function flushCloudSave() {
       if (!participantId || window.location.protocol === 'file:' || !window.ExperimentAPI) return Promise.resolve(false);
       if (cloudSavePromise) {
@@ -803,14 +813,21 @@
       cloudSavePromise = (async () => {
         do {
           cloudSavePending = false;
+          setSyncStatus('云端同步中…');
           try {
             await window.ExperimentAPI.saveParticipant(participantId, getStatePayload());
           } catch (error) {
+            setSyncStatus('云端尚未保存，正在重试', true);
+            if (Date.now() - lastCloudSaveWarningAt > 30000) {
+              lastCloudSaveWarningAt = Date.now();
+              showToast(error?.message || '云端保存失败，正在重试');
+            }
             if (String(error?.message || '').includes('云端记录已清空')) hydrateRemoteParticipant();
             else scheduleCloudRetry();
             return false;
           }
         } while (cloudSavePending);
+        setSyncStatus('云端已保存');
         return true;
       })().finally(() => {
         cloudSavePromise = null;
