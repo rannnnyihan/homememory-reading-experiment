@@ -159,6 +159,8 @@
     .interaction-guide { display: none; width: 100%; max-height: 280px; object-fit: contain; margin: 16px 0 2px; border: 1px solid var(--line); background: #fff; }
     .interaction-guide.visible { display: block; }
     .completion-card { text-align: center; }
+    .completion-link { border: 0; background: none; color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .completion-link:hover { color: var(--accent-dark); }
     .consent-card { width: min(760px, 100%); max-height: calc(100vh - 48px); overflow: auto; }
     .consent-card h2 { margin-bottom: 18px; }
     .consent-copy { color: #4a4f52; font-size: 13px; line-height: 1.75; }
@@ -281,7 +283,7 @@
         <p>您将完成两篇阅读材料，每篇包含 6 道选择题，并在阅读过程中按提示完成智能设备控制任务。</p>
         <p>每个条件结束后，您将填写 FSS（流畅体验）、NASA-TLX（任务负荷）、UEQ-S（用户体验简版）和 ETAM（技术接受度）问卷，用于评估不同控制方式下您的沉浸程度、主观负荷、使用体验与技术接受度；全部条件完成后，再填写一份整体评价问卷。系统记录阅读用时、答题正确率、问卷选项和任务提交时间。</p>
         <p>本研究不采集生物样本，不涉及医疗检查、诊疗或用药。本网页不采集音频；如实验现场使用视觉识别装置，其用途仅限于实时交互识别，是否保存图像由研究人员在现场另行明确说明。</p>
-        <p>正式实验开始前，您可能还需要使用移动端配置界面，完成有形控制物与目标设备、交互动作及控制功能之间的对应配置，并填写系统可用性问卷（SUS），用于评估该配置界面的可用性。</p>
+        <p>您可能还需要使用移动端配置界面，完成有形控制物与目标设备、交互动作及控制功能之间的对应配置；实验任务完成后，可填写系统可用性问卷（SUS），评价该配置界面。</p>
         <p>全部实验结束后，研究人员会开展一段简短的半结构化访谈，了解您对不同控制方式的使用体验、理解与偏好，以及误触发、识别失败等实际使用问题；访谈内容仅用于研究分析，您的回答不会单独披露。</p>
         <h3>5. 我需要做什么？需要注意什么？</h3>
         <p>您需要依次完成两轮阅读与环境调节任务。每轮开始前，研究人员会说明当前控制方式，并安排必要的练习。</p>
@@ -390,6 +392,8 @@
       <div class="setup-kicker">TASK COMPLETE</div>
       <h2>实验已完成</h2>
       <p>两篇文章和两个实验阶段均已提交。感谢参与。</p>
+      <button type="button" class="completion-link" id="completionSusLink">填写配置界面可用性评分（SUS）</button>
+      <span id="completionSusDone" class="hidden">配置界面可用性评分已提交</span>
     </div>
   </section>
   <section class="setup-screen hidden" id="questionnaireScreen">
@@ -1129,9 +1133,9 @@
       $('#experimentApp').hidden = true;
       $('#questionnaireScreen').classList.remove('hidden');
       if (mode === 'sus') {
-        $('#questionnaireMeta').textContent = '实验开始前 · 配置界面评价';
+        $('#questionnaireMeta').textContent = '实验完成后 · 配置界面评价';
         $('#questionnaireTitle').textContent = '请填写 SUS 系统可用性问卷';
-        $('#questionnaireIntro').textContent = '请根据刚才使用的移动端配置界面作答。提交后进入第一篇阅读任务。';
+        $('#questionnaireIntro').textContent = '请回顾使用移动端配置界面的体验并作答。提交后返回实验完成页。';
       } else if (mode === 'overall') {
         $('#questionnaireMeta').textContent = '两阶段完成后问卷';
         $('#questionnaireTitle').textContent = '请填写最终总体体验问卷';
@@ -1175,8 +1179,7 @@
         };
         delete questionnaireDrafts[key];
         save();
-        $('#questionnaireScreen').classList.add('hidden');
-        $('#completionScreen').classList.remove('hidden');
+        showCompletion();
         showToast('交互组合方式补充问卷已提交，实验完成');
         return;
       }
@@ -1211,10 +1214,7 @@
         return;
       }
       if (questionnaireMode === 'sus') {
-        questionnaireMode = 'stage';
-        activeQuestionnaireType = 'FSS';
-        save();
-        showTaskIntro();
+        showCompletion();
         return;
       }
       if (questionnaireMode === 'stage' && activeQuestionnaireType !== stageQuestionnaireTypes[stageQuestionnaireTypes.length - 1]) {
@@ -1271,6 +1271,17 @@
       });
     }
     function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); }
+    function showCompletion() {
+      $('#setupScreen').classList.add('hidden');
+      $('#consentScreen').classList.add('hidden');
+      $('#taskIntroScreen').classList.add('hidden');
+      $('#questionnaireScreen').classList.add('hidden');
+      $('#experimentApp').hidden = true;
+      const susSubmitted = Boolean(questionnaires[getQuestionnaireKey('SUS')]);
+      $('#completionSusLink').classList.toggle('hidden', susSubmitted);
+      $('#completionSusDone').classList.toggle('hidden', !susSubmitted);
+      $('#completionScreen').classList.remove('hidden');
+    }
     function showTaskIntro() {
       if (!cloudMode) config = readConfig();
       if (current >= STAGE_COUNT) {
@@ -1283,8 +1294,7 @@
         } else if (!questionnaires[getQuestionnaireKey('COMBINATION')]) {
           showQuestionnaire('combination');
         } else {
-          $('#questionnaireScreen').classList.add('hidden');
-          $('#completionScreen').classList.remove('hidden');
+          showCompletion();
         }
         return;
       }
@@ -1422,11 +1432,6 @@
       $('#consentConfirmButton').disabled = !($('#consentAgree').checked && collectConsentProfile());
     }
     function continueAfterParticipantEntry() {
-      if (!questionnaires[getQuestionnaireKey('SUS')]) {
-        current = 0;
-        showQuestionnaire('sus');
-        return;
-      }
       const firstIncomplete = getFirstIncompleteStage();
       if (firstIncomplete === undefined) {
         current = STAGE_COUNT;
@@ -1435,8 +1440,8 @@
         } else if (!questionnaires[getQuestionnaireKey('COMBINATION')]) {
           showQuestionnaire('combination');
         } else {
-          $('#setupScreen').classList.add('hidden');
-          $('#completionScreen').classList.remove('hidden');
+          if (questionnaireMode === 'sus' && !questionnaires[getQuestionnaireKey('SUS')]) showQuestionnaire('sus');
+          else showCompletion();
         }
         return;
       }
@@ -1478,6 +1483,7 @@
     }
     $('#startExperimentButton').addEventListener('click', startExperiment);
     $('#beginTaskButton').addEventListener('click', beginTask);
+    $('#completionSusLink').addEventListener('click', () => showQuestionnaire('sus'));
     $('#consentAgree').addEventListener('change', updateConsentButton);
     document.querySelectorAll('#consentScreen input, #consentScreen select').forEach(input => input.addEventListener('input', updateConsentButton));
     document.querySelectorAll('#consentScreen input[type="radio"], #consentScreen input[type="checkbox"]').forEach(input => input.addEventListener('change', updateConsentButton));
