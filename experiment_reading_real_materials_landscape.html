@@ -283,7 +283,7 @@
         <p>您将完成两篇阅读材料，每篇包含 6 道选择题，并在阅读过程中按提示完成智能设备控制任务。</p>
         <p>每个条件结束后，您将填写 FSS（流畅体验）、NASA-TLX（任务负荷）、UEQ-S（用户体验简版）和 ETAM（技术接受度）问卷，用于评估不同控制方式下您的沉浸程度、主观负荷、使用体验与技术接受度；全部条件完成后，再填写一份整体评价问卷。系统记录阅读用时、答题正确率、问卷选项和任务提交时间。</p>
         <p>本研究不采集生物样本，不涉及医疗检查、诊疗或用药。本网页不采集音频；如实验现场使用视觉识别装置，其用途仅限于实时交互识别，是否保存图像由研究人员在现场另行明确说明。</p>
-        <p>您可能还需要使用移动端配置界面，完成有形控制物与目标设备、交互动作及控制功能之间的对应配置；实验任务完成后，可填写系统可用性问卷（SUS），评价该配置界面。</p>
+        <p>您可能还需要使用移动端配置界面，完成有形控制物与目标设备、交互动作及控制功能之间的对应配置；实验任务完成后，可填写系统可用性问卷（SUS），评价实体控制方式。</p>
         <p>全部实验结束后，研究人员会开展一段简短的半结构化访谈，了解您对不同控制方式的使用体验、理解与偏好，以及误触发、识别失败等实际使用问题；访谈内容仅用于研究分析，您的回答不会单独披露。</p>
         <h3>5. 我需要做什么？需要注意什么？</h3>
         <p>您需要依次完成两轮阅读与环境调节任务。每轮开始前，研究人员会说明当前控制方式，并安排必要的练习。</p>
@@ -392,8 +392,8 @@
       <div class="setup-kicker">TASK COMPLETE</div>
       <h2>实验已完成</h2>
       <p>两篇文章和两个实验阶段均已提交。感谢参与。</p>
-      <button type="button" class="completion-link" id="completionSusLink">填写配置界面可用性评分（SUS）</button>
-      <span id="completionSusDone" class="hidden">配置界面可用性评分已提交</span>
+      <button type="button" class="completion-link" id="completionSusLink">填写实体控制可用性评分（SUS）</button>
+      <span id="completionSusDone" class="hidden">实体控制可用性评分已提交</span>
     </div>
   </section>
   <section class="setup-screen hidden" id="questionnaireScreen">
@@ -461,7 +461,7 @@
     };
     const stageQuestionnaireTypes = ['FSS', 'NASA', 'UEQS', 'ETAM'];
     const questionnaireDefinitions = {
-      SUS: { title: 'SUS｜系统可用性量表', description: '请根据刚才使用的移动端配置界面作答。1 = 非常不同意，5 = 非常同意。', scale: 'likert5', items: ['我认为，在有配置需求时，我会愿意使用这个配置界面。', '我觉得这个配置界面过于复杂。', '我认为这个配置界面容易使用。', '我认为我需要技术人员的帮助，才能使用这个配置界面。', '我发现这个配置界面的各项功能整合得很好。', '我觉得这个配置界面存在太多不一致的地方。', '我认为大多数人能够很快学会使用这个配置界面。', '我觉得这个配置界面使用起来很笨拙。', '我在使用这个配置界面时感到很有信心。', '我认为在使用这个配置界面之前，需要学习很多内容。'] },
+      SUS: { title: 'SUS｜实体控制可用性量表', description: '请根据刚才使用实体控制方式的体验作答。1 = 非常不同意，5 = 非常同意。', scale: 'likert5', items: ['我认为，在有环境调节需求时，我会愿意使用这种实体控制方式。', '我觉得这种实体控制方式过于复杂。', '我认为这种实体控制方式容易使用。', '我认为我需要技术人员的帮助，才能使用这种实体控制方式。', '我发现这种实体控制方式的各项功能整合得很好。', '我觉得这种实体控制方式存在太多不一致的地方。', '我认为大多数人能够很快学会使用这种实体控制方式。', '我觉得这种实体控制方式使用起来很笨拙。', '我在使用这种实体控制方式时感到很有信心。', '我认为在使用这种实体控制方式之前，需要学习很多内容。'] },
       FSS: {
         title: 'FSS｜任务流畅感与沉浸体验',
         description: '请根据刚才这一篇阅读任务的整体体验评分。1 = 非常不同意，7 = 非常同意。',
@@ -1133,9 +1133,9 @@
       $('#experimentApp').hidden = true;
       $('#questionnaireScreen').classList.remove('hidden');
       if (mode === 'sus') {
-        $('#questionnaireMeta').textContent = '实验完成后 · 配置界面评价';
-        $('#questionnaireTitle').textContent = '请填写 SUS 系统可用性问卷';
-        $('#questionnaireIntro').textContent = '请回顾使用移动端配置界面的体验并作答。提交后返回实验完成页。';
+        $('#questionnaireMeta').textContent = '实验完成后 · 实体控制评价';
+        $('#questionnaireTitle').textContent = '请填写 SUS 实体控制可用性问卷';
+        $('#questionnaireIntro').textContent = '请回顾使用实体控制方式的体验并作答。提交后返回实验完成页。';
       } else if (mode === 'overall') {
         $('#questionnaireMeta').textContent = '两阶段完成后问卷';
         $('#questionnaireTitle').textContent = '请填写最终总体体验问卷';
