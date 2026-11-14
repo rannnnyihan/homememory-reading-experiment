@@ -26,6 +26,7 @@
     .backend-tab { min-width: 150px; padding: 0 18px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; }
     .backend-tab:hover { color: var(--blue); background: #f5f9fd; } .backend-tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
     .hidden { display: none !important; }
+    .cloud-read-warning { margin: 0 0 18px; padding: 12px 15px; border: 1px solid #e7c16b; background: #fff8e5; color: #765400; font-size: 13px; line-height: 1.6; }
     .section { margin-top: 18px; background: #fff; border: 1px solid var(--line); } .section-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 18px; border-bottom: 1px solid var(--line); } .section-head h3 { margin: 0; font-size: 16px; font-weight: 600; } .section-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; } .section-body { padding: 18px; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; } th, td { padding: 12px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; white-space: nowrap; } th { background: #f5f6f7; color: var(--muted); font-size: 12px; font-weight: 600; } tr:last-child td { border-bottom: 0; }
     select { min-width: 150px; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px; background: #fff; color: var(--ink); } select:focus { outline: 2px solid #8fbbe4; border-color: var(--blue); }
@@ -46,19 +47,20 @@
 <body>
   <header class="topbar"><div class="brand"><h1>阅读理解实验</h1><span class="separator">/</span><span class="label">实验后台</span></div><div class="top-actions"><button class="button danger" id="clearAllButton">清空全部记录</button><button class="button" id="refreshButton">刷新数据</button><button class="button primary" id="saveButton">保存实验设置</button></div></header>
   <main>
+    <div class="cloud-read-warning hidden" id="cloudReadWarning" role="status"></div>
     <div class="page-title"><h2>实验配置与记录</h2><p>配置实验顺序，并分别查看阅读答题数据与问卷原始响应。</p></div>
     <nav class="backend-tabs" aria-label="后台模块"><button class="backend-tab active" data-panel="participantPanel">被试管理</button><button class="backend-tab" data-panel="consentPanel">知情信息</button><button class="backend-tab" data-panel="readingPanel">阅读答题记录</button><button class="backend-tab" data-panel="questionnairePanel">问卷原始数据</button></nav>
     <div id="participantPanel">
-      <section class="section"><div class="section-head"><div><h3>34 位被试的实验顺序</h3><p>默认按 GUI→TUI 与 TUI→GUI 两种平衡顺序循环，各分配 17 位被试；管理员也可以逐格调整。</p></div><div class="actions"><button class="button" id="resetLatinButton">恢复平衡顺序</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>知情同意与基本信息</small><strong id="consentMetric">0 / 34</strong><div class="consent-progress"><span id="consentProgressBar" style="width: 0%"></span></div></div></div><div class="schedule-wrap"><table class="schedule-table"><thead><tr><th>被试</th><th>第 1 阶段</th><th>第 2 阶段</th><th>完成状态</th><th>知情同意</th></tr></thead><tbody id="scheduleRows"></tbody></table></div><p class="hint">“已完成”表示该阶段的阅读答题和 FSS、NASA-TLX、UEQ-S、ETAM 四组问卷均已提交；SUS 为实验开始前的独立配置界面可用性评价。</p></div></section>
+      <section class="section"><div class="section-head"><div><h3>35 位被试的实验顺序</h3><p>默认按 GUI→TUI 与 TUI→GUI 两种平衡顺序循环；管理员也可以逐格调整。</p></div><div class="actions"><button class="button" id="resetLatinButton">恢复平衡顺序</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>知情同意与基本信息</small><strong id="consentMetric">0 / 35</strong><div class="consent-progress"><span id="consentProgressBar" style="width: 0%"></span></div></div></div><div class="schedule-wrap"><table class="schedule-table"><thead><tr><th>被试</th><th>第 1 阶段</th><th>第 2 阶段</th><th>完成状态</th><th>知情同意</th></tr></thead><tbody id="scheduleRows"></tbody></table></div><p class="hint">“已完成”表示该阶段的阅读答题和 FSS、NASA-TLX、UEQ-S、ETAM 四组问卷均已提交；SUS 为实验开始前的独立配置界面可用性评价。</p></div></section>
     </div>
     <div id="consentPanel" class="hidden">
       <section class="section"><div class="section-head"><div><h3>知情同意与参与者信息</h3><p>查看被试确认的知情同意、基本信息和电子签名；电子签名仅用于本研究的同意确认。</p></div><div class="actions"><button class="button primary" id="exportConsentButton">导出知情信息 CSV</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>已完成知情同意</small><strong id="consentDetailMetric">0 / 33</strong></div></div><div class="results-wrap"><table><thead id="consentHead"></thead><tbody id="consentRows"></tbody></table></div></div></section>
     </div>
     <div id="readingPanel" class="hidden">
-      <section class="section"><div class="section-head"><div><h3>阅读答题记录</h3><p>只记录阅读任务的开始时间、提交时间、完成用时和正确率。</p></div><div class="actions"><button class="button primary" id="exportReadingButton">导出阅读 CSV</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>已提交文章</small><strong id="readingCountMetric">0 / 68</strong></div><div class="metric"><small>平均完成用时</small><strong id="durationMetric">—</strong></div><div class="metric"><small>平均正确率</small><strong id="accuracyMetric">—</strong></div><div class="metric"><small>已完成被试</small><strong id="participantDoneMetric">0 / 34</strong></div></div><div class="results-wrap"><table><thead><tr><th>顺序编号</th><th>被试</th><th>阶段</th><th>实验方式</th><th>文章</th><th>开始时间</th><th>提交时间</th><th>完成用时</th><th>正确率</th></tr></thead><tbody id="readingRows"></tbody></table></div></div></section>
+      <section class="section"><div class="section-head"><div><h3>阅读答题记录</h3><p>只记录阅读任务的开始时间、提交时间、完成用时和正确率。</p></div><div class="actions"><button class="button primary" id="exportReadingButton">导出阅读 CSV</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>已提交文章</small><strong id="readingCountMetric">0 / 70</strong></div><div class="metric"><small>平均完成用时</small><strong id="durationMetric">—</strong></div><div class="metric"><small>平均正确率</small><strong id="accuracyMetric">—</strong></div><div class="metric"><small>已完成被试</small><strong id="participantDoneMetric">0 / 35</strong></div></div><div class="results-wrap"><table><thead><tr><th>顺序编号</th><th>被试</th><th>阶段</th><th>实验方式</th><th>文章</th><th>开始时间</th><th>提交时间</th><th>完成用时</th><th>正确率</th></tr></thead><tbody id="readingRows"></tbody></table></div></div></section>
     </div>
     <div id="questionnairePanel" class="hidden">
-      <section class="section"><div class="section-head"><div><h3>问卷原始数据</h3><p>按问卷分类查看；横向列出序号和每个具体题目，保留原始响应值。</p></div><div class="actions"><button class="button primary" id="exportQuestionnaireButton">导出当前问卷 CSV</button><button class="button" id="exportAllQuestionnaireButton">导出全部问卷 CSV</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>阶段问卷（FSS/NASA/UEQ-S/ETAM）</small><strong id="stageQuestionnaireMetric">0 / 272</strong></div><div class="metric"><small>ETAM 阶段问卷</small><strong id="etamMetric">0 / 68</strong></div><div class="metric"><small>已提交问卷总数</small><strong id="questionnaireTotalMetric">0</strong></div><div class="metric"><small>已完成被试</small><strong id="questionnaireDoneMetric">0 / 34</strong></div></div><nav class="questionnaire-tabs" aria-label="问卷分类"><button class="questionnaire-tab" data-questionnaire-type="SUS">SUS（10题）</button><button class="questionnaire-tab active" data-questionnaire-type="FSS">FSS（10题）</button><button class="questionnaire-tab" data-questionnaire-type="NASA">NASA-TLX（6题）</button><button class="questionnaire-tab" data-questionnaire-type="UEQS">UEQ-S（8题）</button><button class="questionnaire-tab" data-questionnaire-type="ETAM">ETAM（12题）</button><button class="questionnaire-tab" data-questionnaire-type="OVERALL">总体评价（8题）</button><button class="questionnaire-tab" data-questionnaire-type="COMBINATION">交互组合方案</button></nav><div class="results-wrap"><table class="questionnaire-table"><thead id="questionnaireHead"></thead><tbody id="questionnaireRows"></tbody></table></div></div></section>
+      <section class="section"><div class="section-head"><div><h3>问卷原始数据</h3><p>按问卷分类查看；横向列出序号和每个具体题目，保留原始响应值。</p></div><div class="actions"><button class="button primary" id="exportQuestionnaireButton">导出当前问卷 CSV</button><button class="button" id="exportAllQuestionnaireButton">导出全部问卷 CSV</button></div></div><div class="section-body"><div class="metric-grid"><div class="metric"><small>阶段问卷（FSS/NASA/UEQ-S/ETAM）</small><strong id="stageQuestionnaireMetric">0 / 280</strong></div><div class="metric"><small>ETAM 阶段问卷</small><strong id="etamMetric">0 / 70</strong></div><div class="metric"><small>已提交问卷总数</small><strong id="questionnaireTotalMetric">0</strong></div><div class="metric"><small>已完成被试</small><strong id="questionnaireDoneMetric">0 / 35</strong></div></div><nav class="questionnaire-tabs" aria-label="问卷分类"><button class="questionnaire-tab" data-questionnaire-type="SUS">SUS（10题）</button><button class="questionnaire-tab active" data-questionnaire-type="FSS">FSS（10题）</button><button class="questionnaire-tab" data-questionnaire-type="NASA">NASA-TLX（6题）</button><button class="questionnaire-tab" data-questionnaire-type="UEQS">UEQ-S（8题）</button><button class="questionnaire-tab" data-questionnaire-type="ETAM">ETAM（12题）</button><button class="questionnaire-tab" data-questionnaire-type="OVERALL">总体评价（8题）</button><button class="questionnaire-tab" data-questionnaire-type="COMBINATION">交互组合方案</button></nav><div class="results-wrap"><table class="questionnaire-table"><thead id="questionnaireHead"></thead><tbody id="questionnaireRows"></tbody></table></div></div></section>
     </div>
   </main>
   <div class="toast" id="toast" role="status"></div>
@@ -67,7 +69,7 @@
   <script>
     const CONFIG_KEY = 'homememory-reading-experiment-config-v4-reading6-sus';
     const STORAGE_KEY = 'homememory-reading-experiment-v4-reading6-sus';
-    const PARTICIPANT_COUNT = 34;
+    const PARTICIPANT_COUNT = 35;
     const STAGE_COUNT = 2;
     const materials = ['传统如何进入新诗', '一粒藜麦与“竞争性真相”'];
     const conditions = ['app', 'tui'];
@@ -137,8 +139,13 @@
         remoteExperimentState = nextRemoteState;
         config = remoteConfig;
         render();
-      } catch (_) {
-        showToast('云端数据读取失败，当前显示本机缓存');
+        const damaged = Object.keys(remote.readErrors || {});
+        $('#cloudReadWarning').classList.toggle('hidden', damaged.length === 0);
+        $('#cloudReadWarning').textContent = damaged.length ? `被试 ${damaged.join('、')} 的记录需要检查；其余被试的云端数据已显示。` : '';
+      } catch (error) {
+        $('#cloudReadWarning').classList.remove('hidden');
+        $('#cloudReadWarning').textContent = `云端读取暂时失败，当前保留上一次成功读取的数据。${error.message || ''}`;
+        showToast('云端数据读取失败，请稍后刷新数据');
       } finally {
         refreshInFlight = false;
       }
