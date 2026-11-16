@@ -75,6 +75,8 @@
     .panel-head p { display: none; }
     .source-body, .questions-body { overflow: auto; height: calc(100% - 86px); }
     .source-body { padding: 28px 42px 42px; background: #fff; }
+    .reading-status-float { position: sticky; top: 12px; z-index: 3; display: flex; justify-content: center; margin: 0 0 24px; padding: 10px; border: 1px solid #26313a; border-radius: 12px; background: #050505; box-shadow: 0 8px 22px rgba(19, 37, 45, .18); }
+    .reading-status-float img { display: block; width: min(100%, 562px); height: auto; border-radius: 5px; }
     .source-card { border: 1px solid #c9dbe0; border-radius: 16px; background: linear-gradient(135deg, #eef7f8, #fff); padding: 20px; }
     .source-kicker { display: inline-flex; gap: 7px; align-items: center; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
     .source-card h3 { margin: 18px 0 5px; font-size: 27px; letter-spacing: -.04em; }
@@ -982,7 +984,7 @@
     function renderSource() {
       const m = materials[getCurrentMaterialIndex()];
       $('#sourceHeading').textContent = m.title;
-      $('#sourceBody').innerHTML = `<div class="article-reading">${m.article}</div>`;
+      $('#sourceBody').innerHTML = `<div class="reading-status-float" aria-label="当前办公场景状态"><img src="./assets/reading-scene-status.png" alt="办公场景：当前选择台灯" /></div><div class="article-reading">${m.article}</div>`;
     }
     function renderQuestions() {
       const materialIndex = getCurrentMaterialIndex();
