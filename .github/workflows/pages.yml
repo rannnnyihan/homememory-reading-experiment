@@ -30,6 +30,7 @@ jobs:
           cp assets/experiment-groups/*.png _site/assets/experiment-groups/
           mkdir -p _site/assets/interaction-combinations
           cp assets/interaction-combinations/*.png _site/assets/interaction-combinations/
+          cp assets/reading-scene-status.png _site/assets/reading-scene-status.png
           cp experiment-api.js _site/experiment-api.v2.js
           cp experiment-api.js _site/experiment-api.v3.js
           cp experiment-api.js _site/experiment-api.v4.js
