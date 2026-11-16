@@ -39,7 +39,7 @@
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
       gap: 20px; height: 56px; padding: 0 20px; margin: 0;
-      background: #fff; border-bottom: 1px solid var(--line);
+      position: relative; background: #fff; border-bottom: 1px solid var(--line);
     }
     .brand { display: flex; align-items: center; gap: 10px; }
     h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
@@ -52,6 +52,8 @@
     }
     .progress strong { display: block; color: var(--accent-dark); font-size: 15px; font-weight: 600; }
     .progress span { display: none; }
+    .top-scene-status { position: absolute; top: 0; left: 50%; z-index: 5; width: min(32vw, 562px); transform: translateX(-50%); padding: 0; border-radius: 0 0 10px 10px; background: #050505; box-shadow: 0 8px 22px rgba(19, 37, 45, .22); overflow: hidden; }
+    .top-scene-status img { display: block; width: 100%; height: auto; }
     .tabs {
       display: flex; gap: 0; max-width: none; height: 48px; margin: 0;
       overflow-x: auto; padding: 0 20px; background: #fff; border-bottom: 1px solid var(--line);
@@ -414,6 +416,7 @@
         <span class="brand-separator">/</span>
         <span class="brand-label">实验任务</span>
       </div>
+      <div class="top-scene-status" aria-label="当前办公场景状态"><img src="./assets/reading-scene-status.png" alt="办公场景：当前选择台灯" /></div>
       <div class="top-actions"><div class="progress" aria-live="polite"><strong id="progressText">0 / 6</strong></div></div>
     </header>
     <nav class="tabs" id="tabs" aria-label="阅读材料切换"></nav>
@@ -984,7 +987,7 @@
     function renderSource() {
       const m = materials[getCurrentMaterialIndex()];
       $('#sourceHeading').textContent = m.title;
-      $('#sourceBody').innerHTML = `<div class="reading-status-float" aria-label="当前办公场景状态"><img src="./assets/reading-scene-status.png" alt="办公场景：当前选择台灯" /></div><div class="article-reading">${m.article}</div>`;
+      $('#sourceBody').innerHTML = `<div class="article-reading">${m.article}</div>`;
     }
     function renderQuestions() {
       const materialIndex = getCurrentMaterialIndex();
